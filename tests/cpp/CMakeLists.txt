@@ -1,0 +1,5 @@
+add_executable(quic_core_tests test_core.cpp)
+target_link_libraries(quic_core_tests PRIVATE quic_core)
+target_compile_definitions(quic_core_tests PRIVATE QUIC_WITH_OPENSSL=1)
+target_compile_options(quic_core_tests PRIVATE -Wall -Wextra -Wpedantic)
+add_test(NAME quic_core_tests COMMAND quic_core_tests)
