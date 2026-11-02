@@ -2,6 +2,10 @@
 
 This repository is being rebuilt around the Project 2 research question: where do deployed TLS fingerprints stop being useful, and why? The custom systems component targets QUIC v1 Initial packet processing in C++20. Python is reserved for experiment-manifest validation, orchestration, and evaluation. Existing JA4+/tshark implementations remain independent reference tools.
 
+## Team reading guide
+
+Start with [`docs/reading-guide.md`](docs/reading-guide.md) for the concepts and RFC sections behind the QUIC extractor, fingerprint families, passive visibility, and the seven limitation experiments.
+
 ## Current implementation status
 
 Implemented in this first increment:
