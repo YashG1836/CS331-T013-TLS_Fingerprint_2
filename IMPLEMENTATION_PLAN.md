@@ -4,7 +4,7 @@
 **Plan status:** execution baseline; update decisions only with team agreement and recorded evidence.  
 **Schedule basis:** the 15-workday schedule supplied by the team runs 26 October–12 November 2026, with 13 November as a buffer. As of 2 November 2026, the schedule reaches Day 7. A date in the schedule is not evidence that its task was completed; record completion and evidence separately.
 
-This plan turns the approved proposal and working plan into an engineering sequence. The objective is a defensible measurement study, not a replacement for every existing fingerprinting tool. The custom implementation is a QUIC v1 extraction path; established tools remain independent references.
+This plan turns the approved proposal and working plan into an engineering sequence. The central objective is to investigate practical TLS-fingerprinting problems in real network conditions, support claims with reproducible captures, and then develop and evaluate an original project contribution addressing at least one confirmed problem. The custom QUIC v1 extractor is a candidate research instrument and depth dive—not, by itself, a novel solution. Existing tools remain comparison targets; their capabilities and shared dependencies must be verified rather than assumed.
 
 ## 1. Research outcomes
 
@@ -25,18 +25,29 @@ Document JA3, JA3S, JA4, JA4S, JA4T, JA4X, and JA4H. For each, record:
 
 ### B. Seven evidence-backed limitations
 
-Investigate the seven limitation hypotheses in §6. A row is not a finding until it has a real committed capture, a reproducible command, exact tool/configuration metadata, an observed result, and a protocol-level explanation with RFC section citations.
+Investigate the seven limitation hypotheses in §6, subject to the approved project scope. Each row needs a real committed capture, a reproducible command, exact tool/configuration metadata, an observed result, and a protocol-level explanation with RFC section citations. Predictions stay labelled as hypotheses until the evidence is collected. If a limitation is removed, replaced, or combined, record the reason and obtain the required instructor/team approval rather than silently changing the approved count.
 
 **Target file:** `LEDGER.md`, linked to capture records in `corpus/manifest.json` and generated evaluation outputs. Simulations must be explicitly labelled and must not be presented as observed deployments.
 
-### C. Two depth dives
+### C. Two depth dives and a solution
 
-1. **QUIC extraction:** recover a complete TLS ClientHello from QUIC Initial packets, validate the extracted bytes independently, then validate a QUIC-aware JA4 construction against an independent implementation.
-2. **Passive visibility:** measure the information JA4S and JA4X add when required secrets are available, and identify which signals remain available to a passive tap without keys.
+1. **QUIC investigation:** establish what pinned existing tools can and cannot recover from QUIC captures; implement/test the v1 Initial extraction path; validate recovered bytes independently; then evaluate any observed tool or capture-condition gap.
+2. **Passive visibility:** measure what JA4S/JA4X add when the necessary plaintext is available, and classify what a passive tap can observe without secrets.
+3. **Original solution selection:** after the limitation evidence and baselines are reviewed, select at least one confirmed problem with an unresolved practical aspect. Develop a project-original technical contribution and compare it against the relevant existing approach on the same evidence. Do not declare the QUIC extractor itself novel merely because it is custom C++ or implements RFC-defined Initial decryption.
+
+The contribution should be original to this project and supported by a state-of-the-art/tool check; do not claim that no one has ever solved the problem unless that broader claim has actually been established.
 
 ### D. Reproducible evaluation
 
 A clean checkout should build the C++ component, run C++ and Python tests, validate the manifest, run the declared analyses, and regenerate any printed values from committed evidence. The report is not the source of measured numbers.
+
+### Two-phase research logic
+
+**Phase 1 — investigate first:** establish the baseline with pinned tools; identify where a limitation occurs; determine whether its cause is protocol behaviour, implementation/tool coverage, or capture/network conditions; and quantify its effect on extraction, fingerprint values, stability, visibility, or attribution. The finding must come from measured evidence, not from the hypothesis alone.
+
+**Phase 2 — contribute and evaluate:** choose a confirmed gap after Phase 1, explain why existing approaches are insufficient for that case, implement a project-original response, and evaluate it against the baseline on the same captures. Reimplementing an RFC mechanism may be necessary infrastructure, but it is not sufficient by itself to claim a research contribution.
+
+QUIC remains the required investigation/depth-dive focus from the project brief. The specific original solution should still be chosen from the measured gaps; if the solution is a QUIC improvement, its contribution must be demonstrated beyond basic RFC-compliant Initial decryption.
 
 ## 2. Language and tool decisions
 
@@ -173,7 +184,7 @@ Report only failures actually tested or observed. Potential categories include u
 
 | ID | Question / hypothesis | Required evidence |
 |---|---|---|
-| L1 — QUIC ClientHello visibility | What do existing tools recover from QUIC Initial, and what does custom extraction add? | QUIC capture; tool outputs on identical bytes; decrypted ClientHello; byte-level comparison; reproduction command and tested failure cases. |
+| L1 — QUIC tool coverage | QUIC Initial protection is not, by itself, a passive-observer confidentiality barrier: v1 Initial secrets are derivable from public protocol inputs. Which pinned tools actually extract and fingerprint the ClientHello, and where is a measured gap? | QUIC capture; pinned tool outputs on identical bytes; recovered ClientHello; byte-level comparison; exact reproduction command and tested failure cases. Treat unsupported behavior as a tool limitation only after reproducing it. |
 | L2 — Passive JA4X/JA4H visibility | What changes when the same analysis has TLS secrets versus no secrets? | Matched traffic/capture metadata, with-key and without-key outputs, tool versions, and explanation of which layer is encrypted. |
 | L3 — Capture vantage point | Which TCP/network values belong to the endpoint, relay, or proxy? | Matched client/relay/proxy captures; SYN evidence; interface, NAT, offload, MTU, and path metadata. |
 | L4 — Large hybrid key shares | Does the selected client actually offer/negotiate a hybrid group, and which lengths/fingerprint fields change? | Paired captures; group negotiation proof; ClientHello sizes, packet counts, and fingerprint comparisons. |
@@ -246,6 +257,7 @@ This reproduces the supplied 15-workday schedule. Task completion must be record
 | Reassembly | Out-of-order/equal overlap/conflicting overlap/gap/size-limit cases are tested. |
 | TLS parser | Complete valid ClientHello parses; truncation, inconsistent lengths, and malformed vectors fail safely. |
 | JA4 integration | QUIC-specific construction matches independent specification/reference fields. |
+| Original solution | Addresses a confirmed, practically unresolved gap; compared with a pinned baseline on the same captures using predeclared success metrics, with improvements and regressions reported. |
 | Experiment harness | Manifest and failure paths validated; outputs regenerate from corpus. |
 | Corpus and ledger | Every reported limitation has committed capture, exact command, metadata, observation, and RFC section. |
 | Clean reproduction | Build, tests, check, and evaluation work from a clean clone on a second machine. |
@@ -285,4 +297,4 @@ Use AddressSanitizer and UndefinedBehaviorSanitizer where supported. Test malfor
 
 The repository checkpoint currently contains the beginnings of the C++ v1 long-header, Initial-key, frame, reassembly, and ClientHello path plus Python manifest validation. The corpus is empty, so no limitation has an experimental result yet. The full OpenSSL-dependent build/decryption test still needs to be run on a machine with CMake and OpenSSL 3 development headers. The C++ test runner is currently dependency-light rather than GoogleTest; that remains a plan-vs-code gap to resolve explicitly.
 
-**Next action for the team:** first build and test the checkpoint using the commands in `README.md`; then P1 should establish the QUIC reference baseline from a real capture before extending the parser. Record the test output and tool/capture versions in the repository. Do not describe an acceptance gate as passed until the evidence exists.
+**Next action for the team:** first build and test the checkpoint using the commands in `README.md`; then establish the QUIC reference baseline from a real capture using pinned tools before extending the parser. Record test output and tool/capture versions in the repository. Review the measured limitations before selecting the original solution. Do not describe an acceptance gate as passed until the evidence exists, and do not present RFC-defined Initial decryption alone as the novel contribution.
