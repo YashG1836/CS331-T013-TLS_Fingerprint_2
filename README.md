@@ -33,6 +33,7 @@ On Debian/Ubuntu, install CMake, a C++ compiler, `libssl-dev`, and pytest.
 ## Commands
 
 ```sh
+make preflight             # record available tools, versions, capture interfaces, TShark fields
 make build                 # CMake configure and C++ build
 make test                  # C++ tests and Python tests
 make check                 # validate captures/manifest references

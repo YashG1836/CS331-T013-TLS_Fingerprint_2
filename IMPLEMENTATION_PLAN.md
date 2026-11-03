@@ -182,6 +182,7 @@ Encrypted DNS belongs in attribution analysis: it does not automatically change 
 The command surface should be:
 
 ```sh
+make preflight # record tool versions, capture interfaces, and TShark fields
 make build     # configure and build C++
 make test      # C++ tests and pytest suite
 make check     # validate manifest, evidence references, and invariants
