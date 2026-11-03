@@ -1,0 +1,153 @@
+{
+ "tshark_client_hellos": [
+  {
+   "frame.number": "2",
+   "tls.handshake.extensions_server_name": "cloudflare-ech.com",
+   "tls.handshake.ja3": "bb32319bd06407e068e986d1ee71e22f",
+   "tls.handshake.ja4": "q13d0312h3_55b375c5d22e_178839b6cec1",
+   "tls.handshake.length": "1881",
+   "tcp.segment.count": "",
+   "quic.crypto.fragment.count": "20",
+   "tls.ech.client_hello_type": "0"
+  },
+  {
+   "frame.number": "29",
+   "tls.handshake.extensions_server_name": "cloudflare-ech.com",
+   "tls.handshake.ja3": "05c8c6d536fa0fc4f202b442f9112502",
+   "tls.handshake.ja4": "q13d0312h3_55b375c5d22e_178839b6cec1",
+   "tls.handshake.length": "1887",
+   "tcp.segment.count": "",
+   "quic.crypto.fragment.count": "21",
+   "tls.ech.client_hello_type": "0"
+  },
+  {
+   "frame.number": "57",
+   "tls.handshake.extensions_server_name": "cloudflare-ech.com",
+   "tls.handshake.ja3": "71d3442a99d8f1e78b1aa96520507e81",
+   "tls.handshake.ja4": "q13d0312h3_55b375c5d22e_178839b6cec1",
+   "tls.handshake.length": "1887",
+   "tcp.segment.count": "",
+   "quic.crypto.fragment.count": "10",
+   "tls.ech.client_hello_type": "0"
+  },
+  {
+   "frame.number": "84",
+   "tls.handshake.extensions_server_name": "cloudflare-ech.com",
+   "tls.handshake.ja3": "a0676cce1b101911c8aea4abba79e0db",
+   "tls.handshake.ja4": "q13d0312h3_55b375c5d22e_178839b6cec1",
+   "tls.handshake.length": "1876",
+   "tcp.segment.count": "",
+   "quic.crypto.fragment.count": "15",
+   "tls.ech.client_hello_type": "0"
+  },
+  {
+   "frame.number": "113",
+   "tls.handshake.extensions_server_name": "cloudflare-ech.com",
+   "tls.handshake.ja3": "7cd00e8cb7fcf335dc89264798a71924",
+   "tls.handshake.ja4": "q13d0312h3_55b375c5d22e_178839b6cec1",
+   "tls.handshake.length": "1880",
+   "tcp.segment.count": "",
+   "quic.crypto.fragment.count": "15",
+   "tls.ech.client_hello_type": "0"
+  }
+ ],
+ "tshark_server_hellos": [
+  {
+   "frame.number": "4",
+   "tls.handshake.extensions_key_share_group": "4588"
+  },
+  {
+   "frame.number": "31",
+   "tls.handshake.extensions_key_share_group": "4588"
+  },
+  {
+   "frame.number": "59",
+   "tls.handshake.extensions_key_share_group": "4588"
+  },
+  {
+   "frame.number": "87",
+   "tls.handshake.extensions_key_share_group": "4588"
+  },
+  {
+   "frame.number": "115",
+   "tls.handshake.extensions_key_share_group": "4588"
+  }
+ ],
+ "foxio_ja4": [
+  {
+   "stream": 0,
+   "transport": "udp",
+   "src": "172.17.0.2",
+   "dst": "104.18.26.14",
+   "src_port": 58951,
+   "dst_port": 443,
+   "tls_server_name": "cloudflare-ech.com",
+   "ja4": "q13d0312h3_55b375c5d22e_178839b6cec1",
+   "ja4_r": "q13d0312h3_1301,1302,1303_000a,000d,001b,002b,002d,0033,0039,44cd,ca34,fe0d_0403,0804,0401,0503,0805,0501,0806,0601,0201",
+   "ja4s": "q130200_1301_234ea6891581",
+   "ja4s_r": "q130200_1301_0033,002b",
+   "ja4l_c": "51_64",
+   "ja4l_s": "13674_63"
+  },
+  {
+   "stream": 1,
+   "transport": "udp",
+   "src": "172.17.0.2",
+   "dst": "104.18.26.14",
+   "src_port": 46404,
+   "dst_port": 443,
+   "tls_server_name": "cloudflare-ech.com",
+   "ja4": "q13d0312h3_55b375c5d22e_178839b6cec1",
+   "ja4_r": "q13d0312h3_1301,1302,1303_000a,000d,001b,002b,002d,0033,0039,44cd,ca34,fe0d_0403,0804,0401,0503,0805,0501,0806,0601,0201",
+   "ja4s": "q130200_1301_234ea6891581",
+   "ja4s_r": "q130200_1301_0033,002b",
+   "ja4l_c": "623_64",
+   "ja4l_s": "14830_63"
+  },
+  {
+   "stream": 2,
+   "transport": "udp",
+   "src": "172.17.0.2",
+   "dst": "104.18.26.14",
+   "src_port": 45755,
+   "dst_port": 443,
+   "tls_server_name": "cloudflare-ech.com",
+   "ja4": "q13d0312h3_55b375c5d22e_178839b6cec1",
+   "ja4_r": "q13d0312h3_1301,1302,1303_000a,000d,001b,002b,002d,0033,0039,44cd,ca34,fe0d_0403,0804,0401,0503,0805,0501,0806,0601,0201",
+   "ja4s": "q130200_1301_234ea6891581",
+   "ja4s_r": "q130200_1301_0033,002b",
+   "ja4l_c": "90_64",
+   "ja4l_s": "16330_63"
+  },
+  {
+   "stream": 3,
+   "transport": "udp",
+   "src": "172.17.0.2",
+   "dst": "104.18.26.14",
+   "src_port": 36822,
+   "dst_port": 443,
+   "tls_server_name": "cloudflare-ech.com",
+   "ja4": "q13d0312h3_55b375c5d22e_178839b6cec1",
+   "ja4_r": "q13d0312h3_1301,1302,1303_000a,000d,001b,002b,002d,0033,0039,44cd,ca34,fe0d_0403,0804,0401,0503,0805,0501,0806,0601,0201",
+   "ja4s": "q130200_1301_234ea6891581",
+   "ja4s_r": "q130200_1301_0033,002b",
+   "ja4l_c": "813_64",
+   "ja4l_s": "15604_63"
+  },
+  {
+   "stream": 4,
+   "transport": "udp",
+   "src": "172.17.0.2",
+   "dst": "104.18.26.14",
+   "src_port": 42053,
+   "dst_port": 443,
+   "tls_server_name": "cloudflare-ech.com",
+   "ja4": "q13d0312h3_55b375c5d22e_178839b6cec1",
+   "ja4_r": "q13d0312h3_1301,1302,1303_000a,000d,001b,002b,002d,0033,0039,44cd,ca34,fe0d_0403,0804,0401,0503,0805,0501,0806,0601,0201",
+   "ja4s": "q130200_1301_234ea6891581",
+   "ja4s_r": "q130200_1301_0033,002b",
+   "ja4l_c": "571_64",
+   "ja4l_s": "15449_63"
+  }
+ ]
+}

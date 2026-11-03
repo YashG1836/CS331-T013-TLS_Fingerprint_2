@@ -1,5 +1,15 @@
 {
   "schema_version": 1,
+  "lab_settings": {
+    "interface": "eth0",
+    "wait_seconds": 2,
+    "pcap_dir": "captures/pcaps",
+    "keylog_dir": "captures/keylogs",
+    "results_dir": "results",
+    "chromium": "chromium --headless --no-sandbox --disable-gpu --disable-background-networking --user-data-dir=$(mktemp -d)",
+    "wire_mtu": 1500,
+    "policy_dir": "/etc/chromium/policies/managed"
+  },
   "captures": [
     {
       "capture_id": "quic-v1-initial-baseline-2026-11-03",
@@ -62,7 +72,1555 @@
         "build attestation tying the reported JA4 executable SHA-256 to the pinned FoxIO v1.0.1 source commit",
         "independent byte-for-byte ClientHello comparison against a reference decoder"
       ],
-      "foxio_executable_sha256": "c8603007a398e354bb1e9e8c5aa27817f9fe3334a60cd3d64e4d3418e4002675"
+      "foxio_executable_sha256": "c8603007a398e354bb1e9e8c5aa27817f9fe3334a60cd3d64e4d3418e4002675",
+      "capture_status": "captured",
+      "packet_count": 27
+    },
+    {
+      "capture_id": "quic_chromium",
+      "scenario": "quic_chromium (L1)",
+      "limitation": "L1",
+      "capture_file": "captures/pcaps/quic_chromium.pcap",
+      "metadata_file": "captures/metadata/quic_chromium.json",
+      "protocol": "QUIC v1 over UDP",
+      "client": "Chromium 156",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/quic_chromium.pcap \"udp port 443\"",
+        "{chromium} --enable-quic --origin-to-force-quic-on=cloudflare-quic.com:443 --dump-dom https://cloudflare-quic.com/cdn-cgi/trace > /dev/null",
+        "tshark -r captures/pcaps/quic_chromium.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/quic_chromium.pcap",
+        "ja4-main --json --with-raw captures/pcaps/quic_chromium.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "{chromium} --enable-quic --origin-to-force-quic-on=cloudflare-quic.com:443 --dump-dom https://cloudflare-quic.com/cdn-cgi/trace > /dev/null",
+        "filter": "udp port 443",
+        "repeat": 5,
+        "setup": [],
+        "keylog": false
+      },
+      "observations": {
+        "id": "quic_chromium",
+        "limitation": "L1",
+        "hellos_tshark": 5,
+        "hellos_ja4": 5,
+        "distinct_ja3": 5,
+        "distinct_ja4": 1,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 1887,
+        "pieces_max": 21,
+        "biggest_frame": 1292,
+        "groups_chosen": [
+          4588
+        ],
+        "ech_ext_hellos": 5,
+        "server_names": [
+          "cloudflare-ech.com"
+        ],
+        "dns_names": [],
+        "ja4_tshark": [
+          "q13d0312h3_55b375c5d22e_178839b6cec1"
+        ],
+        "ja4_foxio": [
+          "q13d0312h3_55b375c5d22e_178839b6cec1"
+        ],
+        "ja4_main": [
+          "q13d0312h3_55b375c5d22e_178839b6cec1"
+        ],
+        "ja4s_foxio": [
+          "q130200_1301_234ea6891581"
+        ],
+        "seconds_tshark": 0.069,
+        "seconds_ja4": 0.125
+      },
+      "expected_properties": [],
+      "sha256": "090d9c9339132344fb39c4255b49611cb6516fb9f02570a5042239e075151615",
+      "capture_status": "captured",
+      "packet_count": 140,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/quic_chromium.json"
+      },
+      "evidence_files": [
+        "results/raw/quic_chromium.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+      ]
+    },
+    {
+      "capture_id": "quic_curl",
+      "scenario": "quic_curl (L1)",
+      "limitation": "L1",
+      "capture_file": "captures/pcaps/quic_curl.pcap",
+      "metadata_file": "captures/metadata/quic_curl.json",
+      "protocol": "QUIC v1 over UDP",
+      "client": "curl 8.14.1",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/quic_curl.pcap \"udp port 443\"",
+        "curl -s --http3-only -o /dev/null https://cloudflare-quic.com/cdn-cgi/trace",
+        "tshark -r captures/pcaps/quic_curl.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/quic_curl.pcap",
+        "ja4-main --json --with-raw captures/pcaps/quic_curl.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "curl -s --http3-only -o /dev/null https://cloudflare-quic.com/cdn-cgi/trace",
+        "filter": "udp port 443",
+        "repeat": 5,
+        "setup": [],
+        "keylog": false
+      },
+      "observations": {
+        "id": "quic_curl",
+        "limitation": "L1",
+        "hellos_tshark": 5,
+        "hellos_ja4": 5,
+        "distinct_ja3": 1,
+        "distinct_ja4": 1,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 1505,
+        "pieces_max": 1,
+        "biggest_frame": 1242,
+        "groups_chosen": [
+          4588
+        ],
+        "ech_ext_hellos": 0,
+        "server_names": [
+          "cloudflare-quic.com"
+        ],
+        "dns_names": [],
+        "ja4_tshark": [
+          "q13d0312h3_55b375c5d22e_e01b5de7605b"
+        ],
+        "ja4_foxio": [
+          "q13d0312h3_55b375c5d22e_e01b5de7605b"
+        ],
+        "ja4_main": [
+          "q13d0312h3_55b375c5d22e_e01b5de7605b"
+        ],
+        "ja4s_foxio": [
+          "q130200_1302_234ea6891581"
+        ],
+        "seconds_tshark": 0.058,
+        "seconds_ja4": 0.121
+      },
+      "expected_properties": [],
+      "sha256": "21297e764bb3ad2a28553387ff213c677e0f75b483cceb5a6fb11efc357a3c74",
+      "capture_status": "captured",
+      "packet_count": 148,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/quic_curl.json"
+      },
+      "evidence_files": [
+        "results/raw/quic_curl.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+      ]
+    },
+    {
+      "capture_id": "tls_keylog_curl",
+      "scenario": "tls_keylog_curl (L2)",
+      "limitation": "L2",
+      "capture_file": "captures/pcaps/tls_keylog_curl.pcap",
+      "metadata_file": "captures/metadata/tls_keylog_curl.json",
+      "protocol": "TLS over TCP",
+      "client": "curl 8.14.1",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_keylog_curl.pcap \"tcp port 443\"",
+        "curl -s --http1.1 -o /dev/null https://www.cloudflare.com/cdn-cgi/trace",
+        "tshark -r captures/pcaps/tls_keylog_curl.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_keylog_curl.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_keylog_curl.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "curl -s --http1.1 -o /dev/null https://www.cloudflare.com/cdn-cgi/trace",
+        "filter": "tcp port 443",
+        "repeat": 1,
+        "setup": [],
+        "keylog": true
+      },
+      "observations": {
+        "id": "tls_keylog_curl",
+        "limitation": "L2",
+        "hellos_tshark": 1,
+        "hellos_ja4": 1,
+        "distinct_ja3": 1,
+        "distinct_ja4": 1,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": 5,
+        "hello_bytes_max": 1566,
+        "pieces_max": 1,
+        "biggest_frame": 1641,
+        "groups_chosen": [
+          4588
+        ],
+        "ech_ext_hellos": 0,
+        "server_names": [
+          "www.cloudflare.com"
+        ],
+        "dns_names": [],
+        "ja4_tshark": [
+          "t13d3013h1_1d37bd780c83_8537cf56674e"
+        ],
+        "ja4_foxio": [
+          "t13d3013h1_1d37bd780c83_8537cf56674e"
+        ],
+        "ja4_main": [
+          "t13d3013h1_1d37bd780c83_8537cf56674e"
+        ],
+        "ja4s_foxio": [
+          "t130200_1302_234ea6891581"
+        ],
+        "seconds_tshark": 0.057,
+        "seconds_ja4": 0.113
+      },
+      "expected_properties": [],
+      "sha256": "c8791212432c7d0dbb9b838e12f7334d81dbd6386a663b40b2fc3243c4c2f387",
+      "capture_status": "captured",
+      "packet_count": 26,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_keylog_curl.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_keylog_curl.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point",
+        "the key log is intentionally not included; the keyed JA4X/JA4H summary cannot be regenerated from the committed files"
+      ]
+    },
+    {
+      "capture_id": "tls_offload_on",
+      "scenario": "tls_offload_on (L3)",
+      "limitation": "L3",
+      "capture_file": "captures/pcaps/tls_offload_on.pcap",
+      "metadata_file": "captures/metadata/tls_offload_on.json",
+      "protocol": "TLS over TCP",
+      "client": "curl 8.14.1",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_offload_on.pcap \"tcp port 443\"",
+        "curl -s -o /dev/null --curves X25519MLKEM768 https://www.cloudflare.com/cdn-cgi/trace",
+        "tshark -r captures/pcaps/tls_offload_on.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_offload_on.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_offload_on.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "curl -s -o /dev/null --curves X25519MLKEM768 https://www.cloudflare.com/cdn-cgi/trace",
+        "filter": "tcp port 443",
+        "repeat": 3,
+        "setup": [
+          "ip link set {interface} mtu {wire_mtu}",
+          "ethtool -K {interface} tso on gso on"
+        ],
+        "keylog": false
+      },
+      "observations": {
+        "id": "tls_offload_on",
+        "limitation": "L3",
+        "hellos_tshark": 3,
+        "hellos_ja4": 3,
+        "distinct_ja3": 1,
+        "distinct_ja4": 1,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 1511,
+        "pieces_max": 1,
+        "biggest_frame": 4913,
+        "groups_chosen": [
+          4588
+        ],
+        "ech_ext_hellos": 0,
+        "server_names": [
+          "www.cloudflare.com"
+        ],
+        "dns_names": [],
+        "ja4_tshark": [
+          "t13d3012h2_1d37bd780c83_7f037f8d6676"
+        ],
+        "ja4_foxio": [
+          "t13d3012h2_1d37bd780c83_7f037f8d6676"
+        ],
+        "ja4_main": [
+          "t13d3012h2_1d37bd780c83_7f037f8d6676"
+        ],
+        "ja4s_foxio": [
+          "t130200_1302_234ea6891581"
+        ],
+        "seconds_tshark": 0.058,
+        "seconds_ja4": 0.117
+      },
+      "expected_properties": [],
+      "sha256": "886e076bbf57fe9e9170884dbf3d2e36b33535391716a4fdaa5093ada8544166",
+      "capture_status": "captured",
+      "packet_count": 87,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_offload_on.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_offload_on.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point",
+        "the T3 narrative frame sizes do not match the aggregate summary fields; reconcile with a targeted rerun"
+      ]
+    },
+    {
+      "capture_id": "tls_offload_off",
+      "scenario": "tls_offload_off (L3)",
+      "limitation": "L3",
+      "capture_file": "captures/pcaps/tls_offload_off.pcap",
+      "metadata_file": "captures/metadata/tls_offload_off.json",
+      "protocol": "TLS over TCP",
+      "client": "curl 8.14.1",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_offload_off.pcap \"tcp port 443\"",
+        "curl -s -o /dev/null --curves X25519MLKEM768 https://www.cloudflare.com/cdn-cgi/trace",
+        "tshark -r captures/pcaps/tls_offload_off.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_offload_off.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_offload_off.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "curl -s -o /dev/null --curves X25519MLKEM768 https://www.cloudflare.com/cdn-cgi/trace",
+        "filter": "tcp port 443",
+        "repeat": 3,
+        "setup": [
+          "ip link set {interface} mtu {wire_mtu}",
+          "ethtool -K {interface} tso off gso off"
+        ],
+        "keylog": false
+      },
+      "observations": {
+        "id": "tls_offload_off",
+        "limitation": "L3",
+        "hellos_tshark": 3,
+        "hellos_ja4": 3,
+        "distinct_ja3": 1,
+        "distinct_ja4": 1,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 1511,
+        "pieces_max": 2,
+        "biggest_frame": 2962,
+        "groups_chosen": [
+          4588
+        ],
+        "ech_ext_hellos": 0,
+        "server_names": [
+          "www.cloudflare.com"
+        ],
+        "dns_names": [],
+        "ja4_tshark": [
+          "t13d3012h2_1d37bd780c83_7f037f8d6676"
+        ],
+        "ja4_foxio": [
+          "t13d3012h2_1d37bd780c83_7f037f8d6676"
+        ],
+        "ja4_main": [
+          "t13d3012h2_1d37bd780c83_7f037f8d6676"
+        ],
+        "ja4s_foxio": [
+          "t130200_1302_234ea6891581"
+        ],
+        "seconds_tshark": 0.056,
+        "seconds_ja4": 0.118
+      },
+      "expected_properties": [],
+      "sha256": "89b79891c1b5438475e450cac023899fa353238ee749b7647ed5f233e2a486e3",
+      "capture_status": "captured",
+      "packet_count": 94,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_offload_off.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_offload_off.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point",
+        "the T3 narrative frame sizes do not match the aggregate summary fields; reconcile with a targeted rerun"
+      ]
+    },
+    {
+      "capture_id": "tls_pq_on",
+      "scenario": "tls_pq_on (L4)",
+      "limitation": "L4",
+      "capture_file": "captures/pcaps/tls_pq_on.pcap",
+      "metadata_file": "captures/metadata/tls_pq_on.json",
+      "protocol": "TLS over TCP",
+      "client": "curl 8.14.1",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_pq_on.pcap \"tcp port 443\"",
+        "curl -s -o /dev/null --curves X25519MLKEM768 https://www.cloudflare.com/cdn-cgi/trace",
+        "tshark -r captures/pcaps/tls_pq_on.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_pq_on.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_pq_on.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "curl -s -o /dev/null --curves X25519MLKEM768 https://www.cloudflare.com/cdn-cgi/trace",
+        "filter": "tcp port 443",
+        "repeat": 5,
+        "setup": [],
+        "keylog": false
+      },
+      "observations": {
+        "id": "tls_pq_on",
+        "limitation": "L4",
+        "hellos_tshark": 5,
+        "hellos_ja4": 5,
+        "distinct_ja3": 1,
+        "distinct_ja4": 1,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 1511,
+        "pieces_max": 1,
+        "biggest_frame": 2962,
+        "groups_chosen": [
+          4588
+        ],
+        "ech_ext_hellos": 0,
+        "server_names": [
+          "www.cloudflare.com"
+        ],
+        "dns_names": [],
+        "ja4_tshark": [
+          "t13d3012h2_1d37bd780c83_7f037f8d6676"
+        ],
+        "ja4_foxio": [
+          "t13d3012h2_1d37bd780c83_7f037f8d6676"
+        ],
+        "ja4_main": [
+          "t13d3012h2_1d37bd780c83_7f037f8d6676"
+        ],
+        "ja4s_foxio": [
+          "t130200_1302_234ea6891581"
+        ],
+        "seconds_tshark": 0.057,
+        "seconds_ja4": 0.124
+      },
+      "expected_properties": [],
+      "sha256": "4abb598121790d8b3bf041e9b98ea34dedaa8d5046114e9660a807d720b39adf",
+      "capture_status": "captured",
+      "packet_count": 157,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_pq_on.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_pq_on.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+      ]
+    },
+    {
+      "capture_id": "tls_pq_off",
+      "scenario": "tls_pq_off (L4)",
+      "limitation": "L4",
+      "capture_file": "captures/pcaps/tls_pq_off.pcap",
+      "metadata_file": "captures/metadata/tls_pq_off.json",
+      "protocol": "TLS over TCP",
+      "client": "curl 8.14.1",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_pq_off.pcap \"tcp port 443\"",
+        "curl -s -o /dev/null --curves X25519 https://www.cloudflare.com/cdn-cgi/trace",
+        "tshark -r captures/pcaps/tls_pq_off.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_pq_off.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_pq_off.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "curl -s -o /dev/null --curves X25519 https://www.cloudflare.com/cdn-cgi/trace",
+        "filter": "tcp port 443",
+        "repeat": 5,
+        "setup": [],
+        "keylog": false
+      },
+      "observations": {
+        "id": "tls_pq_off",
+        "limitation": "L4",
+        "hellos_tshark": 5,
+        "hellos_ja4": 5,
+        "distinct_ja3": 1,
+        "distinct_ja4": 1,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 508,
+        "pieces_max": 1,
+        "biggest_frame": 3825,
+        "groups_chosen": [
+          29
+        ],
+        "ech_ext_hellos": 0,
+        "server_names": [
+          "www.cloudflare.com"
+        ],
+        "dns_names": [],
+        "ja4_tshark": [
+          "t13d3014h2_1d37bd780c83_3eb322dd144c"
+        ],
+        "ja4_foxio": [
+          "t13d3014h2_1d37bd780c83_3eb322dd144c"
+        ],
+        "ja4_main": [
+          "t13d3014h2_1d37bd780c83_3eb322dd144c"
+        ],
+        "ja4s_foxio": [
+          "t130200_1302_234ea6891581"
+        ],
+        "seconds_tshark": 0.057,
+        "seconds_ja4": 0.123
+      },
+      "expected_properties": [],
+      "sha256": "e131aa668d79c25e59e83eb11b24773e1c12a939823b963e696836cf0105bb25",
+      "capture_status": "captured",
+      "packet_count": 146,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_pq_off.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_pq_off.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+      ]
+    },
+    {
+      "capture_id": "tls_chromium_repeat",
+      "scenario": "tls_chromium_repeat (L5)",
+      "limitation": "L5",
+      "capture_file": "captures/pcaps/tls_chromium_repeat.pcap",
+      "metadata_file": "captures/metadata/tls_chromium_repeat.json",
+      "protocol": "TLS over TCP",
+      "client": "Chromium 156",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_chromium_repeat.pcap \"tcp port 443\"",
+        "{chromium} --disable-quic --dump-dom https://www.cloudflare.com/cdn-cgi/trace > /dev/null",
+        "tshark -r captures/pcaps/tls_chromium_repeat.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_chromium_repeat.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_chromium_repeat.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "{chromium} --disable-quic --dump-dom https://www.cloudflare.com/cdn-cgi/trace > /dev/null",
+        "filter": "tcp port 443",
+        "repeat": 10,
+        "setup": [],
+        "keylog": false
+      },
+      "observations": {
+        "id": "tls_chromium_repeat",
+        "limitation": "L5",
+        "hellos_tshark": 50,
+        "hellos_ja4": 50,
+        "distinct_ja3": 50,
+        "distinct_ja4": 15,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 2016,
+        "pieces_max": 1,
+        "biggest_frame": 5149,
+        "groups_chosen": [
+          4588
+        ],
+        "ech_ext_hellos": 50,
+        "server_names": [
+          "accounts.google.com",
+          "redirector.gvt1.com",
+          "update.googleapis.com",
+          "www.cloudflare.com"
+        ],
+        "dns_names": [],
+        "ja4_tshark": [
+          "t13d1517h2_8daaf6152771_234dc10236f4",
+          "t13d1517h2_8daaf6152771_33f857a189cb",
+          "t13d1517h2_8daaf6152771_43736b97bd57",
+          "t13d1517h2_8daaf6152771_541cd5a3d78e",
+          "t13d1517h2_8daaf6152771_5cd47779f5c5",
+          "t13d1517h2_8daaf6152771_61307d0e143d",
+          "t13d1517h2_8daaf6152771_63ff51340b64",
+          "t13d1517h2_8daaf6152771_92a4fdd66f79",
+          "t13d1517h2_8daaf6152771_937be626dbce",
+          "t13d1517h2_8daaf6152771_a323378790d4",
+          "t13d1517h2_8daaf6152771_a323666e1952",
+          "t13d1517h2_8daaf6152771_e1144aa4d245",
+          "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+          "t13d1517h2_8daaf6152771_f4f7aae15fbc",
+          "t13d1517h2_8daaf6152771_ff1e8fc497ec"
+        ],
+        "ja4_foxio": [
+          "t13d1517h2_8daaf6152771_234dc10236f4",
+          "t13d1517h2_8daaf6152771_33f857a189cb",
+          "t13d1517h2_8daaf6152771_43736b97bd57",
+          "t13d1517h2_8daaf6152771_541cd5a3d78e",
+          "t13d1517h2_8daaf6152771_5cd47779f5c5",
+          "t13d1517h2_8daaf6152771_61307d0e143d",
+          "t13d1517h2_8daaf6152771_63ff51340b64",
+          "t13d1517h2_8daaf6152771_92a4fdd66f79",
+          "t13d1517h2_8daaf6152771_937be626dbce",
+          "t13d1517h2_8daaf6152771_a323378790d4",
+          "t13d1517h2_8daaf6152771_a323666e1952",
+          "t13d1517h2_8daaf6152771_e1144aa4d245",
+          "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+          "t13d1517h2_8daaf6152771_f4f7aae15fbc",
+          "t13d1517h2_8daaf6152771_ff1e8fc497ec"
+        ],
+        "ja4_main": [
+          "t13d1517h2_8daaf6152771_cb7bf5808d99"
+        ],
+        "ja4s_foxio": [
+          "t130200_1301_234ea6891581",
+          "t130200_1302_234ea6891581"
+        ],
+        "seconds_tshark": 0.062,
+        "seconds_ja4": 0.211
+      },
+      "expected_properties": [],
+      "sha256": "a516a9b5e5929d55886e0e07fb7e146add4c7df46bdc4fd96dc7ca83e8c144a8",
+      "capture_status": "captured",
+      "packet_count": 1270,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_chromium_repeat.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_chromium_repeat.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+      ]
+    },
+    {
+      "capture_id": "tls_curl_repeat",
+      "scenario": "tls_curl_repeat (L5)",
+      "limitation": "L5",
+      "capture_file": "captures/pcaps/tls_curl_repeat.pcap",
+      "metadata_file": "captures/metadata/tls_curl_repeat.json",
+      "protocol": "TLS over TCP",
+      "client": "curl 8.14.1",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_curl_repeat.pcap \"tcp port 443\"",
+        "curl -s -o /dev/null https://www.cloudflare.com/cdn-cgi/trace",
+        "tshark -r captures/pcaps/tls_curl_repeat.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_curl_repeat.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_curl_repeat.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "curl -s -o /dev/null https://www.cloudflare.com/cdn-cgi/trace",
+        "filter": "tcp port 443",
+        "repeat": 10,
+        "setup": [],
+        "keylog": false
+      },
+      "observations": {
+        "id": "tls_curl_repeat",
+        "limitation": "L5",
+        "hellos_tshark": 10,
+        "hellos_ja4": 10,
+        "distinct_ja3": 1,
+        "distinct_ja4": 1,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 1569,
+        "pieces_max": 1,
+        "biggest_frame": 4913,
+        "groups_chosen": [
+          4588
+        ],
+        "ech_ext_hellos": 0,
+        "server_names": [
+          "www.cloudflare.com"
+        ],
+        "dns_names": [],
+        "ja4_tshark": [
+          "t13d3013h2_1d37bd780c83_8537cf56674e"
+        ],
+        "ja4_foxio": [
+          "t13d3013h2_1d37bd780c83_8537cf56674e"
+        ],
+        "ja4_main": [
+          "t13d3013h2_1d37bd780c83_8537cf56674e"
+        ],
+        "ja4s_foxio": [
+          "t130200_1302_234ea6891581"
+        ],
+        "seconds_tshark": 0.057,
+        "seconds_ja4": 0.141
+      },
+      "expected_properties": [],
+      "sha256": "5068bbfd74dae00b9f545751feaaf10c5ff6889729d6edc0047e5a1691f3be1f",
+      "capture_status": "captured",
+      "packet_count": 266,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_curl_repeat.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_curl_repeat.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+      ]
+    },
+    {
+      "capture_id": "tls_python_repeat",
+      "scenario": "tls_python_repeat (L5)",
+      "limitation": "L5",
+      "capture_file": "captures/pcaps/tls_python_repeat.pcap",
+      "metadata_file": "captures/metadata/tls_python_repeat.json",
+      "protocol": "TLS over TCP",
+      "client": "Python 3.13.5 urllib",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_python_repeat.pcap \"tcp port 443\"",
+        "python3 -c \"import urllib.request; urllib.request.urlopen('https://www.cloudflare.com/cdn-cgi/trace').read()\"",
+        "tshark -r captures/pcaps/tls_python_repeat.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_python_repeat.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_python_repeat.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "python3 -c \"import urllib.request; urllib.request.urlopen('https://www.cloudflare.com/cdn-cgi/trace').read()\"",
+        "filter": "tcp port 443",
+        "repeat": 10,
+        "setup": [],
+        "keylog": false
+      },
+      "observations": {
+        "id": "tls_python_repeat",
+        "limitation": "L5",
+        "hellos_tshark": 10,
+        "hellos_ja4": 10,
+        "distinct_ja3": 1,
+        "distinct_ja4": 1,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 1570,
+        "pieces_max": 1,
+        "biggest_frame": 4919,
+        "groups_chosen": [
+          4588
+        ],
+        "ech_ext_hellos": 0,
+        "server_names": [
+          "www.cloudflare.com"
+        ],
+        "dns_names": [],
+        "ja4_tshark": [
+          "t13d3014h1_1d37bd780c83_5ae85263eb3b"
+        ],
+        "ja4_foxio": [
+          "t13d3014h1_1d37bd780c83_5ae85263eb3b"
+        ],
+        "ja4_main": [
+          "t13d3014h1_1d37bd780c83_5ae85263eb3b"
+        ],
+        "ja4s_foxio": [
+          "t130200_1302_234ea6891581"
+        ],
+        "seconds_tshark": 0.058,
+        "seconds_ja4": 0.13
+      },
+      "expected_properties": [],
+      "sha256": "b7f68a56c4459b6d41f9caa8879f44b874e66ac36ca66839827d9bd8d133479a",
+      "capture_status": "captured",
+      "packet_count": 181,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_python_repeat.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_python_repeat.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+      ]
+    },
+    {
+      "capture_id": "tls_ipv4",
+      "scenario": "tls_ipv4 (L6)",
+      "limitation": "L6",
+      "capture_file": "captures/pcaps/tls_ipv4.pcap",
+      "metadata_file": "captures/metadata/tls_ipv4.json",
+      "protocol": "TLS over TCP",
+      "client": "curl 8.14.1",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_ipv4.pcap \"tcp port 443\"",
+        "curl -4 -s -o /dev/null https://www.cloudflare.com/cdn-cgi/trace",
+        "tshark -r captures/pcaps/tls_ipv4.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_ipv4.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_ipv4.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "curl -4 -s -o /dev/null https://www.cloudflare.com/cdn-cgi/trace",
+        "filter": "tcp port 443",
+        "repeat": 3,
+        "setup": [],
+        "keylog": false
+      },
+      "observations": {
+        "id": "tls_ipv4",
+        "limitation": "L6",
+        "hellos_tshark": 3,
+        "hellos_ja4": 3,
+        "distinct_ja3": 1,
+        "distinct_ja4": 1,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 1569,
+        "pieces_max": 1,
+        "biggest_frame": 4911,
+        "groups_chosen": [
+          4588
+        ],
+        "ech_ext_hellos": 0,
+        "server_names": [
+          "www.cloudflare.com"
+        ],
+        "dns_names": [],
+        "ja4_tshark": [
+          "t13d3013h2_1d37bd780c83_8537cf56674e"
+        ],
+        "ja4_foxio": [
+          "t13d3013h2_1d37bd780c83_8537cf56674e"
+        ],
+        "ja4_main": [
+          "t13d3013h2_1d37bd780c83_8537cf56674e"
+        ],
+        "ja4s_foxio": [
+          "t130200_1302_234ea6891581"
+        ],
+        "seconds_tshark": 0.057,
+        "seconds_ja4": 0.119
+      },
+      "expected_properties": [],
+      "sha256": "dc7049bc0cb864bef7d4c2c2e9504112bed82c5c7224ebdab9b6935e054ebdfa",
+      "capture_status": "captured",
+      "packet_count": 93,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_ipv4.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_ipv4.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+      ]
+    },
+    {
+      "capture_id": "tls_ipv6",
+      "scenario": "tls_ipv6 (L6)",
+      "limitation": "L6",
+      "capture_file": "captures/pcaps/tls_ipv6.pcap",
+      "metadata_file": "captures/metadata/tls_ipv6.json",
+      "protocol": "TLS over TCP",
+      "client": "curl 8.14.1",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_ipv6.pcap \"tcp port 443\"",
+        "curl -6 -s -o /dev/null https://www.cloudflare.com/cdn-cgi/trace",
+        "tshark -r captures/pcaps/tls_ipv6.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_ipv6.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_ipv6.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "curl -6 -s -o /dev/null https://www.cloudflare.com/cdn-cgi/trace",
+        "filter": "tcp port 443",
+        "repeat": 3,
+        "setup": [],
+        "keylog": false
+      },
+      "observations": {
+        "id": "tls_ipv6",
+        "limitation": "L6",
+        "hellos_tshark": 0,
+        "hellos_ja4": 0,
+        "distinct_ja3": 0,
+        "distinct_ja4": 0,
+        "distinct_ja4_main": 0,
+        "tools_agree": null,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 0,
+        "pieces_max": null,
+        "biggest_frame": null,
+        "groups_chosen": [],
+        "ech_ext_hellos": 0,
+        "server_names": [],
+        "dns_names": [],
+        "ja4_tshark": [],
+        "ja4_foxio": [],
+        "ja4_main": [],
+        "ja4s_foxio": [],
+        "seconds_tshark": 0.058,
+        "seconds_ja4": 0.111,
+        "capture_status": "empty",
+        "packet_count": 0,
+        "tools_agreement_note": "not comparable: no packets/ClientHellos; source summary compared two empty sets"
+      },
+      "expected_properties": [],
+      "sha256": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea",
+      "capture_status": "empty",
+      "packet_count": 0,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_ipv6.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_ipv6.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point",
+        "the pcap has a valid global header but contains zero packets; IPv6 was not measured"
+      ]
+    },
+    {
+      "capture_id": "tls_ech_off",
+      "scenario": "tls_ech_off (L7)",
+      "limitation": "L7",
+      "capture_file": "captures/pcaps/tls_ech_off.pcap",
+      "metadata_file": "captures/metadata/tls_ech_off.json",
+      "protocol": "TLS over TCP",
+      "client": "Chromium 156",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_ech_off.pcap \"tcp port 443 or port 53\"",
+        "{chromium} --disable-quic --dump-dom https://crypto.cloudflare.com/cdn-cgi/trace > {results_dir}/tls_ech_off_page.txt",
+        "tshark -r captures/pcaps/tls_ech_off.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_ech_off.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_ech_off.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "{chromium} --disable-quic --dump-dom https://crypto.cloudflare.com/cdn-cgi/trace > {results_dir}/tls_ech_off_page.txt",
+        "filter": "tcp port 443 or port 53",
+        "repeat": 1,
+        "setup": [
+          "mkdir -p {policy_dir} && cp captures/config/ech_off_policy.json {policy_dir}/"
+        ],
+        "keylog": false
+      },
+      "observations": {
+        "id": "tls_ech_off",
+        "limitation": "L7",
+        "hellos_tshark": 5,
+        "hellos_ja4": 5,
+        "distinct_ja3": 5,
+        "distinct_ja4": 4,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 1730,
+        "pieces_max": 1,
+        "biggest_frame": 5148,
+        "groups_chosen": [
+          4588
+        ],
+        "ech_ext_hellos": 0,
+        "server_names": [
+          "accounts.google.com",
+          "crypto.cloudflare.com",
+          "redirector.gvt1.com",
+          "update.googleapis.com"
+        ],
+        "dns_names": [
+          "accounts.google.com",
+          "clients2.google.com",
+          "crypto.cloudflare.com",
+          "redirector.gvt1.com",
+          "update.googleapis.com"
+        ],
+        "ja4_tshark": [
+          "t13d1516h2_8daaf6152771_3557bd83d7c8",
+          "t13d1516h2_8daaf6152771_4c57c08d3a5a",
+          "t13d1516h2_8daaf6152771_9654de2595cf",
+          "t13d1516h2_8daaf6152771_c95be0ae8015"
+        ],
+        "ja4_foxio": [
+          "t13d1516h2_8daaf6152771_3557bd83d7c8",
+          "t13d1516h2_8daaf6152771_4c57c08d3a5a",
+          "t13d1516h2_8daaf6152771_9654de2595cf",
+          "t13d1516h2_8daaf6152771_c95be0ae8015"
+        ],
+        "ja4_main": [
+          "t13d1516h2_8daaf6152771_447d952d5833"
+        ],
+        "ja4s_foxio": [
+          "t130200_1301_234ea6891581",
+          "t130200_1302_234ea6891581"
+        ],
+        "seconds_tshark": 0.057,
+        "seconds_ja4": 0.121
+      },
+      "expected_properties": [],
+      "sha256": "78e7263b0aa0890f22b922ce4d9786b0324c594bc538a49fd78c1d0b7aad7629",
+      "capture_status": "captured",
+      "packet_count": 135,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_ech_off.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_ech_off.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+      ]
+    },
+    {
+      "capture_id": "tls_ech_on",
+      "scenario": "tls_ech_on (L7)",
+      "limitation": "L7",
+      "capture_file": "captures/pcaps/tls_ech_on.pcap",
+      "metadata_file": "captures/metadata/tls_ech_on.json",
+      "protocol": "TLS over TCP",
+      "client": "Chromium 156",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_ech_on.pcap \"tcp port 443 or port 53\"",
+        "{chromium} --disable-quic --dump-dom https://crypto.cloudflare.com/cdn-cgi/trace > {results_dir}/tls_ech_on_page.txt",
+        "tshark -r captures/pcaps/tls_ech_on.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_ech_on.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_ech_on.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "{chromium} --disable-quic --dump-dom https://crypto.cloudflare.com/cdn-cgi/trace > {results_dir}/tls_ech_on_page.txt",
+        "filter": "tcp port 443 or port 53",
+        "repeat": 1,
+        "setup": [],
+        "keylog": false
+      },
+      "observations": {
+        "id": "tls_ech_on",
+        "limitation": "L7",
+        "hellos_tshark": 5,
+        "hellos_ja4": 5,
+        "distinct_ja3": 5,
+        "distinct_ja4": 4,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 2014,
+        "pieces_max": 1,
+        "biggest_frame": 2743,
+        "groups_chosen": [
+          4588
+        ],
+        "ech_ext_hellos": 5,
+        "server_names": [
+          "accounts.google.com",
+          "cloudflare-ech.com",
+          "redirector.gvt1.com",
+          "update.googleapis.com"
+        ],
+        "dns_names": [
+          "accounts.google.com",
+          "clients2.google.com",
+          "crypto.cloudflare.com",
+          "redirector.gvt1.com",
+          "update.googleapis.com"
+        ],
+        "ja4_tshark": [
+          "t13d1517h2_8daaf6152771_63ff51340b64",
+          "t13d1517h2_8daaf6152771_92a4fdd66f79",
+          "t13d1517h2_8daaf6152771_a323378790d4",
+          "t13d1517h2_8daaf6152771_f10ceb9fcfd7"
+        ],
+        "ja4_foxio": [
+          "t13d1517h2_8daaf6152771_63ff51340b64",
+          "t13d1517h2_8daaf6152771_92a4fdd66f79",
+          "t13d1517h2_8daaf6152771_a323378790d4",
+          "t13d1517h2_8daaf6152771_f10ceb9fcfd7"
+        ],
+        "ja4_main": [
+          "t13d1517h2_8daaf6152771_cb7bf5808d99"
+        ],
+        "ja4s_foxio": [
+          "t130200_1301_234ea6891581",
+          "t130200_1302_234ea6891581"
+        ],
+        "seconds_tshark": 0.057,
+        "seconds_ja4": 0.122
+      },
+      "expected_properties": [],
+      "sha256": "46fdd67b543040bafbe68012883e876291d8cee3ea36616cf841ce1408016381",
+      "capture_status": "captured",
+      "packet_count": 148,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_ech_on.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_ech_on.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+      ]
+    },
+    {
+      "capture_id": "tls_ech_doh",
+      "scenario": "tls_ech_doh (L7)",
+      "limitation": "L7",
+      "capture_file": "captures/pcaps/tls_ech_doh.pcap",
+      "metadata_file": "captures/metadata/tls_ech_doh.json",
+      "protocol": "TLS over TCP",
+      "client": "Chromium 156",
+      "commands": [
+        "tcpdump -i eth0 -U -w captures/pcaps/tls_ech_doh.pcap \"tcp port 443 or port 53\"",
+        "{chromium} --disable-quic --dump-dom https://crypto.cloudflare.com/cdn-cgi/trace > {results_dir}/tls_ech_doh_page.txt",
+        "tshark -r captures/pcaps/tls_ech_doh.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+        "ja4 --json --with-raw captures/pcaps/tls_ech_doh.pcap",
+        "ja4-main --json --with-raw captures/pcaps/tls_ech_doh.pcap"
+      ],
+      "tool_versions": {
+        "tshark": "4.4.19 (Docker lab, team-reported)",
+        "tcpdump": "4.99.5 (Docker lab, team-reported)",
+        "foxio_ja4_release_tag": "v0.18.6",
+        "foxio_ja4_reported_version": "0.18.5",
+        "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+        "foxio_ja4_main_reported_version": "0.18.6",
+        "curl": "8.14.1 (when used)",
+        "openssl": "3.5.7",
+        "chromium": "156.0.8078.79",
+        "python": "3.13.5",
+        "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+      },
+      "conditions": {
+        "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+        "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+        "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+      },
+      "capture_recipe": {
+        "command": "{chromium} --disable-quic --dump-dom https://crypto.cloudflare.com/cdn-cgi/trace > {results_dir}/tls_ech_doh_page.txt",
+        "filter": "tcp port 443 or port 53",
+        "repeat": 1,
+        "setup": [
+          "mkdir -p {policy_dir} && cp captures/config/doh_policy.json {policy_dir}/"
+        ],
+        "keylog": false
+      },
+      "observations": {
+        "id": "tls_ech_doh",
+        "limitation": "L7",
+        "hellos_tshark": 12,
+        "hellos_ja4": 12,
+        "distinct_ja3": 12,
+        "distinct_ja4": 9,
+        "distinct_ja4_main": 1,
+        "tools_agree": true,
+        "ja4x_ja4h_no_keys": 0,
+        "ja4x_ja4h_with_keys": "-",
+        "hello_bytes_max": 2013,
+        "pieces_max": 1,
+        "biggest_frame": 2512,
+        "groups_chosen": [
+          29,
+          4588
+        ],
+        "ech_ext_hellos": 12,
+        "server_names": [
+          "cloudflare-dns.com"
+        ],
+        "dns_names": [
+          "cloudflare-dns.com",
+          "google.com"
+        ],
+        "ja4_tshark": [
+          "t13d1517h2_8daaf6152771_234dc10236f4",
+          "t13d1517h2_8daaf6152771_5cd47779f5c5",
+          "t13d1517h2_8daaf6152771_92a4fdd66f79",
+          "t13d1517h2_8daaf6152771_937be626dbce",
+          "t13d1517h2_8daaf6152771_a323378790d4",
+          "t13d1517h2_8daaf6152771_a323666e1952",
+          "t13d1517h2_8daaf6152771_e1144aa4d245",
+          "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+          "t13d1517h2_8daaf6152771_ff1e8fc497ec"
+        ],
+        "ja4_foxio": [
+          "t13d1517h2_8daaf6152771_234dc10236f4",
+          "t13d1517h2_8daaf6152771_5cd47779f5c5",
+          "t13d1517h2_8daaf6152771_92a4fdd66f79",
+          "t13d1517h2_8daaf6152771_937be626dbce",
+          "t13d1517h2_8daaf6152771_a323378790d4",
+          "t13d1517h2_8daaf6152771_a323666e1952",
+          "t13d1517h2_8daaf6152771_e1144aa4d245",
+          "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+          "t13d1517h2_8daaf6152771_ff1e8fc497ec"
+        ],
+        "ja4_main": [
+          "t13d1517h2_8daaf6152771_cb7bf5808d99"
+        ],
+        "ja4s_foxio": [
+          "t130200_1301_a56c5b993250",
+          "t130200_1302_a56c5b993250"
+        ],
+        "seconds_tshark": 0.058,
+        "seconds_ja4": 0.126
+      },
+      "expected_properties": [],
+      "sha256": "ccfe1cb34267743cb302906d18774ccdbc4b19bb782c68277e001cf9b694a786",
+      "capture_status": "captured",
+      "packet_count": 173,
+      "baseline_outputs": {
+        "team_raw_analysis": "results/raw/tls_ech_doh.json"
+      },
+      "evidence_files": [
+        "results/raw/tls_ech_doh.json",
+        "results/summary.json",
+        "results/summary.md",
+        "results/versions.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+        "capture start/stop timestamps and per-run client exit codes are not separately retained",
+        "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point",
+        "the target page did not load; captured background ClientHellos do not validate the intended ECH-plus-DoH test"
+      ]
     }
   ]
 }

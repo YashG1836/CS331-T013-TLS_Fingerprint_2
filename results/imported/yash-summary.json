@@ -1,0 +1,630 @@
+[
+ {
+  "id": "quic_chromium",
+  "limitation": "L1",
+  "hellos_tshark": 5,
+  "hellos_ja4": 5,
+  "distinct_ja3": 5,
+  "distinct_ja4": 1,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 1887,
+  "pieces_max": 21,
+  "biggest_frame": 1292,
+  "groups_chosen": [
+   4588
+  ],
+  "ech_ext_hellos": 5,
+  "server_names": [
+   "cloudflare-ech.com"
+  ],
+  "dns_names": [],
+  "ja4_tshark": [
+   "q13d0312h3_55b375c5d22e_178839b6cec1"
+  ],
+  "ja4_foxio": [
+   "q13d0312h3_55b375c5d22e_178839b6cec1"
+  ],
+  "ja4_main": [
+   "q13d0312h3_55b375c5d22e_178839b6cec1"
+  ],
+  "ja4s_foxio": [
+   "q130200_1301_234ea6891581"
+  ],
+  "seconds_tshark": 0.069,
+  "seconds_ja4": 0.125
+ },
+ {
+  "id": "quic_curl",
+  "limitation": "L1",
+  "hellos_tshark": 5,
+  "hellos_ja4": 5,
+  "distinct_ja3": 1,
+  "distinct_ja4": 1,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 1505,
+  "pieces_max": 1,
+  "biggest_frame": 1242,
+  "groups_chosen": [
+   4588
+  ],
+  "ech_ext_hellos": 0,
+  "server_names": [
+   "cloudflare-quic.com"
+  ],
+  "dns_names": [],
+  "ja4_tshark": [
+   "q13d0312h3_55b375c5d22e_e01b5de7605b"
+  ],
+  "ja4_foxio": [
+   "q13d0312h3_55b375c5d22e_e01b5de7605b"
+  ],
+  "ja4_main": [
+   "q13d0312h3_55b375c5d22e_e01b5de7605b"
+  ],
+  "ja4s_foxio": [
+   "q130200_1302_234ea6891581"
+  ],
+  "seconds_tshark": 0.058,
+  "seconds_ja4": 0.121
+ },
+ {
+  "id": "tls_keylog_curl",
+  "limitation": "L2",
+  "hellos_tshark": 1,
+  "hellos_ja4": 1,
+  "distinct_ja3": 1,
+  "distinct_ja4": 1,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": 5,
+  "hello_bytes_max": 1566,
+  "pieces_max": 1,
+  "biggest_frame": 1641,
+  "groups_chosen": [
+   4588
+  ],
+  "ech_ext_hellos": 0,
+  "server_names": [
+   "www.cloudflare.com"
+  ],
+  "dns_names": [],
+  "ja4_tshark": [
+   "t13d3013h1_1d37bd780c83_8537cf56674e"
+  ],
+  "ja4_foxio": [
+   "t13d3013h1_1d37bd780c83_8537cf56674e"
+  ],
+  "ja4_main": [
+   "t13d3013h1_1d37bd780c83_8537cf56674e"
+  ],
+  "ja4s_foxio": [
+   "t130200_1302_234ea6891581"
+  ],
+  "seconds_tshark": 0.057,
+  "seconds_ja4": 0.113
+ },
+ {
+  "id": "tls_offload_on",
+  "limitation": "L3",
+  "hellos_tshark": 3,
+  "hellos_ja4": 3,
+  "distinct_ja3": 1,
+  "distinct_ja4": 1,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 1511,
+  "pieces_max": 1,
+  "biggest_frame": 4913,
+  "groups_chosen": [
+   4588
+  ],
+  "ech_ext_hellos": 0,
+  "server_names": [
+   "www.cloudflare.com"
+  ],
+  "dns_names": [],
+  "ja4_tshark": [
+   "t13d3012h2_1d37bd780c83_7f037f8d6676"
+  ],
+  "ja4_foxio": [
+   "t13d3012h2_1d37bd780c83_7f037f8d6676"
+  ],
+  "ja4_main": [
+   "t13d3012h2_1d37bd780c83_7f037f8d6676"
+  ],
+  "ja4s_foxio": [
+   "t130200_1302_234ea6891581"
+  ],
+  "seconds_tshark": 0.058,
+  "seconds_ja4": 0.117
+ },
+ {
+  "id": "tls_offload_off",
+  "limitation": "L3",
+  "hellos_tshark": 3,
+  "hellos_ja4": 3,
+  "distinct_ja3": 1,
+  "distinct_ja4": 1,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 1511,
+  "pieces_max": 2,
+  "biggest_frame": 2962,
+  "groups_chosen": [
+   4588
+  ],
+  "ech_ext_hellos": 0,
+  "server_names": [
+   "www.cloudflare.com"
+  ],
+  "dns_names": [],
+  "ja4_tshark": [
+   "t13d3012h2_1d37bd780c83_7f037f8d6676"
+  ],
+  "ja4_foxio": [
+   "t13d3012h2_1d37bd780c83_7f037f8d6676"
+  ],
+  "ja4_main": [
+   "t13d3012h2_1d37bd780c83_7f037f8d6676"
+  ],
+  "ja4s_foxio": [
+   "t130200_1302_234ea6891581"
+  ],
+  "seconds_tshark": 0.056,
+  "seconds_ja4": 0.118
+ },
+ {
+  "id": "tls_pq_on",
+  "limitation": "L4",
+  "hellos_tshark": 5,
+  "hellos_ja4": 5,
+  "distinct_ja3": 1,
+  "distinct_ja4": 1,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 1511,
+  "pieces_max": 1,
+  "biggest_frame": 2962,
+  "groups_chosen": [
+   4588
+  ],
+  "ech_ext_hellos": 0,
+  "server_names": [
+   "www.cloudflare.com"
+  ],
+  "dns_names": [],
+  "ja4_tshark": [
+   "t13d3012h2_1d37bd780c83_7f037f8d6676"
+  ],
+  "ja4_foxio": [
+   "t13d3012h2_1d37bd780c83_7f037f8d6676"
+  ],
+  "ja4_main": [
+   "t13d3012h2_1d37bd780c83_7f037f8d6676"
+  ],
+  "ja4s_foxio": [
+   "t130200_1302_234ea6891581"
+  ],
+  "seconds_tshark": 0.057,
+  "seconds_ja4": 0.124
+ },
+ {
+  "id": "tls_pq_off",
+  "limitation": "L4",
+  "hellos_tshark": 5,
+  "hellos_ja4": 5,
+  "distinct_ja3": 1,
+  "distinct_ja4": 1,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 508,
+  "pieces_max": 1,
+  "biggest_frame": 3825,
+  "groups_chosen": [
+   29
+  ],
+  "ech_ext_hellos": 0,
+  "server_names": [
+   "www.cloudflare.com"
+  ],
+  "dns_names": [],
+  "ja4_tshark": [
+   "t13d3014h2_1d37bd780c83_3eb322dd144c"
+  ],
+  "ja4_foxio": [
+   "t13d3014h2_1d37bd780c83_3eb322dd144c"
+  ],
+  "ja4_main": [
+   "t13d3014h2_1d37bd780c83_3eb322dd144c"
+  ],
+  "ja4s_foxio": [
+   "t130200_1302_234ea6891581"
+  ],
+  "seconds_tshark": 0.057,
+  "seconds_ja4": 0.123
+ },
+ {
+  "id": "tls_chromium_repeat",
+  "limitation": "L5",
+  "hellos_tshark": 50,
+  "hellos_ja4": 50,
+  "distinct_ja3": 50,
+  "distinct_ja4": 15,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 2016,
+  "pieces_max": 1,
+  "biggest_frame": 5149,
+  "groups_chosen": [
+   4588
+  ],
+  "ech_ext_hellos": 50,
+  "server_names": [
+   "accounts.google.com",
+   "redirector.gvt1.com",
+   "update.googleapis.com",
+   "www.cloudflare.com"
+  ],
+  "dns_names": [],
+  "ja4_tshark": [
+   "t13d1517h2_8daaf6152771_234dc10236f4",
+   "t13d1517h2_8daaf6152771_33f857a189cb",
+   "t13d1517h2_8daaf6152771_43736b97bd57",
+   "t13d1517h2_8daaf6152771_541cd5a3d78e",
+   "t13d1517h2_8daaf6152771_5cd47779f5c5",
+   "t13d1517h2_8daaf6152771_61307d0e143d",
+   "t13d1517h2_8daaf6152771_63ff51340b64",
+   "t13d1517h2_8daaf6152771_92a4fdd66f79",
+   "t13d1517h2_8daaf6152771_937be626dbce",
+   "t13d1517h2_8daaf6152771_a323378790d4",
+   "t13d1517h2_8daaf6152771_a323666e1952",
+   "t13d1517h2_8daaf6152771_e1144aa4d245",
+   "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+   "t13d1517h2_8daaf6152771_f4f7aae15fbc",
+   "t13d1517h2_8daaf6152771_ff1e8fc497ec"
+  ],
+  "ja4_foxio": [
+   "t13d1517h2_8daaf6152771_234dc10236f4",
+   "t13d1517h2_8daaf6152771_33f857a189cb",
+   "t13d1517h2_8daaf6152771_43736b97bd57",
+   "t13d1517h2_8daaf6152771_541cd5a3d78e",
+   "t13d1517h2_8daaf6152771_5cd47779f5c5",
+   "t13d1517h2_8daaf6152771_61307d0e143d",
+   "t13d1517h2_8daaf6152771_63ff51340b64",
+   "t13d1517h2_8daaf6152771_92a4fdd66f79",
+   "t13d1517h2_8daaf6152771_937be626dbce",
+   "t13d1517h2_8daaf6152771_a323378790d4",
+   "t13d1517h2_8daaf6152771_a323666e1952",
+   "t13d1517h2_8daaf6152771_e1144aa4d245",
+   "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+   "t13d1517h2_8daaf6152771_f4f7aae15fbc",
+   "t13d1517h2_8daaf6152771_ff1e8fc497ec"
+  ],
+  "ja4_main": [
+   "t13d1517h2_8daaf6152771_cb7bf5808d99"
+  ],
+  "ja4s_foxio": [
+   "t130200_1301_234ea6891581",
+   "t130200_1302_234ea6891581"
+  ],
+  "seconds_tshark": 0.062,
+  "seconds_ja4": 0.211
+ },
+ {
+  "id": "tls_curl_repeat",
+  "limitation": "L5",
+  "hellos_tshark": 10,
+  "hellos_ja4": 10,
+  "distinct_ja3": 1,
+  "distinct_ja4": 1,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 1569,
+  "pieces_max": 1,
+  "biggest_frame": 4913,
+  "groups_chosen": [
+   4588
+  ],
+  "ech_ext_hellos": 0,
+  "server_names": [
+   "www.cloudflare.com"
+  ],
+  "dns_names": [],
+  "ja4_tshark": [
+   "t13d3013h2_1d37bd780c83_8537cf56674e"
+  ],
+  "ja4_foxio": [
+   "t13d3013h2_1d37bd780c83_8537cf56674e"
+  ],
+  "ja4_main": [
+   "t13d3013h2_1d37bd780c83_8537cf56674e"
+  ],
+  "ja4s_foxio": [
+   "t130200_1302_234ea6891581"
+  ],
+  "seconds_tshark": 0.057,
+  "seconds_ja4": 0.141
+ },
+ {
+  "id": "tls_python_repeat",
+  "limitation": "L5",
+  "hellos_tshark": 10,
+  "hellos_ja4": 10,
+  "distinct_ja3": 1,
+  "distinct_ja4": 1,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 1570,
+  "pieces_max": 1,
+  "biggest_frame": 4919,
+  "groups_chosen": [
+   4588
+  ],
+  "ech_ext_hellos": 0,
+  "server_names": [
+   "www.cloudflare.com"
+  ],
+  "dns_names": [],
+  "ja4_tshark": [
+   "t13d3014h1_1d37bd780c83_5ae85263eb3b"
+  ],
+  "ja4_foxio": [
+   "t13d3014h1_1d37bd780c83_5ae85263eb3b"
+  ],
+  "ja4_main": [
+   "t13d3014h1_1d37bd780c83_5ae85263eb3b"
+  ],
+  "ja4s_foxio": [
+   "t130200_1302_234ea6891581"
+  ],
+  "seconds_tshark": 0.058,
+  "seconds_ja4": 0.13
+ },
+ {
+  "id": "tls_ipv4",
+  "limitation": "L6",
+  "hellos_tshark": 3,
+  "hellos_ja4": 3,
+  "distinct_ja3": 1,
+  "distinct_ja4": 1,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 1569,
+  "pieces_max": 1,
+  "biggest_frame": 4911,
+  "groups_chosen": [
+   4588
+  ],
+  "ech_ext_hellos": 0,
+  "server_names": [
+   "www.cloudflare.com"
+  ],
+  "dns_names": [],
+  "ja4_tshark": [
+   "t13d3013h2_1d37bd780c83_8537cf56674e"
+  ],
+  "ja4_foxio": [
+   "t13d3013h2_1d37bd780c83_8537cf56674e"
+  ],
+  "ja4_main": [
+   "t13d3013h2_1d37bd780c83_8537cf56674e"
+  ],
+  "ja4s_foxio": [
+   "t130200_1302_234ea6891581"
+  ],
+  "seconds_tshark": 0.057,
+  "seconds_ja4": 0.119
+ },
+ {
+  "id": "tls_ipv6",
+  "limitation": "L6",
+  "hellos_tshark": 0,
+  "hellos_ja4": 0,
+  "distinct_ja3": 0,
+  "distinct_ja4": 0,
+  "distinct_ja4_main": 0,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 0,
+  "pieces_max": 1,
+  "biggest_frame": 0,
+  "groups_chosen": [],
+  "ech_ext_hellos": 0,
+  "server_names": [],
+  "dns_names": [],
+  "ja4_tshark": [],
+  "ja4_foxio": [],
+  "ja4_main": [],
+  "ja4s_foxio": [],
+  "seconds_tshark": 0.058,
+  "seconds_ja4": 0.111
+ },
+ {
+  "id": "tls_ech_off",
+  "limitation": "L7",
+  "hellos_tshark": 5,
+  "hellos_ja4": 5,
+  "distinct_ja3": 5,
+  "distinct_ja4": 4,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 1730,
+  "pieces_max": 1,
+  "biggest_frame": 5148,
+  "groups_chosen": [
+   4588
+  ],
+  "ech_ext_hellos": 0,
+  "server_names": [
+   "accounts.google.com",
+   "crypto.cloudflare.com",
+   "redirector.gvt1.com",
+   "update.googleapis.com"
+  ],
+  "dns_names": [
+   "accounts.google.com",
+   "clients2.google.com",
+   "crypto.cloudflare.com",
+   "redirector.gvt1.com",
+   "update.googleapis.com"
+  ],
+  "ja4_tshark": [
+   "t13d1516h2_8daaf6152771_3557bd83d7c8",
+   "t13d1516h2_8daaf6152771_4c57c08d3a5a",
+   "t13d1516h2_8daaf6152771_9654de2595cf",
+   "t13d1516h2_8daaf6152771_c95be0ae8015"
+  ],
+  "ja4_foxio": [
+   "t13d1516h2_8daaf6152771_3557bd83d7c8",
+   "t13d1516h2_8daaf6152771_4c57c08d3a5a",
+   "t13d1516h2_8daaf6152771_9654de2595cf",
+   "t13d1516h2_8daaf6152771_c95be0ae8015"
+  ],
+  "ja4_main": [
+   "t13d1516h2_8daaf6152771_447d952d5833"
+  ],
+  "ja4s_foxio": [
+   "t130200_1301_234ea6891581",
+   "t130200_1302_234ea6891581"
+  ],
+  "seconds_tshark": 0.057,
+  "seconds_ja4": 0.121
+ },
+ {
+  "id": "tls_ech_on",
+  "limitation": "L7",
+  "hellos_tshark": 5,
+  "hellos_ja4": 5,
+  "distinct_ja3": 5,
+  "distinct_ja4": 4,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 2014,
+  "pieces_max": 1,
+  "biggest_frame": 2743,
+  "groups_chosen": [
+   4588
+  ],
+  "ech_ext_hellos": 5,
+  "server_names": [
+   "accounts.google.com",
+   "cloudflare-ech.com",
+   "redirector.gvt1.com",
+   "update.googleapis.com"
+  ],
+  "dns_names": [
+   "accounts.google.com",
+   "clients2.google.com",
+   "crypto.cloudflare.com",
+   "redirector.gvt1.com",
+   "update.googleapis.com"
+  ],
+  "ja4_tshark": [
+   "t13d1517h2_8daaf6152771_63ff51340b64",
+   "t13d1517h2_8daaf6152771_92a4fdd66f79",
+   "t13d1517h2_8daaf6152771_a323378790d4",
+   "t13d1517h2_8daaf6152771_f10ceb9fcfd7"
+  ],
+  "ja4_foxio": [
+   "t13d1517h2_8daaf6152771_63ff51340b64",
+   "t13d1517h2_8daaf6152771_92a4fdd66f79",
+   "t13d1517h2_8daaf6152771_a323378790d4",
+   "t13d1517h2_8daaf6152771_f10ceb9fcfd7"
+  ],
+  "ja4_main": [
+   "t13d1517h2_8daaf6152771_cb7bf5808d99"
+  ],
+  "ja4s_foxio": [
+   "t130200_1301_234ea6891581",
+   "t130200_1302_234ea6891581"
+  ],
+  "seconds_tshark": 0.057,
+  "seconds_ja4": 0.122
+ },
+ {
+  "id": "tls_ech_doh",
+  "limitation": "L7",
+  "hellos_tshark": 12,
+  "hellos_ja4": 12,
+  "distinct_ja3": 12,
+  "distinct_ja4": 9,
+  "distinct_ja4_main": 1,
+  "tools_agree": true,
+  "ja4x_ja4h_no_keys": 0,
+  "ja4x_ja4h_with_keys": "-",
+  "hello_bytes_max": 2013,
+  "pieces_max": 1,
+  "biggest_frame": 2512,
+  "groups_chosen": [
+   29,
+   4588
+  ],
+  "ech_ext_hellos": 12,
+  "server_names": [
+   "cloudflare-dns.com"
+  ],
+  "dns_names": [
+   "cloudflare-dns.com",
+   "google.com"
+  ],
+  "ja4_tshark": [
+   "t13d1517h2_8daaf6152771_234dc10236f4",
+   "t13d1517h2_8daaf6152771_5cd47779f5c5",
+   "t13d1517h2_8daaf6152771_92a4fdd66f79",
+   "t13d1517h2_8daaf6152771_937be626dbce",
+   "t13d1517h2_8daaf6152771_a323378790d4",
+   "t13d1517h2_8daaf6152771_a323666e1952",
+   "t13d1517h2_8daaf6152771_e1144aa4d245",
+   "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+   "t13d1517h2_8daaf6152771_ff1e8fc497ec"
+  ],
+  "ja4_foxio": [
+   "t13d1517h2_8daaf6152771_234dc10236f4",
+   "t13d1517h2_8daaf6152771_5cd47779f5c5",
+   "t13d1517h2_8daaf6152771_92a4fdd66f79",
+   "t13d1517h2_8daaf6152771_937be626dbce",
+   "t13d1517h2_8daaf6152771_a323378790d4",
+   "t13d1517h2_8daaf6152771_a323666e1952",
+   "t13d1517h2_8daaf6152771_e1144aa4d245",
+   "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+   "t13d1517h2_8daaf6152771_ff1e8fc497ec"
+  ],
+  "ja4_main": [
+   "t13d1517h2_8daaf6152771_cb7bf5808d99"
+  ],
+  "ja4s_foxio": [
+   "t130200_1301_a56c5b993250",
+   "t130200_1302_a56c5b993250"
+  ],
+  "seconds_tshark": 0.058,
+  "seconds_ja4": 0.126
+ }
+]

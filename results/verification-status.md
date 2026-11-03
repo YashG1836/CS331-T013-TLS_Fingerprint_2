@@ -1,31 +1,29 @@
-# Verification and tool readiness — imported team log
+# Verification status — Track 1 / Track 2 integration
 
-This record is preserved from the team-provided `cn.zip`, committed in `d71a402`. Its original verification commands were run in the team's Ubuntu WSL workspace. The record is useful evidence about that workspace and its QUIC capture, but its build/test output does **not** validate the current modular C++ code: the archived workspace contains a monolithic `quic.cpp`, a GoogleTest target, and a different Python manifest CLI. The current repository deliberately keeps the modular C++ files, lightweight C++ test harness, pytest, `reference_baseline.py`, and current `evaluate.py` conventions.
+## Cross-track integration checks (3 November 2026)
 
-## Team-reported build and tests in the archived workspace
+This section records checks on the current working tree after the Track 1 archive import and the first PCAP-to-ClientHello CLI integration. It is separate from imported teammate logs and outputs.
 
-- `make test`: the archived tree reportedly built and passed 6 C++/GoogleTest cases and 2 Python `unittest` cases.
-- After adding the capture, the archived tree reportedly ran `python3 code/scripts/manifest.py check captures/manifest.json` and reported one provisional capture.
-- Those commands are not the current repository's `make test` / `make check` implementation. Do not present these results as a test of the modular implementation. Current-branch verification is provided by the repository's own test suite and GitHub Actions, not by this archived log.
+### Track 1 evidence and Python suite
 
-## Team-reported WSL tool snapshot
+- `make check` passed for 16 hash-validated manifest records: 15 Track 1 attempts (14 with packet records and one empty IPv6 PCAP) plus the pre-existing `quic-v1-baseline-2026-11-03` record. Provenance remains provisional.
+- `make eval` emitted `provisional_evidence`; it validates evidence records and hashes, not limitation conclusions.
+- Python tests passed: 20/20.
+- Imported raw/summary cross-check passed for hello counts, distinct JA3/JA4 counts, and reported TShark/FoxIO agreement. The repeated-Chromium `ja4-main` summary value cannot be recomputed because per-capture raw `ja4-main` output is absent.
+- `results/preflight.json` remains the imported WSL snapshot; `make preflight` was not run to its default path. Docker, TShark, tcpdump, and FoxIO `ja4` are unavailable in this integration environment. `make lab-image`, `make lab-eval`, and fresh network captures were **not** run. Imported TShark/FoxIO output remains teammate-supplied.
 
-The archived `results/preflight.json` was checked at `2026-11-03T13:08:18Z` and reports GNU Make 4.4.1, CMake 4.2.3, GCC 15.2.0, OpenSSL 3.5.5, TShark/Wireshark 4.6.4, tcpdump 4.99.6, Python 3.14.4, and FoxIO `ja4` 0.18.6. TShark's field registry includes QUIC, JA3, and JA4 fields. The snapshot explicitly says capture permissions were not independently verified. It predates the capture and baseline output timestamps.
+### Current C++ core and PCAP extraction
 
-## Team-reported capture and reference outputs
+- Built the current modular C++ targets with CMake 3.31.6 and OpenSSL 3.0.20 from temporary `/tmp` installations; neither dependency nor build artifact was added to the repository.
+- CTest passed 1/1, including a synthetic classic-PCAP Ethernet/IPv4/UDP reader test and explicit PCAPNG-magic rejection. Pytest passed 20/20. `git diff --check` passed after these changes.
+- The new classic-PCAP reader parsed the two imported QUIC files (classic PCAP v2.4, Ethernet) without unsupported records: `quic_chromium.pcap` had 140 records/UDP datagrams; `quic_curl.pcap` had 148.
+- The connected CLI recovered five complete QUIC v1 ClientHellos from each capture. Five other candidate DCIDs per capture failed client-Initial decryption and remain unresolved; they were not counted as recovered.
+- **Extent/framing comparison (not byte-for-byte comparison):** the imported TShark JSON reports Chromium handshake-body lengths `1876, 1880, 1881, 1887, 1887`; adding the four-byte TLS handshake header yields sorted total lengths `1880, 1884, 1885, 1891, 1891`. The C++ extractor recovered exactly that total-length multiset. The imported curl output reports five body lengths of `1505`; the extractor recovered five total ClientHellos of `1509` bytes. Each extracted sequence has ClientHello handshake type `1`, a declared TLS body length matching its recovered byte count, and parses successfully through the modular ClientHello parser.
+- The imported TShark JSON has no full reassembled ClientHello byte arrays, and TShark was unavailable for a fresh raw export. Consequently **exact byte equality against an independent trusted reference has not yet been verified**. The current measurement corroborates counts, lengths, TLS framing, and parser validity only; JA3/JA4 outputs were not produced by the C++ CLI.
+- The machine-readable length/framing result is tracked in `results/quic-extractor-comparison.json`. Full CLI output (including extracted ClientHello hex) is saved locally in Git-ignored `results/reproduced/quic_chromium_extractor.txt` and `results/reproduced/quic_curl_extractor.txt` and can be regenerated with the commands in `docs/track2-integration-plan.md`.
 
-- Capture: `captures/pcaps/quic-v1-baseline.pcapng`; SHA-256 `1cd5f8c05b5b966eed1ae339eeec80b86b830deccda81489dabefb28f272ec7a`.
-- The capture metadata reports one controlled aioquic 1.7.2 QUIC v1 / ALPN h3 request to `cloudflare.com`; the exact client script, invocation, and dumpcap command/duration were not retained.
-- TShark 4.6.4 reports frame 1 as QUIC v1 Initial with a ClientHello, CRYPTO offset 0 and length 475, JA3 `121f6e4f22ee3205214b0676ed64b9e2`, and JA4 `q13d0307h3_55b375c5d22e_1cecd519fee8`.
-- The supplied FoxIO JSON reports the same JA4 for its UDP stream. It reports binary version 0.18.6 and source release v1.0.1; the recorded executable hash is in metadata. The exact installed executable was not included, so the hash/build attestation was not independently checked here.
-- The supplied TShark and FoxIO command lines are recorded in the capture metadata. They differ from the current `reference_baseline.py` command set. The TSV and JSON are preserved as supplied team outputs, not regenerated output from this repository's runner.
-- FoxIO's Rust CLI invokes TShark; their matching values are a cross-CLI consistency observation, not a fully independent decoder comparison. This capture does **not** demonstrate an L1 tool-coverage gap.
+### Remaining verification gates
 
-The archive reports a 523-byte Initial within a 1200-byte UDP payload, with 677 trailing zero bytes. It also reports that its monolithic custom parser failed on the full datagram and succeeded on the first QUIC packet. That custom-parser result has not been reproduced against this repository's modular C++ implementation and must not be attributed to it.
-
-## Integration checks performed here
-
-- Recomputed the pcap SHA-256 and matched the manifest, metadata, and supplied `capture_hash.txt`.
-- Parsed the pcapng block framing: 30 blocks total, 27 enhanced packet blocks, and no Decryption Secrets Blocks.
-- Verified that the supplied FoxIO JA4 equals the first TShark ClientHello JA4 and that the supplied JA3/JA4 row matches the metadata observations.
-- TShark and FoxIO were not available in the integration environment, so their commands were **not** rerun here. The capture is consequently registered as provisional; missing provenance and byte-level ClientHello verification remain open.
+- In Ubuntu/WSL with TShark, export raw reassembled handshakes (commands in `docs/track2-integration-plan.md`) and compare bytes one-for-one in capture order. If `jsonraw` does not expose reassembled TLS bytes, use another trusted export path.
+- Expand C++ fixture coverage for IPv6, truncated/invalid PCAP records, VLAN and IP fragments; test candidate-flow diagnostics and key updates under reordering/loss. Current CLI grouping is by DCID and destination port 443, not a complete bidirectional flow/migration model.
+- Re-run Docker/TShark/FoxIO-dependent lab checks only in an environment where those tools are available. Preserve their outputs as reproduced results, distinct from the imported evidence.

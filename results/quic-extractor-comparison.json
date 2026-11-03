@@ -1,0 +1,75 @@
+{
+  "validation_date": "2026-11-03",
+  "validation_type": "local QUIC Initial extraction; recovered total ClientHello lengths compared with imported TShark TLS handshake body lengths plus the 4-byte TLS handshake header",
+  "independent_tshark_rerun": false,
+  "exact_client_hello_byte_comparison": false,
+  "exact_comparison_limitation": "Imported TShark JSON contains decoded summary fields and body lengths, not full reassembled ClientHello bytes; TShark is unavailable in the integration environment.",
+  "captures": [
+    {
+      "capture_id": "quic_chromium",
+      "capture_sha256": "090d9c9339132344fb39c4255b49611cb6516fb9f02570a5042239e075151615",
+      "manifest_capture_sha256": "090d9c9339132344fb39c4255b49611cb6516fb9f02570a5042239e075151615",
+      "packet_records": 140,
+      "udp_datagrams": 140,
+      "candidate_initial_flows": 10,
+      "complete_client_hellos": 5,
+      "other_candidate_dcids": 5,
+      "recovered_total_lengths_bytes": [
+        1880,
+        1884,
+        1885,
+        1891,
+        1891
+      ],
+      "imported_tshark_body_lengths_bytes": [
+        1876,
+        1880,
+        1881,
+        1887,
+        1887
+      ],
+      "reference_body_lengths_plus_tls_header_bytes": [
+        1880,
+        1884,
+        1885,
+        1891,
+        1891
+      ],
+      "length_multisets_match": true,
+      "all_extracted_tls_client_hello_framing_valid": true
+    },
+    {
+      "capture_id": "quic_curl",
+      "capture_sha256": "21297e764bb3ad2a28553387ff213c677e0f75b483cceb5a6fb11efc357a3c74",
+      "manifest_capture_sha256": "21297e764bb3ad2a28553387ff213c677e0f75b483cceb5a6fb11efc357a3c74",
+      "packet_records": 148,
+      "udp_datagrams": 148,
+      "candidate_initial_flows": 10,
+      "complete_client_hellos": 5,
+      "other_candidate_dcids": 5,
+      "recovered_total_lengths_bytes": [
+        1509,
+        1509,
+        1509,
+        1509,
+        1509
+      ],
+      "imported_tshark_body_lengths_bytes": [
+        1505,
+        1505,
+        1505,
+        1505,
+        1505
+      ],
+      "reference_body_lengths_plus_tls_header_bytes": [
+        1509,
+        1509,
+        1509,
+        1509,
+        1509
+      ],
+      "length_multisets_match": true,
+      "all_extracted_tls_client_hello_framing_valid": true
+    }
+  ]
+}

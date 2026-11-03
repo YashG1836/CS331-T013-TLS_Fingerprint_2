@@ -132,6 +132,16 @@ def load_manifest(path: Path = MANIFEST) -> dict:
         missing = entry.get("missing_provenance", [])
         if not isinstance(missing, list) or any(not isinstance(item, str) for item in missing):
             raise ValueError(f"{capture_id}: missing_provenance must be a list of strings")
+        capture_status = entry.get("capture_status", "unknown")
+        packet_count = entry.get("packet_count")
+        if capture_status not in {"captured", "empty", "unknown"}:
+            raise ValueError(f"{capture_id}: unsupported capture_status: {capture_status}")
+        if packet_count is not None and (not isinstance(packet_count, int) or packet_count < 0):
+            raise ValueError(f"{capture_id}: packet_count must be a non-negative integer")
+        if capture_status == "captured" and packet_count == 0:
+            raise ValueError(f"{capture_id}: captured status conflicts with zero packets")
+        if capture_status == "empty" and packet_count != 0:
+            raise ValueError(f"{capture_id}: empty status requires packet_count: 0")
     return doc
 
 
@@ -141,6 +151,9 @@ def summarize(manifest: dict) -> dict:
     provisional = sum(status == "provisional" for status in statuses)
     complete = sum(status == "complete" for status in statuses)
     unclassified = sum(status == "unclassified" for status in statuses)
+    captures_with_packets = sum(entry.get("capture_status") == "captured" for entry in captures)
+    empty_captures = sum(entry.get("capture_status") == "empty" for entry in captures)
+    unknown_packet_status = sum(entry.get("capture_status", "unknown") == "unknown" for entry in captures)
     if not captures:
         status = "no_evidence_yet"
         note = "No capture records are present; no experimental result is claimed."
@@ -157,6 +170,9 @@ def summarize(manifest: dict) -> dict:
         "provisional_capture_count": provisional,
         "complete_provenance_count": complete,
         "unclassified_capture_count": unclassified,
+        "captures_with_packets": captures_with_packets,
+        "empty_capture_count": empty_captures,
+        "unknown_packet_status_count": unknown_packet_status,
         "status": status,
         "captures": [
             {
@@ -164,6 +180,8 @@ def summarize(manifest: dict) -> dict:
                 "scenario": entry.get("scenario"),
                 "provenance_status": entry.get("provenance_status", "unclassified"),
                 "sha256": entry.get("sha256"),
+                "capture_status": entry.get("capture_status", "unknown"),
+                "packet_count": entry.get("packet_count"),
                 "missing_provenance": entry.get("missing_provenance", []),
             }
             for entry in captures
@@ -186,8 +204,9 @@ def main() -> int:
         print(
             "manifest valid: "
             f"{summary['capture_count']} capture(s) "
-            f"({summary['provisional_capture_count']} provisional, "
-            f"{summary['complete_provenance_count']} complete provenance)"
+            f"({summary['captures_with_packets']} with packets, "
+            f"{summary['empty_capture_count']} empty, "
+            f"{summary['provisional_capture_count']} provisional)"
         )
         return 0
     output = args.output or ROOT / "results" / "evaluation.json"

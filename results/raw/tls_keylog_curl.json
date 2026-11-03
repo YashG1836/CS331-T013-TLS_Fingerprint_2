@@ -1,0 +1,104 @@
+{
+ "tshark_client_hellos": [
+  {
+   "frame.number": "4",
+   "tls.handshake.extensions_server_name": "www.cloudflare.com",
+   "tls.handshake.ja3": "32e4b8812cda0c0d50783b438492a769",
+   "tls.handshake.ja4": "t13d3013h1_1d37bd780c83_8537cf56674e",
+   "tls.handshake.length": "1566",
+   "tcp.segment.count": "",
+   "quic.crypto.fragment.count": "",
+   "tls.ech.client_hello_type": ""
+  }
+ ],
+ "tshark_server_hellos": [
+  {
+   "frame.number": "6",
+   "tls.handshake.extensions_key_share_group": "4588"
+  }
+ ],
+ "foxio_ja4": [
+  {
+   "stream": 0,
+   "transport": "tcp",
+   "src": "172.17.0.2",
+   "dst": "104.16.124.96",
+   "src_port": 59350,
+   "dst_port": 443,
+   "tls_server_name": "www.cloudflare.com",
+   "ja4": "t13d3013h1_1d37bd780c83_8537cf56674e",
+   "ja4_r": "t13d3013h1_002f,0033,0035,0039,003c,003d,0067,006b,009c,009d,009e,009f,1301,1302,1303,c009,c00a,c013,c014,c023,c024,c027,c028,c02b,c02c,c02f,c030,cca8,cca9,ccaa_000a,000b,000d,0016,0017,001b,002b,002d,0031,0033,ff01_0905,0906,0904,0403,0503,0603,0807,0808,081a,081b,081c,0809,080a,080b,0804,0805,0806,0401,0501,0601,0303,0301,0302,0402,0502,0602",
+   "ja4s": "t130200_1302_234ea6891581",
+   "ja4s_r": "t130200_1302_0033,002b",
+   "ja4l_c": "33_64",
+   "ja4l_s": "21960_63"
+  }
+ ],
+ "foxio_ja4_with_keys": [
+  {
+   "stream": 0,
+   "transport": "tcp",
+   "src": "172.17.0.2",
+   "dst": "104.16.124.96",
+   "src_port": 59350,
+   "dst_port": 443,
+   "tls_server_name": "www.cloudflare.com",
+   "ja4": "t13d3013h1_1d37bd780c83_8537cf56674e",
+   "ja4_r": "t13d3013h1_002f,0033,0035,0039,003c,003d,0067,006b,009c,009d,009e,009f,1301,1302,1303,c009,c00a,c013,c014,c023,c024,c027,c028,c02b,c02c,c02f,c030,cca8,cca9,ccaa_000a,000b,000d,0016,0017,001b,002b,002d,0031,0033,ff01_0905,0906,0904,0403,0503,0603,0807,0808,081a,081b,081c,0809,080a,080b,0804,0805,0806,0401,0501,0601,0303,0301,0302,0402,0502,0602",
+   "ja4s": "t130200_1302_234ea6891581",
+   "ja4s_r": "t130200_1302_0033,002b",
+   "tls_certs": [
+    {
+     "x509": [
+      {
+       "ja4x": "a373a9f83c6b_7022c563de38_2e3757343cb0",
+       "ja4x_r": "550406,55040a,550403_550403_551d0f,551d25,551d13,551d0e,551d23,2b06010505070101,551d11,551d20,551d1f,2b06010401d679020402",
+       "issuerCountryName": "US",
+       "issuerOrganizationName": "Let's Encrypt",
+       "issuerCommonName": "YE1",
+       "subjectCommonName": "www.cloudflare.com"
+      },
+      {
+       "ja4x": "a373a9f83c6b_a373a9f83c6b_0d8df11fc25a",
+       "ja4x_r": "550406,55040a,550403_550406,55040a,550403_551d0f,551d25,551d13,551d0e,551d23,2b06010505070101,551d20,551d1f",
+       "issuerCountryName": "US",
+       "issuerOrganizationName": "ISRG",
+       "issuerCommonName": "Root YE",
+       "subjectCountryName": "US",
+       "subjectOrganizationName": "Let's Encrypt",
+       "subjectCommonName": "YE1"
+      },
+      {
+       "ja4x": "a373a9f83c6b_a373a9f83c6b_0d8df11fc25a",
+       "ja4x_r": "550406,55040a,550403_550406,55040a,550403_551d0f,551d25,551d13,551d0e,551d23,2b06010505070101,551d20,551d1f",
+       "issuerCountryName": "US",
+       "issuerOrganizationName": "Internet Security Research Group",
+       "issuerCommonName": "ISRG Root X2",
+       "subjectCountryName": "US",
+       "subjectOrganizationName": "ISRG",
+       "subjectCommonName": "Root YE"
+      },
+      {
+       "ja4x": "a373a9f83c6b_a373a9f83c6b_0d8df11fc25a",
+       "ja4x_r": "550406,55040a,550403_550406,55040a,550403_551d0f,551d25,551d13,551d0e,551d23,2b06010505070101,551d20,551d1f",
+       "issuerCountryName": "US",
+       "issuerOrganizationName": "Internet Security Research Group",
+       "issuerCommonName": "ISRG Root X1",
+       "subjectCountryName": "US",
+       "subjectOrganizationName": "Internet Security Research Group",
+       "subjectCommonName": "ISRG Root X2"
+      }
+     ]
+    }
+   ],
+   "ja4l_c": "33_64",
+   "ja4l_s": "21960_63",
+   "http": [
+    {
+     "ja4h": "ge11nn030000_fe444ad14866_000000000000_000000000000",
+     "ja4h_r": "ge11nn030000_Host,User-Agent,Accept__"
+    }
+   ]
+  }
+ ]
+}

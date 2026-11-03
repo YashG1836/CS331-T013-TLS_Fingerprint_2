@@ -1,3 +1,3 @@
 # Report status
 
-One provisional QUIC v1 baseline and its raw JA4/TShark outputs are stored under `captures/` and `results/baseline/`. No final limitation finding or contribution is claimed: the tools agree on this capture, share a TShark dependency, and provenance/byte-level validation remain open. Keep seven limitation rows and distinguish this observation from a confirmed gap.
+The repo contains the earlier provisional QUIC baseline plus 15 imported Track 1 capture attempts and raw outputs. Results are team-supplied and not rerun here; one PCAP is empty, T3 has summary/narrative discrepancies, the T2 key log is absent, and the T7 DoH arm is incomplete. No final limitation finding or original contribution is claimed. Keep seven limitation rows and distinguish imported observations from validated results; see `docs/track1-evidence-audit.md`.

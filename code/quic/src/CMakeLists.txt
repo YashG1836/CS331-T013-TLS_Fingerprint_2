@@ -1,5 +1,6 @@
 add_library(quic_core
   packet_parser.cpp
+  capture_reader.cpp
   initial_crypto.cpp
   frame_parser.cpp
   crypto_reassembly.cpp

@@ -5,8 +5,12 @@ This repository is being rebuilt around the Project 2 research question: where d
 ## Team reading guide and implementation plan
 
 - [`docs/reading-guide.md`](docs/reading-guide.md): concepts and RFC sections behind the QUIC extractor, fingerprint families, and experiments.
-- [`docs/quic-baseline.md`](docs/quic-baseline.md): pinned reference-tool versions and reproducible baseline procedure.
-- [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md): architecture, implementation stages, evidence requirements, acceptance gates, and the proposed schedule.
+- [`docs/quic-baseline.md`](docs/quic-baseline.md): the original QUIC v1 reference capture and its provenance.
+- [`docs/track1-evidence-audit.md`](docs/track1-evidence-audit.md): cross-check of Yash's 15-capture Track 1 import, known discrepancies, and reproduction caveats.
+- [`docs/track2-integration-plan.md`](docs/track2-integration-plan.md): current PCAP-to-modular-C++ status, remaining byte-level validation gates, and a candidate contribution.
+- [`docs/tests/README.md`](docs/tests/README.md): imported T0–T7 empirical-lab explanations.
+- [`GLOSSARY.md`](GLOSSARY.md), [`PHASES.md`](PHASES.md), [`FILES_GUIDE.md`](FILES_GUIDE.md), [`VIVA_QUESTIONS.md`](VIVA_QUESTIONS.md), [`PRESENTATION_GUIDE.md`](PRESENTATION_GUIDE.md): adopted learning and presentation guides.
+- [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md): architecture, roles, evidence requirements, acceptance gates, and schedule.
 
 ## Current implementation status
 
@@ -18,11 +22,13 @@ Implemented in this first increment:
 - Parsing of Initial PADDING, PING, ACK/ACK_ECN, CRYPTO, and CONNECTION_CLOSE frames.
 - Offset-aware CRYPTO reassembly with out-of-order, duplicate, conflicting-overlap, and size-limit handling.
 - Bounds-checked TLS ClientHello structure and selected extension parsing.
-- C++ tests and a Python manifest-validation command.
+- Classic-PCAP v2.x Ethernet UDP adapter for unfragmented IPv4/IPv6, with explicit unsupported-case reporting.
+- `--pcap` CLI integration for QUIC v1 client Initial decryption, per-DCID CRYPTO reassembly, and full ClientHello hex output; the existing `--hex` mode remains available.
+- Lightweight C++ tests, pytest manifest/script validation, and CMake/CI configuration.
 
-One team-supplied QUIC v1 capture with TShark and FoxIO outputs is now registered as **provisional** evidence. Their first-frame JA4 values match, so this capture does not demonstrate an L1 tool-coverage gap. The imported commands have not been rerun by the current runner, provenance is incomplete, and the archive's monolithic-parser result is not a test of this repository's modular C++ implementation.
+The repository registers the earlier aioquic baseline plus all 15 Track 1 capture attempts and teammate-supplied analysis. Fourteen of Yash's PCAPs contain packets; the IPv6 file is empty and is not treated as a comparison. Track 1 tool outputs remain imported/provisional and were not rerun with Docker/TShark/JA4 in this environment. Separately, the current C++ CLI was built and run against the two imported QUIC PCAPs, recovering five complete ClientHellos from each. Their lengths and TLS handshake framing match the imported TShark summaries; exact raw-byte equality against an independent reference remains unverified. See the Track 1 audit and Track 2 plan for caveats.
 
-Not yet implemented or claimed: pcap/UDP extraction, TCP baseline experiments, QUIC v2, Retry processing, custom JA4 output, a multi-client corpus, seven measured limitations, or an original solution. The CLI takes a single datagram encoded as hex and initially targets client Initial packets. These boundaries prevent a scaffold or one provisional baseline from being mistaken for a complete result.
+Still incomplete or unclaimed: a complete bidirectional connection/migration model, robust behavior under packet reordering/loss/truncation beyond existing unit coverage, byte-exact comparison against a raw TShark export, QUIC v2, Retry processing, custom JA4 output, final limitation conclusions, and an approved original contribution. The PCAP adapter is intentionally limited to classic Ethernet PCAP and supported unfragmented IPv4/IPv6 UDP; PCAPNG and unsupported link/IP headers are not handled.
 
 ## Requirements
 
@@ -41,7 +47,12 @@ make build                 # CMake configure and C++ build
 make test                  # C++ tests and Python tests
 make check                 # validate captures/manifest references
 make eval                  # emit provisional/evidence status; no limitation conclusions are inferred
-make baseline CAPTURE_ID=<id>  # run FoxIO JA4+ and TShark on one registered pcap
+make baseline CAPTURE_ID=<id>  # run existing single-capture reference runner
+make lab-image              # build Yash's pinned TShark/FoxIO lab
+make lab-eval               # reanalyze Track 1 captures into results/reproduced/
+make lab-versions            # record the lab toolchain under results/reproduced/
+# Live capture is opt-in and writes to captures/reproduced/:
+make lab-capture CAPTURE_ID=quic_chromium
 ```
 
 For sanitizer builds:
@@ -52,17 +63,19 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
-The first-stage CLI accepts one UDP datagram as hex:
+The CLI accepts a single UDP datagram as hex or a supported classic Ethernet PCAP:
 
 ```sh
 build/code/quic/src/quic-fingerprint --hex '<hex bytes>'
+build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_chromium.pcap
+build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_curl.pcap
 ```
 
-It prints packet boundaries and, if the input includes a decryptable client Initial and complete ClientHello, reports parsed field counts and the recovered handshake bytes. Do not interpret this CLI's input mode as pcap support.
+Hex mode reports packet boundaries and processes a complete decryptable Initial datagram. PCAP mode defaults to destination UDP port 443 and can be changed with `--destination-port <port>`. It reports per-DCID extraction diagnostics and ClientHello hex. This is an early v1 extraction path, not a complete QUIC flow tracker or a verified JA4 implementation.
 
 ## Evidence and result integrity
 
-`captures/manifest.json` is the source of truth. It contains one provisional QUIC v1 reference capture with a verified SHA-256 and linked metadata/baseline files. `make check` verifies the capture, hash, metadata, and artifact paths; `make eval` reports provisional status and does not infer a limitation or generate fingerprint statistics. The team must resolve the missing provenance and independently verify the recovered ClientHello before using this as a final L1 finding.
+`captures/manifest.json` is the source of truth. It registers 16 records: the original QUIC baseline and all 15 Track 1 capture attempts, with hashes, metadata, recipes, and output paths. `make check` validates hashes/metadata/artifacts and reports packet-bearing versus empty files; `make eval` reports evidence status only. The Track 1 summary and raw outputs are imported as supplied, except the audited summary marks the zero-packet IPv6 comparison as not applicable. `make lab-eval` is the fresh reference-tool rerun and writes separately under `results/reproduced/`.
 
 ## Design boundaries
 

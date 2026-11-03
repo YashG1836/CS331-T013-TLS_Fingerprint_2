@@ -1,3 +1,4 @@
+#include "quic/capture_reader.hpp"
 #include "quic/crypto_reassembly.hpp"
 #include "quic/frame_parser.hpp"
 #include "quic/initial_crypto.hpp"
@@ -9,6 +10,8 @@
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -256,11 +259,90 @@ void test_client_hello() {
   CHECK(!tls::parse_client_hello(malformed));
 }
 
+void append_le16(quic::Bytes& bytes, std::uint16_t value) {
+  bytes.push_back(static_cast<std::uint8_t>(value & 0xffU));
+  bytes.push_back(static_cast<std::uint8_t>(value >> 8U));
+}
+
+void append_be16(quic::Bytes& bytes, std::uint16_t value) {
+  bytes.push_back(static_cast<std::uint8_t>(value >> 8U));
+  bytes.push_back(static_cast<std::uint8_t>(value & 0xffU));
+}
+
+void append_le32(quic::Bytes& bytes, std::uint32_t value) {
+  for (unsigned int shift = 0; shift < 32U; shift += 8U) {
+    bytes.push_back(static_cast<std::uint8_t>((value >> shift) & 0xffU));
+  }
+}
+
+void test_classic_pcap_udp_reader() {
+  const quic::Bytes udp_payload{0xc0, 0x00, 0x00, 0x00, 0x01};
+  quic::Bytes frame(12U, 0);
+  frame.push_back(0x08); // Ethernet IPv4
+  frame.push_back(0x00);
+  frame.push_back(0x45); // IPv4, 20-byte header
+  frame.push_back(0x00);
+  const auto ip_total = static_cast<std::uint16_t>(20U + 8U + udp_payload.size());
+  append_be16(frame, ip_total);
+  frame.push_back(0x00); frame.push_back(0x01); // ID
+  frame.push_back(0x40); frame.push_back(0x00); // DF, no fragmentation
+  frame.push_back(64); frame.push_back(17); // TTL, UDP
+  frame.push_back(0); frame.push_back(0); // checksum
+  frame.insert(frame.end(), {192, 0, 2, 1, 198, 51, 100, 2});
+  append_be16(frame, 12345); append_be16(frame, 443);
+  const auto udp_length = static_cast<std::uint16_t>(8U + udp_payload.size());
+  frame.push_back(static_cast<std::uint8_t>(udp_length >> 8U));
+  frame.push_back(static_cast<std::uint8_t>(udp_length & 0xffU));
+  frame.push_back(0); frame.push_back(0); // checksum
+  frame.insert(frame.end(), udp_payload.begin(), udp_payload.end());
+
+  quic::Bytes pcap{0xd4, 0xc3, 0xb2, 0xa1}; // little-endian classic PCAP
+  append_le16(pcap, 2); append_le16(pcap, 4);
+  append_le32(pcap, 0); append_le32(pcap, 0);
+  append_le32(pcap, 65535); append_le32(pcap, 1); // snaplen, Ethernet
+  append_le32(pcap, 1); append_le32(pcap, 0);
+  append_le32(pcap, static_cast<std::uint32_t>(frame.size()));
+  append_le32(pcap, static_cast<std::uint32_t>(frame.size()));
+  pcap.insert(pcap.end(), frame.begin(), frame.end());
+
+  const auto path = std::filesystem::temp_directory_path() / "quic_capture_reader_test.pcap";
+  {
+    std::ofstream out(path, std::ios::binary | std::ios::trunc);
+    CHECK(out.good());
+    out.write(reinterpret_cast<const char*>(pcap.data()), static_cast<std::streamsize>(pcap.size()));
+    CHECK(out.good());
+  }
+  const auto parsed = quic::read_ethernet_udp_pcap(path);
+  CHECK(parsed);
+  CHECK(parsed.value->version_major == 2);
+  CHECK(parsed.value->version_minor == 4);
+  CHECK(parsed.value->link_type == 1);
+  CHECK(parsed.value->packet_records == 1);
+  CHECK(parsed.value->udp_datagrams.size() == 1);
+  CHECK(parsed.value->udp_datagrams[0].frame_number == 1);
+  CHECK(parsed.value->udp_datagrams[0].ip_version == 4);
+  CHECK(parsed.value->udp_datagrams[0].source_port == 12345);
+  CHECK(parsed.value->udp_datagrams[0].destination_port == 443);
+  CHECK(parsed.value->udp_datagrams[0].payload == udp_payload);
+  std::filesystem::remove(path);
+
+  const auto invalid_path = std::filesystem::temp_directory_path() / "quic_capture_reader_invalid.pcapng";
+  {
+    const std::array<std::uint8_t, 4> pcapng_magic{0x0a, 0x0d, 0x0d, 0x0a};
+    std::ofstream out(invalid_path, std::ios::binary | std::ios::trunc);
+    out.write(reinterpret_cast<const char*>(pcapng_magic.data()),
+              static_cast<std::streamsize>(pcapng_magic.size()));
+  }
+  CHECK(!quic::read_ethernet_udp_pcap(invalid_path));
+  std::filesystem::remove(invalid_path);
+}
+
 }  // namespace
 
 int main() {
   test_varints();
   test_packet_parser();
+  test_classic_pcap_udp_reader();
   test_initial_keys_rfc9001();
   test_initial_decryption_rfc9001();
   test_reassembly();

@@ -1,0 +1,93 @@
+{
+  "capture_id": "quic_chromium",
+  "scenario": "quic_chromium (L1)",
+  "capture": "captures/pcaps/quic_chromium.pcap",
+  "sha256": "090d9c9339132344fb39c4255b49611cb6516fb9f02570a5042239e075151615",
+  "capture_status": "captured",
+  "packet_count": 140,
+  "protocol": "QUIC v1 over UDP",
+  "limitation": "L1",
+  "client": "Chromium 156",
+  "capture_recipe": {
+    "command": "{chromium} --enable-quic --origin-to-force-quic-on=cloudflare-quic.com:443 --dump-dom https://cloudflare-quic.com/cdn-cgi/trace > /dev/null",
+    "filter": "udp port 443",
+    "repeat": 5,
+    "setup": [],
+    "keylog": false
+  },
+  "commands": [
+    "tcpdump -i eth0 -U -w captures/pcaps/quic_chromium.pcap \"udp port 443\"",
+    "{chromium} --enable-quic --origin-to-force-quic-on=cloudflare-quic.com:443 --dump-dom https://cloudflare-quic.com/cdn-cgi/trace > /dev/null",
+    "tshark -r captures/pcaps/quic_chromium.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+    "ja4 --json --with-raw captures/pcaps/quic_chromium.pcap",
+    "ja4-main --json --with-raw captures/pcaps/quic_chromium.pcap"
+  ],
+  "tool_versions": {
+    "tshark": "4.4.19 (Docker lab, team-reported)",
+    "tcpdump": "4.99.5 (Docker lab, team-reported)",
+    "foxio_ja4_release_tag": "v0.18.6",
+    "foxio_ja4_reported_version": "0.18.5",
+    "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+    "foxio_ja4_main_reported_version": "0.18.6",
+    "curl": "8.14.1 (when used)",
+    "openssl": "3.5.7",
+    "chromium": "156.0.8078.79",
+    "python": "3.13.5",
+    "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+  },
+  "conditions": {
+    "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+    "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+    "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+  },
+  "observations": {
+    "id": "quic_chromium",
+    "limitation": "L1",
+    "hellos_tshark": 5,
+    "hellos_ja4": 5,
+    "distinct_ja3": 5,
+    "distinct_ja4": 1,
+    "distinct_ja4_main": 1,
+    "tools_agree": true,
+    "ja4x_ja4h_no_keys": 0,
+    "ja4x_ja4h_with_keys": "-",
+    "hello_bytes_max": 1887,
+    "pieces_max": 21,
+    "biggest_frame": 1292,
+    "groups_chosen": [
+      4588
+    ],
+    "ech_ext_hellos": 5,
+    "server_names": [
+      "cloudflare-ech.com"
+    ],
+    "dns_names": [],
+    "ja4_tshark": [
+      "q13d0312h3_55b375c5d22e_178839b6cec1"
+    ],
+    "ja4_foxio": [
+      "q13d0312h3_55b375c5d22e_178839b6cec1"
+    ],
+    "ja4_main": [
+      "q13d0312h3_55b375c5d22e_178839b6cec1"
+    ],
+    "ja4s_foxio": [
+      "q130200_1301_234ea6891581"
+    ],
+    "seconds_tshark": 0.069,
+    "seconds_ja4": 0.125
+  },
+  "capture_status_note": null,
+  "provenance_status": "provisional",
+  "missing_provenance": [
+    "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+    "capture start/stop timestamps and per-run client exit codes are not separately retained",
+    "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+  ],
+  "source": {
+    "repository": "https://github.com/YashG1836/CS331-T013-TLS_Fingerprint_2",
+    "commit": "b1ffd7c65ae47af1b62184549262ef838c4a234d",
+    "archive_sha256": "044fe1a27924cb63e13a26708f1a8d402454d49e3fa7ca8547f8fac28f2f603e",
+    "archive_path_at_import": "CS331-T013-TLS_Fingerprint_2-main.zip"
+  }
+}

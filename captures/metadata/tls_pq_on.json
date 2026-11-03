@@ -1,0 +1,93 @@
+{
+  "capture_id": "tls_pq_on",
+  "scenario": "tls_pq_on (L4)",
+  "capture": "captures/pcaps/tls_pq_on.pcap",
+  "sha256": "4abb598121790d8b3bf041e9b98ea34dedaa8d5046114e9660a807d720b39adf",
+  "capture_status": "captured",
+  "packet_count": 157,
+  "protocol": "TLS over TCP",
+  "limitation": "L4",
+  "client": "curl 8.14.1",
+  "capture_recipe": {
+    "command": "curl -s -o /dev/null --curves X25519MLKEM768 https://www.cloudflare.com/cdn-cgi/trace",
+    "filter": "tcp port 443",
+    "repeat": 5,
+    "setup": [],
+    "keylog": false
+  },
+  "commands": [
+    "tcpdump -i eth0 -U -w captures/pcaps/tls_pq_on.pcap \"tcp port 443\"",
+    "curl -s -o /dev/null --curves X25519MLKEM768 https://www.cloudflare.com/cdn-cgi/trace",
+    "tshark -r captures/pcaps/tls_pq_on.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+    "ja4 --json --with-raw captures/pcaps/tls_pq_on.pcap",
+    "ja4-main --json --with-raw captures/pcaps/tls_pq_on.pcap"
+  ],
+  "tool_versions": {
+    "tshark": "4.4.19 (Docker lab, team-reported)",
+    "tcpdump": "4.99.5 (Docker lab, team-reported)",
+    "foxio_ja4_release_tag": "v0.18.6",
+    "foxio_ja4_reported_version": "0.18.5",
+    "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+    "foxio_ja4_main_reported_version": "0.18.6",
+    "curl": "8.14.1 (when used)",
+    "openssl": "3.5.7",
+    "chromium": "156.0.8078.79",
+    "python": "3.13.5",
+    "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+  },
+  "conditions": {
+    "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+    "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+    "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+  },
+  "observations": {
+    "id": "tls_pq_on",
+    "limitation": "L4",
+    "hellos_tshark": 5,
+    "hellos_ja4": 5,
+    "distinct_ja3": 1,
+    "distinct_ja4": 1,
+    "distinct_ja4_main": 1,
+    "tools_agree": true,
+    "ja4x_ja4h_no_keys": 0,
+    "ja4x_ja4h_with_keys": "-",
+    "hello_bytes_max": 1511,
+    "pieces_max": 1,
+    "biggest_frame": 2962,
+    "groups_chosen": [
+      4588
+    ],
+    "ech_ext_hellos": 0,
+    "server_names": [
+      "www.cloudflare.com"
+    ],
+    "dns_names": [],
+    "ja4_tshark": [
+      "t13d3012h2_1d37bd780c83_7f037f8d6676"
+    ],
+    "ja4_foxio": [
+      "t13d3012h2_1d37bd780c83_7f037f8d6676"
+    ],
+    "ja4_main": [
+      "t13d3012h2_1d37bd780c83_7f037f8d6676"
+    ],
+    "ja4s_foxio": [
+      "t130200_1302_234ea6891581"
+    ],
+    "seconds_tshark": 0.057,
+    "seconds_ja4": 0.124
+  },
+  "capture_status_note": null,
+  "provenance_status": "provisional",
+  "missing_provenance": [
+    "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+    "capture start/stop timestamps and per-run client exit codes are not separately retained",
+    "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+  ],
+  "source": {
+    "repository": "https://github.com/YashG1836/CS331-T013-TLS_Fingerprint_2",
+    "commit": "b1ffd7c65ae47af1b62184549262ef838c4a234d",
+    "archive_sha256": "044fe1a27924cb63e13a26708f1a8d402454d49e3fa7ca8547f8fac28f2f603e",
+    "archive_path_at_import": "CS331-T013-TLS_Fingerprint_2-main.zip"
+  }
+}

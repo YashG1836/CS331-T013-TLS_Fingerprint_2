@@ -3,5 +3,7 @@ build/
 __pycache__/
 *.py[cod]
 captures/keylogs/
+captures/reproduced/
+results/reproduced/
 *.keys
 *.keylog

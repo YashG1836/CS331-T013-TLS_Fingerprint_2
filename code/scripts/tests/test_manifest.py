@@ -21,9 +21,11 @@ def test_committed_manifest_is_valid_and_provisional():
     manifest = load_manifest()
     result = summarize(manifest)
     assert manifest["schema_version"] == 1
-    assert result["capture_count"] == 1
-    assert result["validated_capture_count"] == 1
-    assert result["provisional_capture_count"] == 1
+    assert result["capture_count"] == 16
+    assert result["validated_capture_count"] == 16
+    assert result["captures_with_packets"] == 15
+    assert result["empty_capture_count"] == 1
+    assert result["provisional_capture_count"] == 16
     assert result["complete_provenance_count"] == 0
     assert result["status"] == "provisional_evidence"
     assert "no limitation conclusion is inferred" in result["note"]
@@ -39,6 +41,49 @@ def test_registered_reference_outputs_agree_for_client_hello():
     assert foxio["ja4"] == client_hello_rows[0]["tls.handshake.ja4"]
     assert foxio["ja4"] == entry["observations"]["foxio_ja4"]
     assert client_hello_rows[0]["tls.handshake.ja3"] == entry["observations"]["tshark_ja3"]
+
+
+
+def test_track1_capture_set_and_empty_ipv6_are_registered_explicitly():
+    manifest = load_manifest()
+    entries = {entry["capture_id"]: entry for entry in manifest["captures"]}
+    expected = {
+        "quic_chromium", "quic_curl", "tls_keylog_curl", "tls_offload_on",
+        "tls_offload_off", "tls_pq_on", "tls_pq_off", "tls_chromium_repeat",
+        "tls_curl_repeat", "tls_python_repeat", "tls_ipv4", "tls_ipv6",
+        "tls_ech_off", "tls_ech_on", "tls_ech_doh",
+    }
+    assert expected <= entries.keys()
+    assert all(entries[capture_id]["provenance_status"] == "provisional" for capture_id in expected)
+    ipv6 = entries["tls_ipv6"]
+    assert ipv6["capture_status"] == "empty"
+    assert ipv6["packet_count"] == 0
+    assert ipv6["observations"]["tools_agree"] is None
+
+
+def test_imported_chromium_repeat_result_records_released_vs_main_ja4():
+    summary = json.loads((ROOT / "results/summary.json").read_text())
+    row = next(item for item in summary if item["id"] == "tls_chromium_repeat")
+    assert row["hellos_tshark"] == 50
+    assert row["distinct_ja4"] == 15
+    assert row["distinct_ja4_main"] == 1
+
+
+def test_imported_raw_outputs_match_nonempty_summary_counts():
+    summary = json.loads((ROOT / "results/summary.json").read_text())
+    for row in summary:
+        raw = json.loads((ROOT / "results/raw" / f"{row['id']}.json").read_text())
+        hellos = raw["tshark_client_hellos"]
+        foxio = raw["foxio_ja4"]
+        assert len(hellos) == row["hellos_tshark"]
+        assert sum("ja4" in result for result in foxio) == row["hellos_ja4"]
+        tshark_ja4 = {item.get("tls.handshake.ja4") for item in hellos} - {None, ""}
+        foxio_ja4 = {item.get("ja4") for item in foxio} - {None, ""}
+        assert len(tshark_ja4) == row["distinct_ja4"]
+        if not tshark_ja4 or not foxio_ja4:
+            assert row["tools_agree"] is None
+        else:
+            assert (tshark_ja4 == foxio_ja4) is row["tools_agree"]
 
 
 def test_missing_capture_is_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):

@@ -1,36 +1,70 @@
-# Ubuntu / WSL setup and verification
+# Ubuntu / WSL and Docker setup
 
-A team-supplied WSL preflight snapshot is preserved at `results/preflight.json`; it reports CMake 4.2.3, GCC 15.2.0, OpenSSL 3.5.5, TShark 4.6.4, tcpdump 4.99.6, Python 3.14.4, and a FoxIO `ja4` executable. A real QUIC v1 pcap and its team-supplied TShark/FoxIO outputs are now stored in the repository. The archived `make test` result, however, came from a separate source tree using a monolithic C++ file and GoogleTest; it does not validate this repository's modular C++ implementation. See `results/verification-status.md` for the caveats.
+Two imported tool snapshots are intentionally kept separate:
 
-On a fresh Ubuntu/WSL checkout, install the modular project's dependencies:
+- `results/preflight.json`: the earlier team WSL environment (TShark 4.6.4, JA4 reporting 0.18.6).
+- `results/versions.txt`: Yash's Docker lab (TShark 4.4.19, the v0.18.6 JA4 tag reporting 0.18.5, plus an optional unreleased `ja4-main`).
+
+The new Track 1 `results/checkpoint_build_test.txt` reports a build/test of the modular C++ code, but does not record the exact source SHA. `results/verification-status.md` separately describes the earlier monolithic archive log. Treat each imported record according to its source; neither replaces current branch CI.
+
+## Core build and tests on Ubuntu/WSL
 
 ```sh
 sudo apt update
-sudo apt install -y build-essential cmake libssl-dev python3 python3-venv make tshark tcpdump
-```
-
-Install pytest in a virtual environment and verify the current branch:
-
-```sh
+sudo apt install -y build-essential cmake libssl-dev python3 python3-venv make
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 
-git status --short --branch
-make preflight PYTHON=python
 make test PYTHON=python
 make check PYTHON=python
 make eval PYTHON=python
 ```
 
-`make preflight` writes a fresh snapshot to `results/preflight-current.json`, preserving the imported team snapshot at `results/preflight.json`. Check that TShark is at least 4.0.6, that `ja4` is on `PATH`, and that the actual field listing includes the expected QUIC/JA3/JA4 abbreviations. Interface listing does not prove capture permissions; test the chosen interface with a one-second capture to `/dev/null` before an experiment.
-
-For a fresh baseline run, use the capture already registered in the manifest:
+To record local readiness without overwriting the imported WSL snapshot:
 
 ```sh
-make baseline CAPTURE_ID=quic-v1-initial-baseline-2026-11-03 PYTHON=python
+make preflight PYTHON=python
 ```
 
-The current runner will write to `results/reference/`. It will not overwrite the imported team outputs in `results/baseline/`. The stored outputs were generated with commands that differ from the current runner; provenance and rerun status are described in `docs/baseline-procedure.md`.
+This writes `results/preflight-current.json`. TShark and JA4 are not needed for the C++/pytest tests, but are needed for fresh reference-tool analysis.
 
-Capture only controlled, consented test sessions. Do not commit public-session TLS key logs, credentials, or unrelated personal traffic. Do not call the one matched JA4 value a confirmed limitation result; L1 remains provisional until the missing provenance and independent ClientHello-byte comparison are resolved.
+## QUIC extractor and independent raw reference
+
+To reproduce the current C++ extraction and capture complete CLI output locally:
+
+```sh
+make build
+mkdir -p results/reproduced
+build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_chromium.pcap > results/reproduced/quic_chromium_extractor.txt
+build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_curl.pcap > results/reproduced/quic_curl_extractor.txt
+```
+
+For an independent TShark reference in Ubuntu/WSL, install TShark if needed and save raw dissections outside the repository:
+
+```sh
+sudo apt install -y tshark
+tshark -r captures/pcaps/quic_chromium.pcap -Y 'tls.handshake.type == 1' -T jsonraw > /tmp/quic_chromium-clienthellos.json
+tshark -r captures/pcaps/quic_curl.pcap -Y 'tls.handshake.type == 1' -T jsonraw > /tmp/quic_curl-clienthellos.json
+```
+
+Inspect whether the installed TShark's `jsonraw` output includes each full, reassembled ClientHello. Compare those bytes in capture order with the `client_hello_hex` entries in the extractor logs; if `jsonraw` does not expose reassembled handshake bytes, use a decoder/export path that does. The current tracked comparison in `results/quic-extractor-comparison.json` verifies only reported lengths and TLS framing, not byte equality. Please retain tool version and command output and report back if the raw-field export is unavailable or the bytes differ.
+
+## Track 1 Docker lab
+
+With Docker installed and network access for the image build:
+
+```sh
+make lab-image
+make lab-eval
+```
+
+The image pins the JA4 release tag and the `ja4-main` comparison commit, and installs TShark, tcpdump, Chromium, curl, and supporting tools. `make lab-eval` reads the committed capture set without generating traffic and writes fresh results under ignored `results/reproduced/`. It does not overwrite the imported summary or raw files.
+
+Only generate new network traffic when authorized and needed:
+
+```sh
+make lab-capture CAPTURE_ID=quic_chromium
+```
+
+This requires network access and writes under ignored `captures/reproduced/`; it does not register a new evidence record. Review the output and add metadata/hash only after confirming packet count, provenance, and sensitivity. Keep TLS key logs local and uncommitted.

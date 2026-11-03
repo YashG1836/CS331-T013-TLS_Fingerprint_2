@@ -1,0 +1,125 @@
+{
+  "capture_id": "tls_chromium_repeat",
+  "scenario": "tls_chromium_repeat (L5)",
+  "capture": "captures/pcaps/tls_chromium_repeat.pcap",
+  "sha256": "a516a9b5e5929d55886e0e07fb7e146add4c7df46bdc4fd96dc7ca83e8c144a8",
+  "capture_status": "captured",
+  "packet_count": 1270,
+  "protocol": "TLS over TCP",
+  "limitation": "L5",
+  "client": "Chromium 156",
+  "capture_recipe": {
+    "command": "{chromium} --disable-quic --dump-dom https://www.cloudflare.com/cdn-cgi/trace > /dev/null",
+    "filter": "tcp port 443",
+    "repeat": 10,
+    "setup": [],
+    "keylog": false
+  },
+  "commands": [
+    "tcpdump -i eth0 -U -w captures/pcaps/tls_chromium_repeat.pcap \"tcp port 443\"",
+    "{chromium} --disable-quic --dump-dom https://www.cloudflare.com/cdn-cgi/trace > /dev/null",
+    "tshark -r captures/pcaps/tls_chromium_repeat.pcap -Y \"tls.handshake.type == 1\" -T fields ...",
+    "ja4 --json --with-raw captures/pcaps/tls_chromium_repeat.pcap",
+    "ja4-main --json --with-raw captures/pcaps/tls_chromium_repeat.pcap"
+  ],
+  "tool_versions": {
+    "tshark": "4.4.19 (Docker lab, team-reported)",
+    "tcpdump": "4.99.5 (Docker lab, team-reported)",
+    "foxio_ja4_release_tag": "v0.18.6",
+    "foxio_ja4_reported_version": "0.18.5",
+    "foxio_ja4_main_commit": "c6469a7b0dbf8fe963810162429fbfd9d1acc4d5",
+    "foxio_ja4_main_reported_version": "0.18.6",
+    "curl": "8.14.1 (when used)",
+    "openssl": "3.5.7",
+    "chromium": "156.0.8078.79",
+    "python": "3.13.5",
+    "platform": "Docker Linux on macOS aarch64; captures on eth0 (team-reported)"
+  },
+  "conditions": {
+    "capture_location": "eth0 inside Docker Desktop on the team Mac; behind Docker network translation/proxy",
+    "source_capture_log": "capture commands and tcpdump packet totals are in results/track1/capture-log.md; absolute workstation path redacted",
+    "lab_manifest": "Yash source capture manifest, embedded as capture_recipe"
+  },
+  "observations": {
+    "id": "tls_chromium_repeat",
+    "limitation": "L5",
+    "hellos_tshark": 50,
+    "hellos_ja4": 50,
+    "distinct_ja3": 50,
+    "distinct_ja4": 15,
+    "distinct_ja4_main": 1,
+    "tools_agree": true,
+    "ja4x_ja4h_no_keys": 0,
+    "ja4x_ja4h_with_keys": "-",
+    "hello_bytes_max": 2016,
+    "pieces_max": 1,
+    "biggest_frame": 5149,
+    "groups_chosen": [
+      4588
+    ],
+    "ech_ext_hellos": 50,
+    "server_names": [
+      "accounts.google.com",
+      "redirector.gvt1.com",
+      "update.googleapis.com",
+      "www.cloudflare.com"
+    ],
+    "dns_names": [],
+    "ja4_tshark": [
+      "t13d1517h2_8daaf6152771_234dc10236f4",
+      "t13d1517h2_8daaf6152771_33f857a189cb",
+      "t13d1517h2_8daaf6152771_43736b97bd57",
+      "t13d1517h2_8daaf6152771_541cd5a3d78e",
+      "t13d1517h2_8daaf6152771_5cd47779f5c5",
+      "t13d1517h2_8daaf6152771_61307d0e143d",
+      "t13d1517h2_8daaf6152771_63ff51340b64",
+      "t13d1517h2_8daaf6152771_92a4fdd66f79",
+      "t13d1517h2_8daaf6152771_937be626dbce",
+      "t13d1517h2_8daaf6152771_a323378790d4",
+      "t13d1517h2_8daaf6152771_a323666e1952",
+      "t13d1517h2_8daaf6152771_e1144aa4d245",
+      "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+      "t13d1517h2_8daaf6152771_f4f7aae15fbc",
+      "t13d1517h2_8daaf6152771_ff1e8fc497ec"
+    ],
+    "ja4_foxio": [
+      "t13d1517h2_8daaf6152771_234dc10236f4",
+      "t13d1517h2_8daaf6152771_33f857a189cb",
+      "t13d1517h2_8daaf6152771_43736b97bd57",
+      "t13d1517h2_8daaf6152771_541cd5a3d78e",
+      "t13d1517h2_8daaf6152771_5cd47779f5c5",
+      "t13d1517h2_8daaf6152771_61307d0e143d",
+      "t13d1517h2_8daaf6152771_63ff51340b64",
+      "t13d1517h2_8daaf6152771_92a4fdd66f79",
+      "t13d1517h2_8daaf6152771_937be626dbce",
+      "t13d1517h2_8daaf6152771_a323378790d4",
+      "t13d1517h2_8daaf6152771_a323666e1952",
+      "t13d1517h2_8daaf6152771_e1144aa4d245",
+      "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+      "t13d1517h2_8daaf6152771_f4f7aae15fbc",
+      "t13d1517h2_8daaf6152771_ff1e8fc497ec"
+    ],
+    "ja4_main": [
+      "t13d1517h2_8daaf6152771_cb7bf5808d99"
+    ],
+    "ja4s_foxio": [
+      "t130200_1301_234ea6891581",
+      "t130200_1302_234ea6891581"
+    ],
+    "seconds_tshark": 0.062,
+    "seconds_ja4": 0.211
+  },
+  "capture_status_note": null,
+  "provenance_status": "provisional",
+  "missing_provenance": [
+    "capture records are imported from the teammate snapshot and were not recaptured or reanalysed in the current environment",
+    "capture start/stop timestamps and per-run client exit codes are not separately retained",
+    "the capture was taken inside Docker Desktop on eth0; it is not an independent wire-side vantage point"
+  ],
+  "source": {
+    "repository": "https://github.com/YashG1836/CS331-T013-TLS_Fingerprint_2",
+    "commit": "b1ffd7c65ae47af1b62184549262ef838c4a234d",
+    "archive_sha256": "044fe1a27924cb63e13a26708f1a8d402454d49e3fa7ca8547f8fac28f2f603e",
+    "archive_path_at_import": "CS331-T013-TLS_Fingerprint_2-main.zip"
+  }
+}

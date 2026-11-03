@@ -1,7 +1,7 @@
 # CN Project 2 — Implementation Plan
 
-**Team:** T013  
-**Plan status:** execution baseline; update decisions only with team agreement and recorded evidence.  
+**Team:** T013
+**Plan status:** execution baseline; update decisions only with team agreement and recorded evidence.
 **Deadline:** Friday, 6 November 2026 at 10:00 (GitHub commit time). **Evaluation:** 14–15 November 2026. This supersedes the earlier 12 November schedule. As of 3 November, the execution window is short; prioritize verified evidence and a tested core over breadth. A date in the schedule is not evidence that a task was completed—record completion and evidence separately.
 
 This plan turns the approved proposal and working plan into an engineering sequence. The central objective is to investigate practical TLS-fingerprinting problems in real network conditions, support claims with reproducible captures, and then develop and evaluate an original project contribution addressing at least one confirmed problem. The custom QUIC v1 extractor is a candidate research instrument and depth dive—not, by itself, a novel solution. Existing tools remain comparison targets; their capabilities and shared dependencies must be verified rather than assumed.
@@ -118,35 +118,35 @@ Requirements:
 - Reject truncated, malformed, and unsupported-version inputs clearly.
 - Do not assume one datagram equals one QUIC packet.
 
-**Tests:** v1 long headers, valid Initial, truncations at each field, invalid CID length, truncated variable integers, inconsistent packet lengths, and multiple coalesced packets.  
+**Tests:** v1 long headers, valid Initial, truncations at each field, invalid CID length, truncated variable integers, inconsistent packet lengths, and multiple coalesced packets.
 **Gate:** extract the supported header fields from a known v1 datagram and reject malformed inputs without out-of-bounds reads.
 
 ### Stage 2 — Initial key derivation
 
 Implement RFC 9001 §5.2 and the relevant TLS 1.3 HKDF-Expand-Label procedure. Derive Initial, client/server Initial, packet key, IV, and header-protection key from the protocol version and original destination connection ID. Do not hard-code a connection ID or key set.
 
-**Tests:** RFC-published derivation vector; multiple connection IDs; client and server secret derivations; invalid lengths; output comparison with an independent implementation.  
+**Tests:** RFC-published derivation vector; multiple connection IDs; client and server secret derivations; invalid lengths; output comparison with an independent implementation.
 **Gate:** exact derivation vector match.
 
 ### Stage 3 — Header protection and AEAD decryption
 
 Follow the order in RFC 9001: locate the header-protection sample; remove header protection; recover the truncated packet number; reconstruct the full packet number; form the unprotected header as associated data; authenticate and decrypt the protected payload. Reject invalid tags and insufficient samples.
 
-**Tests:** valid Initial packets in both directions; tampered ciphertext; truncated tags; packet-number reconstruction; invalid sample bounds.  
+**Tests:** valid Initial packets in both directions; tampered ciphertext; truncated tags; packet-number reconstruction; invalid sample bounds.
 **Gate:** decrypt a known Initial packet and compare the plaintext with an independent result.
 
 ### Stage 4 — Initial frame parsing
 
 Initially parse only the frame types needed to reach CRYPTO data and safely skip supported control frames in Initial packets. For each CRYPTO frame, extract offset, length, and data. Reject unsupported frame types rather than guessing their layout.
 
-**Tests:** CRYPTO at offset zero/nonzero; multiple CRYPTO frames; PADDING, PING, ACK/ACK_ECN; truncated frame data; invalid lengths/offsets; unsupported frames.  
+**Tests:** CRYPTO at offset zero/nonzero; multiple CRYPTO frames; PADDING, PING, ACK/ACK_ECN; truncated frame data; invalid lengths/offsets; unsupported frames.
 **Gate:** recover CRYPTO boundaries and offsets correctly.
 
 ### Stage 5 — CRYPTO reassembly
 
 Reassemble by protocol offset, not packet arrival order. Accept out-of-order fragments and equal duplicate overlap; detect conflicting overlap, missing ranges, and incomplete handshakes. Bound retained data and reject arithmetic overflow or unreasonable offsets. Do not return a fingerprint for incomplete data.
 
-**Tests:** one-frame ClientHello; two or more fragments; reverse arrival; equal duplicates; conflicting overlap; missing bytes; excessive declared length.  
+**Tests:** one-frame ClientHello; two or more fragments; reverse arrival; equal duplicates; conflicting overlap; missing bytes; excessive declared length.
 **Gate:** recover the same complete handshake bytes from a multi-packet capture and reject incomplete/malformed input.
 
 ### Stage 6 — ClientHello and fingerprint integration
@@ -186,12 +186,14 @@ make preflight # record tool versions, capture interfaces, and TShark fields
 make build     # configure and build C++
 make test      # C++ tests and pytest suite
 make check     # validate manifest, evidence references, and invariants
-make eval      # run declared analyses and regenerate report data
-make baseline CAPTURE_ID=<id> # run FoxIO JA4+ and TShark on one registered pcap
-make capture   # optional; document privileges/interface/configuration
+make eval      # validate the evidence inventory and emit corpus status
+make baseline CAPTURE_ID=<id> # run the existing single-capture reference runner
+make lab-image # build the pinned Track 1 TShark/FoxIO environment
+make lab-eval  # rerun Track 1 analysis under results/reproduced/
+make lab-capture CAPTURE_ID=<id> # opt-in live capture to captures/reproduced/
 ```
 
-The evaluator should check referenced captures, run declared tools, collect machine-readable output, compare reference/custom results, calculate statistics, and report missing evidence or mismatches. It must also test failure paths: missing capture, missing executable, malformed tool output, duplicate manifest IDs, and inconsistent expected properties. A fresh clone should have one documented reproduction path.
+The repository separates inventory validation from external tool execution: `make check` / `make eval` validate records and report evidence status; `make lab-eval` reruns TShark/FoxIO and writes to a separate reproduction directory. Future evaluation should compare reference/custom output and report missing evidence or mismatches without silently treating tool failures as empty results. CI must test malformed paths/hashes and duplicate IDs; lab-tool tests should mock missing executables and malformed output. Live capture remains an explicit opt-in operation.
 
 ## 7. Team responsibilities and review
 
@@ -268,15 +270,13 @@ Use AddressSanitizer and UndefinedBehaviorSanitizer where supported. Test malfor
 
 ## 12. Checkpoint status and next action
 
-### Evidence and verification status (3 November 2026)
+### Cross-track checkpoint (3 November 2026)
 
-- A real QUIC v1 pcapng from the team workspace is registered as provisional evidence. Its SHA-256 is `1cd5f8c05b5b966eed1ae339eeec80b86b830deccda81489dabefb28f272ec7a`. The pcapng structure was checked in this checkout (30 blocks, 27 enhanced packet blocks, no Decryption Secrets Blocks), and the supplied SHA file, metadata, and manifest agree.
-- The imported TShark 4.6.4 and FoxIO JA4 0.18.6 records report the same JA4 for frame 1. This one capture does not demonstrate an L1 tool-coverage gap; the two CLIs share TShark dissection. Exact dumpcap/client commands, an executable-to-source build attestation, and independent ClientHello-byte comparison remain missing.
-- The captured TShark/FoxIO outputs were generated with commands recorded in metadata. They have not been rerun in this checkout because the current integration environment lacks those tools. The current runner uses its own recorded command vector; do not relabel the imported output as generated by that runner.
-- The archived `make test` output came from a different workspace containing monolithic `quic.cpp` and GoogleTest. It does not validate the modular C++ implementation in this repository. The preserved C++ architecture and lightweight harness remain unchanged.
-- The archive also reports a full-UDP parser failure from its monolithic extractor. That observation is not yet reproduced against the current modular implementation and is not an L1 tool-coverage conclusion.
-- L2–L7 remain open. No original solution has been selected; first resolve the baseline's provenance and byte-level validation, then assess confirmed gaps.
+- The earlier aioquic QUIC v1 capture and its provisional metadata remain intact. Yash's Track 1 snapshot was added separately at source commit `b1ffd7c65ae47af1b62184549262ef838c4a234d`; all 15 supplied PCAP attempts, raw outputs, and T0–T7 docs are registered. Fourteen Track 1 PCAPs contain packets; the IPv6 PCAP has zero packet records and is marked not comparable.
+- Yash's summary reports 5/5 QUIC ClientHellos for Chromium and curl, with up to 21 CRYPTO fragments. The current modular C++ CLI now recovers five complete ClientHellos from each imported PCAP; recovered total lengths match the imported TShark body lengths plus the TLS handshake header. This is an extent/framing check, not exact byte equality: saved TShark JSON has no raw handshake bytes and TShark is unavailable here. TShark and FoxIO outputs share a dissector dependency. The imported Docker tool versions differ from the earlier WSL snapshot.
+- The audited summary corrects empty-set `tools_agree` for IPv6. T3 narrative values do not reconcile with aggregate summary metrics; T7's DoH target page did not load; the T2 key log is intentionally absent. See `docs/track1-evidence-audit.md`.
+- Yash's `checkpoint_build_test.txt` reports the modular C++ build, one CTest target, nine pytest tests, and sanitizer CTest passing, but does not identify an exact source SHA. Current integration checks passed separately: `make test` completed (1/1 CTest, 20 pytest), `make check` validates 16 records (15 packet-bearing, 1 empty), and `make eval` reports provisional evidence.
+- The existing C++ core, light C++ harness, pytest, CI, and Python requirements are preserved. Track 1's scripts are added as separate lab tools; `make eval` remains the existing manifest-status command, and `make lab-eval` writes new reference outputs only under `results/reproduced/`.
+- Docker, TShark, and FoxIO binaries are not installed in the integration environment. The local reference rerun is therefore delegated with commands in `docs/track1-evidence-audit.md`; imported results are not described as rerun here.
 
-The current C++ test executable is dependency-light rather than GoogleTest, while the tool table above names GoogleTest. The archive's GoogleTest results do not close this plan/code gap. Do not call it complete without a team-approved reason or migration.
-
-**Next action:** rerun `make test`, `make check`, the baseline runner, and the evidence comparison on the intended Ubuntu/WSL environment. Preserve the imported baseline outputs while producing fresh outputs under `results/reference/`. Then finish provenance and ClientHello-byte validation before selecting an original solution. RFC-defined Initial decryption alone is not the novel contribution.
+**Next action:** obtain a TShark raw reassembled-ClientHello export in Ubuntu/WSL and compare recovered bytes one-for-one against both QUIC references; the current saved reference only supports length/framing cross-checks. Expand PCAP and flow/packet-order tests, and document unsupported cases before claiming robust recovery. Then measure controlled loss/reordering/truncation cases and review related work/course requirements before selecting an original contribution. JA4T/MSS proxy diagnostics remain an alternative after T3 is reconciled. RFC-defined Initial decryption alone is not the novel contribution.
