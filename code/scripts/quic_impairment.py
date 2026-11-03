@@ -234,26 +234,30 @@ def make_variants(
     return manifest
 
 
-def extract_hex_handshakes_from_jsonraw(document: Any) -> list[str]:
+def extract_hex_handshakes_from_jsonraw(document: Any, raw_text: str | None = None) -> list[str]:
     candidates: list[str] = []
-
-    def visit(node: Any) -> None:
-        if isinstance(node, dict):
-            for key, value in node.items():
-                if key == "tls.handshake_raw":
-                    raw = value[0] if isinstance(value, list) and value else value
-                    if isinstance(raw, str):
-                        candidates.append(raw.lower())
-                else:
+    if raw_text is not None:
+        pattern = r'"tls\.handshake_raw":\s*\[\s*"([0-9a-fA-F]+)"'
+        candidates = re.findall(pattern, raw_text)
+    else:
+        def visit(node: Any) -> None:
+            if isinstance(node, dict):
+                for key, value in node.items():
+                    if key == "tls.handshake_raw":
+                        raw = value[0] if isinstance(value, list) and value else value
+                        if isinstance(raw, str):
+                            candidates.append(raw.lower())
+                    else:
+                        visit(value)
+            elif isinstance(node, list):
+                for value in node:
                     visit(value)
-        elif isinstance(node, list):
-            for value in node:
-                visit(value)
 
-    visit(document)
+        visit(document)
+
     hellos: list[str] = []
     for value in candidates:
-        normalized = "".join(value.split())
+        normalized = "".join(value.split()).lower()
         if len(normalized) < 8 or len(normalized) % 2:
             continue
         try:
@@ -364,7 +368,7 @@ def evaluate_variants(manifest: dict[str, Any], work_dir: Path, extractor: str, 
             if tshark_run.returncode != 0:
                 raise RuntimeError(tshark_run.stderr.strip() or f"TShark exited {tshark_run.returncode}")
             reference_doc = json.loads(tshark_run.stdout)
-            reference = extract_hex_handshakes_from_jsonraw(reference_doc)
+            reference = extract_hex_handshakes_from_jsonraw(reference_doc, raw_text=tshark_run.stdout)
             extracted = parse_extractor_hellos(extractor_run.stdout)
             row.update(compare_hellos(reference, extracted))
             row["extractor_incomplete_flow_count"] = len(
