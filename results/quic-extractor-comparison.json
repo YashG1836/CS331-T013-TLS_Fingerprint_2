@@ -1,9 +1,13 @@
 {
   "validation_date": "2026-11-03",
-  "validation_type": "local QUIC Initial extraction; recovered total ClientHello lengths compared with imported TShark TLS handshake body lengths plus the 4-byte TLS handshake header",
-  "independent_tshark_rerun": false,
-  "exact_client_hello_byte_comparison": false,
-  "exact_comparison_limitation": "Imported TShark JSON contains decoded summary fields and body lengths, not full reassembled ClientHello bytes; TShark is unavailable in the integration environment.",
+  "validation_type": "C++ QUIC Initial extraction; length/framing checked locally, with a subsequent user-reported Ubuntu/WSL TShark raw-byte set comparison",
+  "exact_client_hello_byte_comparison": {
+    "status": "reported_pass",
+    "matched": 10,
+    "tested": 10,
+    "comparison_mode": "unordered byte-string set equality; TShark arrival order differs from DCID-keyed CLI output",
+    "limitation": "The user's raw exports and comparison command/script have not yet been added to the repository. Treat this as reported WSL verification until those artifacts are retained."
+  },
   "captures": [
     {
       "capture_id": "quic_chromium",
@@ -36,7 +40,10 @@
         1891
       ],
       "length_multisets_match": true,
-      "all_extracted_tls_client_hello_framing_valid": true
+      "all_extracted_tls_client_hello_framing_valid": true,
+      "reported_exact_byte_matches": 5,
+      "reported_exact_byte_comparison": true,
+      "comparison_provenance": "user-reported Ubuntu WSL run; byte arrays not attached in this workspace"
     },
     {
       "capture_id": "quic_curl",
@@ -69,7 +76,19 @@
         1509
       ],
       "length_multisets_match": true,
-      "all_extracted_tls_client_hello_framing_valid": true
+      "all_extracted_tls_client_hello_framing_valid": true,
+      "reported_exact_byte_matches": 5,
+      "reported_exact_byte_comparison": true,
+      "comparison_provenance": "user-reported Ubuntu WSL run; byte arrays not attached in this workspace"
     }
-  ]
+  ],
+  "verification_source": {
+    "source": "User-reported direct Ubuntu WSL run",
+    "tshark_version": "4.6.4",
+    "gcc_version": "15.2.0",
+    "openssl_version": "3.5.5",
+    "tshark_raw_field": "tls.handshake_raw",
+    "raw_exports_and_comparison_script_committed": false,
+    "independently_reproduced_in_arena": false
+  }
 }

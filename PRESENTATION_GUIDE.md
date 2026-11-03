@@ -14,7 +14,7 @@ For each observation, state the question, changed condition, supplied output, pr
 
 **Show:** `README.md` and `PHASES.md`.
 
-Explain that Track 1 uses deployed reference tools and controlled captures; Track 2 preserves the modular C++ QUIC path: packet parsing, Initial crypto, frame parsing, CRYPTO reassembly, and ClientHello parsing. The current C++ CLI accepts a single UDP datagram as hex and classic Ethernet PCAP input; on the imported Chromium and curl captures it recovered five ClientHellos each. Report the length/framing cross-check honestly: exact byte comparison against an independent raw TShark reference remains open, and the current flow model is limited.
+Explain that Track 1 uses deployed reference tools and controlled captures; Track 2 preserves the modular C++ QUIC path: packet parsing, Initial crypto, frame parsing, CRYPTO reassembly, and ClientHello parsing. The current CLI accepts hex datagrams and classic Ethernet PCAP; on the imported Chromium and curl captures it recovered five ClientHellos each. The user reports a TShark 4.6.4 `tls.handshake_raw` byte-set match for all ten. Attribute this to the WSL run and note the raw exports/script are not yet retained in the repo. The clean-capture L1 gap is not supported; the flow model remains limited.
 
 ## 2. What is visible in a ClientHello?
 
@@ -56,7 +56,7 @@ The WSL baseline snapshot and Yash's Docker lab use different tool versions; do 
 
 ## 7. Next work and contribution candidate
 
-First connect the existing modular C++ core to `quic_chromium.pcap` and `quic_curl.pcap`; group packets by flow, decrypt Initial packets, reassemble CRYPTO across datagrams, and compare exact ClientHello bytes against TShark raw dissection. Then measure packet order/truncation cases and assess a capture-quality-aware QUIC recovery pipeline as a candidate contribution. Check prior art and course expectations before claiming novelty. JA4T/MSS proxy checks remain an alternative after T3 is reconciled.
+The current modular C++ core is connected to `quic_chromium.pcap` and `quic_curl.pcap`; the user reports exact byte-set agreement with TShark `tls.handshake_raw` for both. Preserve that raw reference and comparison script, then test deterministic packet reordering, loss, and truncation. Treat capture-quality-aware QUIC recovery as a provisional contribution direction only: continue only if measurements reveal and fix a material gap. Check prior art and course expectations before any novelty claim. JA4T/MSS proxy checks remain an alternative after T3 is reconciled.
 
 ## 8. If something fails
 
@@ -70,7 +70,7 @@ First connect the existing modular C++ core to `quic_chromium.pcap` and `quic_cu
 ## Do not claim
 
 - That QUIC ClientHellos are unrecoverable because Initial packets are protected.
-- That the C++ extractor has already decoded the Track 1 PCAPs.
+- That the current C++ extractor covers all Track 1 traffic or is a complete QUIC flow tracker; only the two QUIC client PCAPs have this reported byte-match check.
 - IPv6 results, a successful ECH+DoH run, or T3 proxy findings beyond the retained evidence.
 - That FoxIO/TShark are independent packet decoders.
 - That the already-reported T5 upstream fix is our original contribution.

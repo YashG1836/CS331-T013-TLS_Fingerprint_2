@@ -7,7 +7,8 @@ This repository is being rebuilt around the Project 2 research question: where d
 - [`docs/reading-guide.md`](docs/reading-guide.md): concepts and RFC sections behind the QUIC extractor, fingerprint families, and experiments.
 - [`docs/quic-baseline.md`](docs/quic-baseline.md): the original QUIC v1 reference capture and its provenance.
 - [`docs/track1-evidence-audit.md`](docs/track1-evidence-audit.md): cross-check of Yash's 15-capture Track 1 import, known discrepancies, and reproduction caveats.
-- [`docs/track2-integration-plan.md`](docs/track2-integration-plan.md): current PCAP-to-modular-C++ status, remaining byte-level validation gates, and a candidate contribution.
+- [`docs/track2-integration-plan.md`](docs/track2-integration-plan.md): current PCAP-to-modular-C++ status and controlled follow-up measurements.
+- [`docs/original-contribution-plan.md`](docs/original-contribution-plan.md): provisional contribution hypothesis, experiment design, and reject/continue gate.
 - [`docs/tests/README.md`](docs/tests/README.md): imported T0–T7 empirical-lab explanations.
 - [`GLOSSARY.md`](GLOSSARY.md), [`PHASES.md`](PHASES.md), [`FILES_GUIDE.md`](FILES_GUIDE.md), [`VIVA_QUESTIONS.md`](VIVA_QUESTIONS.md), [`PRESENTATION_GUIDE.md`](PRESENTATION_GUIDE.md): adopted learning and presentation guides.
 - [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md): architecture, roles, evidence requirements, acceptance gates, and schedule.
@@ -26,9 +27,9 @@ Implemented in this first increment:
 - `--pcap` CLI integration for QUIC v1 client Initial decryption, per-DCID CRYPTO reassembly, and full ClientHello hex output; the existing `--hex` mode remains available.
 - Lightweight C++ tests, pytest manifest/script validation, and CMake/CI configuration.
 
-The repository registers the earlier aioquic baseline plus all 15 Track 1 capture attempts and teammate-supplied analysis. Fourteen of Yash's PCAPs contain packets; the IPv6 file is empty and is not treated as a comparison. Track 1 tool outputs remain imported/provisional and were not rerun with Docker/TShark/JA4 in this environment. Separately, the current C++ CLI was built and run against the two imported QUIC PCAPs, recovering five complete ClientHellos from each. Their lengths and TLS handshake framing match the imported TShark summaries; exact raw-byte equality against an independent reference remains unverified. See the Track 1 audit and Track 2 plan for caveats.
+The repository registers the earlier aioquic baseline plus all 15 Track 1 capture attempts and teammate-supplied analysis. Fourteen of Yash's PCAPs contain packets; the IPv6 file is empty and is not treated as a comparison. The full Track 1 tool suite remains imported/provisional and has not been rerun here. The user separately reports a direct Ubuntu WSL TShark `tls.handshake_raw` comparison: the current C++ CLI's five ClientHellos from each of the two QUIC captures match all ten raw references byte-for-byte by set equality. The raw exports/comparison script are not yet retained in the repository. See the Track 1 audit, verification status, and Track 2 plan for provenance and caveats.
 
-Still incomplete or unclaimed: a complete bidirectional connection/migration model, robust behavior under packet reordering/loss/truncation beyond existing unit coverage, byte-exact comparison against a raw TShark export, QUIC v2, Retry processing, custom JA4 output, final limitation conclusions, and an approved original contribution. The PCAP adapter is intentionally limited to classic Ethernet PCAP and supported unfragmented IPv4/IPv6 UDP; PCAPNG and unsupported link/IP headers are not handled.
+Still incomplete or unclaimed: a complete bidirectional connection/migration model; measured behavior under packet reordering, loss, and truncation; retention of the reported raw-byte comparison artifacts; QUIC v2; Retry processing; custom JA4 output; final limitation conclusions; and an approved original contribution. The PCAP adapter is intentionally limited to classic Ethernet PCAP and supported unfragmented IPv4/IPv6 UDP; PCAPNG and unsupported link/IP headers are not handled. The provisional original-contribution direction and decision gate are in `docs/original-contribution-plan.md`.
 
 ## Requirements
 

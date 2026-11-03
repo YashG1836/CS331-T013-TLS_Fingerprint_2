@@ -48,7 +48,7 @@ tshark -r captures/pcaps/quic_chromium.pcap -Y 'tls.handshake.type == 1' -T json
 tshark -r captures/pcaps/quic_curl.pcap -Y 'tls.handshake.type == 1' -T jsonraw > /tmp/quic_curl-clienthellos.json
 ```
 
-Inspect whether the installed TShark's `jsonraw` output includes each full, reassembled ClientHello. Compare those bytes in capture order with the `client_hello_hex` entries in the extractor logs; if `jsonraw` does not expose reassembled handshake bytes, use a decoder/export path that does. The current tracked comparison in `results/quic-extractor-comparison.json` verifies only reported lengths and TLS framing, not byte equality. Please retain tool version and command output and report back if the raw-field export is unavailable or the bytes differ.
+The user reports completing this check on Ubuntu WSL with TShark 4.6.4 using its `tls.handshake_raw` field: all five values per capture matched the C++ output as unordered byte-string sets. The raw exports, exact command, and comparison script are not yet retained in the repository. To make the reported pass reproducible, preserve those artifacts (or privacy-reviewed hashes and a comparison summary) and record the TShark version. If you rerun, compare full handshake bytes, not only lengths or fingerprint hashes; use an export path that retains reassembled TLS handshake bytes.
 
 ## Track 1 Docker lab
 

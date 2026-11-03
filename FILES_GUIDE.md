@@ -11,8 +11,8 @@ Track 1 manifest/recipes → lab capture → immutable PCAP evidence
 
 Track 2 classic-PCAP reader → UDP datagrams → modular QUIC v1 core
                               → Initial decrypt → DCID-scoped CRYPTO reassembly
-                              → ClientHello bytes → length/framing cross-check
-                              → exact raw-byte reference comparison (still open)
+                              → ClientHello bytes → user-reported exact TShark byte-set match
+                              → retain raw exports/script; test impaired-capture behavior
 ```
 
 ## Top level
@@ -22,6 +22,7 @@ Track 2 classic-PCAP reader → UDP datagrams → modular QUIC v1 core
 | `README.md` | Current architecture, scope, and commands. |
 | `IMPLEMENTATION_PLAN.md` | Milestones, roles, deadlines, and acceptance gates. |
 | `LEDGER.md` | Seven limitation rows, imported evidence status, and contribution candidates. |
+| `docs/original-contribution-plan.md` | Provisional QUIC capture-quality hypothesis, test matrix, and decision gate. |
 | `PHASES.md` | Phase 1 lessons and Track 1/Track 2 state. |
 | `GLOSSARY.md` | Plain-language protocol and fingerprint terms, including the QUIC Initial visibility distinction. |
 | `VIVA_QUESTIONS.md` | Study guide; imported claims are qualified by current evidence status. |

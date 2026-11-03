@@ -16,11 +16,11 @@
 
 ## Track 1 snapshot imported 3 November 2026
 
-Yash's repository snapshot at commit `b1ffd7c65ae47af1b62184549262ef838c4a234d` supplied 15 PCAP files and T0–T7 explanations. Fourteen PCAPs contain packet records; the IPv6 file is empty. The summary/raw outputs and tool versions are preserved as supplied, with an audited root summary that marks the empty IPv6 comparison as not applicable. They have not been re-run in this checkout. See [`docs/track1-evidence-audit.md`](docs/track1-evidence-audit.md).
+Yash's repository snapshot at commit `b1ffd7c65ae47af1b62184549262ef838c4a234d` supplied 15 PCAP files and T0–T7 explanations. Fourteen PCAPs contain packet records; the IPv6 file is empty. The summary/raw outputs and tool versions are preserved as supplied, with an audited root summary that marks the empty IPv6 comparison as not applicable. The full Track 1 analysis has not been rerun; separately, the user reports a TShark raw-byte check on the two QUIC PCAPs. See [`docs/track1-evidence-audit.md`](docs/track1-evidence-audit.md) and [`results/verification-status.md`](results/verification-status.md).
 
 | Test | Imported observation | Current evidence status |
 |---|---|---|
-| T1 QUIC | TShark/FoxIO outputs report 5/5 ClientHellos for Chromium and curl; Chromium has up to 21 CRYPTO fragments. | Team-supplied; shared TShark dissection; not a C++ extractor test. |
+| T1 QUIC | TShark/FoxIO outputs report 5/5 ClientHellos for Chromium and curl; Chromium has up to 21 CRYPTO fragments. User separately reports 10/10 C++/TShark `tls.handshake_raw` byte-set matches. | Raw comparison/export is not retained in Git; user-reported WSL pass. The clean-trace L1 gap is unsupported; impaired-capture testing remains. |
 | T2 keys | Summary reports JA4X/JA4H count 0 without keys and 5 with keys. | Key log intentionally absent; keyed output cannot be regenerated. |
 | T3 capture point | Summary reports `pieces_max` 1 vs 2 with TSO/GSO changed; narrative also reports large frames and proxy MSS. | Docker vantage; narrative frame values disagree with aggregate summary; targeted rerun needed. |
 | T4 post-quantum | Summary reports ClientHello lengths 508 vs 1511 bytes and selected groups 29 vs 4588; JA4 differs. | Team-supplied, one client/environment; no claim that JA4 directly encodes the group. |
@@ -36,7 +36,7 @@ The supplied C++ checkpoint log records one CTest target and sanitizer target pa
 
 - Reproduce the reference analysis in the Docker lab using `make lab-image` and `make lab-eval`; outputs go under ignored `results/reproduced/` so imported evidence is preserved.
 - Reconcile T3 measurements and repeat T6 only on a network with working IPv6.
-- Obtain a TShark raw reassembled-ClientHello export and compare exact bytes from both captures; current local extraction confirms counts, total lengths, TLS framing, and parsing but not byte equality. Expand unsupported-case and packet-order tests. See [`docs/track2-integration-plan.md`](docs/track2-integration-plan.md).
+- Preserve the user-reported TShark `tls.handshake_raw` export, exact command, and byte-set comparison script/output for auditability. The clean-capture comparison is reported 10/10 byte-identical, but was not independently reproduced in Arena. Next measure controlled reordering/loss/truncation before selecting a contribution. See [`docs/track2-integration-plan.md`](docs/track2-integration-plan.md).
 - Evaluate the Track 2 QUIC recovery pipeline as a candidate contribution, but verify prior art and the course rubric before claiming novelty. The reported T5 fix already exists upstream in unreleased code.
 - Keep TLS key logs local and ignored; do not commit secrets.
 - Write team decisions and contribution records as the team, not retroactively or by inference.

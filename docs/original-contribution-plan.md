@@ -1,0 +1,65 @@
+# Original-contribution scaffold: QUIC capture-quality recovery
+
+## Decision status
+
+**Working candidate only; not an approved or novelty claim.** The current WSL byte comparison closes the clean-capture correctness gate for two QUIC v1 traces, but it does not establish a remaining functional gap: all ten recovered ClientHello byte strings reportedly match TShark's `tls.handshake_raw` output. L1's proposed reference-tool visibility gap is not supported by these samples.
+
+Do not describe the standards-defined QUIC Initial key derivation, classic-PCAP reading, or the clean-trace match as the original contribution. First establish a reproducible gap under a measured capture condition and show an improvement over a declared baseline.
+
+## Provisional research question
+
+> Under controlled packet-capture degradation, how do QUIC v1 ClientHello recovery tools differ in exact-byte recall and in distinguishing incomplete evidence from unsupported or undecryptable traffic?
+
+The candidate engineering direction is a **capture-quality-aware QUIC Initial recovery and completeness-diagnostics pipeline**. The possible contribution would be limited to a demonstrated, reproducible improvement in a defined impairment regime—not a general claim that other tools fail.
+
+## Baseline now available
+
+- `quic_chromium.pcap`: five extracted ClientHellos, lengths 1884, 1891, 1885, 1891, and 1880 bytes.
+- `quic_curl.pcap`: five extracted ClientHellos, each 1509 bytes.
+- The user reports that all ten C++ handshake byte strings match TShark 4.6.4 `tls.handshake_raw` values by set equality. TShark packet-arrival order differs from the CLI's DCID iteration order, so the reported comparison is set-based rather than positional.
+- User-reported WSL environment: TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5. The raw exports, exact commands, and comparison script have not yet been committed, so this result is recorded as user-reported, not independently reproduced in Arena.
+- The CLI reports ten candidate Initial DCIDs and five decrypt failures per capture while still recovering all five TShark ClientHellos. Those failures are **not** evidence of five missed ClientHellos; classify their packets before treating them as a gap.
+
+## Measurement plan before claiming a contribution
+
+### Inputs and controls
+
+1. Preserve the two clean PCAPs as immutable baselines; record hashes and the exact reference/export commands.
+2. Save TShark's reassembled ClientHello bytes, tool version, and C++ output for each clean baseline. Include a deterministic comparison script that compares byte strings without assuming output order.
+3. Run both the current C++ CLI and TShark 4.6.4 on deterministic, derived PCAPs. Never overwrite the committed source captures; keep mutations and outputs under ignored reproduction directories until reviewed.
+
+### Controlled conditions
+
+- Clean capture control.
+- Reverse packet-record order and a fixed-seed packet-record shuffle.
+- Remove selected UDP records, including records carrying Initial CRYPTO data; record the exact removed frame numbers and hashes.
+- Create selected snap-length/truncation variants while preserving valid PCAP record framing.
+- Include one unsupported-link/IP-header case to verify that unsupported input is reported rather than misclassified as an incomplete ClientHello.
+
+For each condition, compare tools on the same mutated bytes. Do not assume TShark is ground truth for every impairment without checking its own output and failure behavior.
+
+### Metrics
+
+- Reference ClientHello count and exact-byte recovery count.
+- Exact-byte recall: `byte-identical recovered ClientHellos / reference ClientHellos`.
+- False-complete count (the extractor emits a byte sequence that is not a complete reference ClientHello).
+- Incomplete, decrypt-failed, parse-failed, and unsupported dispositions, with packet/frame counts and missing CRYPTO ranges where measurable.
+- Runtime may be recorded, but is not a novelty result by itself.
+
+### Decision gate
+
+Continue this candidate only if a controlled condition produces a reproducible, material gap in the current implementation or the reference workflow, and a scoped change measurably improves exact-byte recovery or failure diagnosis without introducing false-complete results. Otherwise reject this candidate and reassess alternatives using the reconciled L2–L7 evidence. Check prior art and the course rubric with the team before promoting any candidate to the final contribution.
+
+## Scaffolded implementation tasks
+
+1. Preserve and test current clean-capture baseline; add a reusable byte-set comparison test/command once raw reference artifacts are available.
+2. Add a deterministic PCAP mutation/evaluation harness with immutable inputs, per-case hashes, and machine-readable results.
+3. Extend C++ reporting only where measurements identify a missing disposition or recovery behavior (for example, CRYPTO gaps versus unsupported frames); avoid speculative feature work before that measurement.
+4. Evaluate controlled cases, publish failures as well as successes, then decide whether the contribution is novel and course-appropriate.
+
+## Alternatives not selected at this stage
+
+- L1 reference-tool coverage is not supported by the current clean-trace results.
+- L5's reported released-versus-unreleased JA4 difference is not a clean contribution candidate until the missing `ja4-main` raw results and source/build provenance are reproducible; the reported issue is already fixed upstream.
+- L3 JA4T/MSS capture-vantage analysis remains blocked on the narrative/aggregate mismatch and missing raw SYN evidence.
+- L2, L6, and the L7 DoH arm still have missing or incomplete evidence.

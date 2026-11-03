@@ -83,7 +83,7 @@ This is an adopted study guide. Track 1 numbers below are team-supplied and prov
 ## C. Limitations (our tests)
 
 21. **QUIC: how can a passive observer recover an Initial?**
-    QUIC v1 Initial secrets are derived from a public salt and the packet's DCID (RFC 9001 §5.2). Initial protection therefore does not hide the ClientHello from an observer who implements the derivation. Later Handshake packets use secrets that are not public. The imported T1 reference outputs report five ClientHellos per client. Our current C++ PCAP CLI also recovers five from each, with matching total lengths and TLS framing; exact byte-for-byte comparison against an independent raw reference remains open.
+    QUIC v1 Initial secrets are derived from a public salt and the packet's DCID (RFC 9001 §5.2). Initial protection therefore does not hide the ClientHello from an observer who implements the derivation. Later Handshake packets use secrets that are not public. The imported T1 reference outputs report five ClientHellos per client. Our current C++ PCAP CLI also recovers five from each. The user reports all ten are byte-identical to TShark 4.6.4 `tls.handshake_raw` values by set comparison on Ubuntu WSL. The raw exports and comparison script are not yet retained in the repo, so attribute the result to that reported run rather than claiming independent reproduction.
 
 22. **Why remove header protection before decrypting?**
     The packet number is hidden by header protection, and the packet number is needed to build the decryption nonce (RFC 9001 §5.3, §5.4).
