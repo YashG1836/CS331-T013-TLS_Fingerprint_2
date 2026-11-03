@@ -2,7 +2,7 @@
 
 **Team:** T013  
 **Plan status:** execution baseline; update decisions only with team agreement and recorded evidence.  
-**Schedule basis:** the 15-workday schedule supplied by the team runs 26 October–12 November 2026, with 13 November as a buffer. As of 2 November 2026, the schedule reaches Day 7. A date in the schedule is not evidence that its task was completed; record completion and evidence separately.
+**Deadline:** Friday, 6 November 2026 at 10:00 (GitHub commit time). **Evaluation:** 14–15 November 2026. This supersedes the earlier 12 November schedule. As of 3 November, the execution window is short; prioritize verified evidence and a tested core over breadth. A date in the schedule is not evidence that a task was completed—record completion and evidence separately.
 
 This plan turns the approved proposal and working plan into an engineering sequence. The central objective is to investigate practical TLS-fingerprinting problems in real network conditions, support claims with reproducible captures, and then develop and evaluate an original project contribution addressing at least one confirmed problem. The custom QUIC v1 extractor is a candidate research instrument and depth dive—not, by itself, a novel solution. Existing tools remain comparison targets; their capabilities and shared dependencies must be verified rather than assumed.
 
@@ -70,56 +70,37 @@ QUIC remains the required investigation/depth-dive focus from the project brief.
 
 QUIC packet processing requires careful handling of protected binary headers, cryptographic keys, frames, offsets, and reassembled handshake bytes. C++ supplies explicit control over those data paths. OpenSSL supplies the cryptographic primitives. Python is more suitable for experiment orchestration and statistics, where a C++ rewrite would add work without improving the research question. Neither language choice substitutes for independent validation.
 
-## 3. Repository target layout
+## 3. Repository structure
 
-Add components when they are implemented; do not create empty files for appearance alone.
+Use the following project layout, as specified in the team's newer plan and TA guidance. Add files when they have real content; do not create empty placeholders.
 
 ```text
 README.md
 IMPLEMENTATION_PLAN.md
-Makefile
-CMakeLists.txt
-pyproject.toml
-requirements.txt
+LEDGER.md
 DECISIONS.md                 # written/reviewed in the team's own words
 WHO_KNOWS_WHAT.md
-LEDGER.md
-src/quic_fingerprint/
-  CMakeLists.txt
-  include/quic/{packet_parser,initial_crypto,frame_parser,crypto_reassembly}.hpp
-  include/tls/client_hello.hpp
-  packet_parser.cpp
-  initial_crypto.cpp
-  frame_parser.cpp
-  crypto_reassembly.cpp
-  client_hello.cpp
-  main.cpp
-experiments/
-  run_baseline.py
-  run_scenarios.py
-  compare_fingerprints.py
-  evaluate.py
-corpus/
-  manifest.json
-  pcaps/{baseline,quic,ipv6,vantage}/
-  metadata/
-tests/
-  cpp/
-  python/
-docs/
-  landscape.md
-  capture-method.md
-  baseline-agreement.md
-  basics/
-  limitations/
+code/
   quic/
-  passive-visibility.md
-  report.md
-ai/README.md
+    Makefile
+    src/                      # C++20 QUIC extractor and TLS ClientHello parser
+    tests/                    # C++ unit/integration tests
+  scripts/                    # Python orchestration, JA4 adapter, statistics, evaluation
+captures/
+  pcaps/                      # committed, reviewed evidence captures
+  metadata/                   # one machine-readable metadata record per capture
+  keylogs/                    # local-only by default; never commit public-session secrets
+results/                      # generated CSV/JSON; regenerate, never hand-edit
+report/                       # final report source/PDF
+ppt/                          # slides and source
+ai/                           # course-required raw logs; do not fabricate
+docs/                          # shared technical notes, RFC tables, reading guide
 .github/workflows/ci.yml
 ```
 
-The original Project 1 implementation should not be forked as the base for this work. Reuse a specific, independently verified algorithm only where that is justified; rebuild the capture, flow, evidence, and evaluation model around Project 2.
+Keep the user's specified `code/quic`, `code/scripts`, `captures`, `results`, `report`, `ppt`, and `ai` structure canonical. The present checkpoint still has the earlier `src/`, `experiments/`, and `corpus/` scaffold; that path mismatch is an explicit migration task. Migrate once and update Makefiles, CI, tests, documentation, and ignore rules together—do not maintain duplicate implementations or silently drift between two layouts. Keep key logs out of Git unless they are deliberately generated for a controlled, non-sensitive test capture and the team has reviewed the disclosure risk.
+
+The Project 1 tool is not the base project. Reuse only a specific JA4 calculation after fixing and revalidating its known defect; rebuild the capture, flow, evidence, and evaluation model around Project 2.
 
 ## 4. QUIC v1 implementation stages
 
@@ -223,29 +204,19 @@ The team must assign actual names to P1–P4; this document does not infer them.
 
 Keep raw, timestamped AI-use records as required by the course, and write `DECISIONS.md` in the team's own words. Neither file should be fabricated or retroactively presented as a contemporaneous record.
 
-## 8. Calendar proposed by the team
+## 8. Revised execution schedule
 
-This reproduces the supplied 15-workday schedule. Task completion must be recorded from actual evidence; dates below do not claim work has happened.
+**Code/repository deadline:** Friday, 6 November 2026 at 10:00 (GitHub commit time). **Evaluation:** 14–15 November 2026. This replaces the earlier 12 November freeze date. The schedule below is a compressed execution plan, not a claim that work has already been completed.
 
-| Day/date | Owner(s) | Target / gate |
+| Date | Team focus | Required output / gate |
 |---|---|---|
-| 1 — Mon 26 Oct | All | Confirm scope; record tool versions; begin landscape and human decisions. Gate: each person explains one fingerprint. |
-| 2 — Tue 27 Oct | All | Baseline tools on same captures; compare outputs; first manifest entries. Gate: reproduce/explain agreement or disagreement. |
-| 3 — Wed 28 Oct | P4 + P1 | Capture setup, initial Python harness, build/test/check commands, CI, capture-method metadata. Gate: clean checkout builds current code. |
-| 4 — Thu 29 Oct | P2 + P3 | OS/client comparison; record actual TLS library/version; start field documentation. Gate: explain controlled variable. |
-| 5 — Fri 30 Oct | P3 | Old/new versions and repeated connections; generate hash-stability counts. Gate: statistics computed from committed evidence. |
-| 6 — Sat 31 Oct | P3 + P4 | Same-library apps and supported hybrid key exchange. Gate: verify actual negotiation before claiming change. |
-| 7 — Mon 2 Nov | P1 | QUIC capture and reference-tool baseline before custom parsing. Gate: document what existing tools return on that capture. |
-| 8 — Tue 3 Nov | P4 + P1 | IPv4/IPv6 and capture-vantage comparisons; finish first manifest schema. Gate: assign observations to endpoint, proxy, or capture. |
-| 9 — Wed 4 Nov | P2 + P4 | Genuine ECH or labelled simulation; encrypted-DNS attribution; certificate-abridging analysis; ledger review. Gate: no simulation represented as deployment. |
-| 10 — Thu 5 Nov | All | Mid-project demo and scope decision. Prioritize correct QUIC v1 extraction over optional breadth if time is constrained. |
-| 11 — Fri 6 Nov | P1 + P2 review | Long-header parser, Initial key derivation, HP removal, decryption, tests/sanitizers. Gate: known packet result independently verified. |
-| 12 — Mon 9 Nov | P1 + P2 | Frame parsing, offset-aware reassembly, full ClientHello, passive-visibility work. Gate: fragmentation tests pass; incomplete handshake rejected. |
-| 13 — Tue 10 Nov | P4 + team | Integrate evaluator; run experiment matrix; generate tables; reconcile mismatches. Gate: every printed number regenerates. |
-| 14 — Wed 11 Nov | All | Report, RFC citations, clean-clone tests, logs/contribution audit, rehearsal. Gate: another member reproduces core demonstration. |
-| 15 — Thu 12 Nov | All | Freeze, final acceptance, release/tag, viva preparation. Friday 13 Nov is buffer. |
+| Tue 3 Nov | Confirm scope against the professor's seven-limitations requirement; install and pin tools; build/test the current checkpoint; verify TShark's actual QUIC and JA4 fields; validate the capture interface and key-log method; take a baseline QUIC capture. | Scope decisions recorded; versions recorded; one baseline capture and command; no finding claimed until independently reproduced. |
+| Wed 4 Nov | Capture the highest-priority controlled comparisons; run FoxIO and TShark on identical pcaps; complete the C++ pcap/UDP integration only if the existing core passes its known vectors; collect the seven-row evidence status. | Captures and metadata committed; output tables generated from scripts; each missing row clearly marked rather than fabricated. |
+| Thu 5 Nov | Freeze feature work; regenerate results; cross-review evidence and citations; select a confirmed gap for the project-original contribution and demonstrate a before/after result only if the implementation and baseline are both tested. Prepare clean-clone reproduction. | Clean-clone test log; reviewed ledger; solution comparison with explicit metrics or a candid statement that this gate remains open. |
+| Fri 6 Nov, before 10:00 | Final acceptance pass, commit/push the validated checkpoint, submit the repository link. | No untested last-minute changes; branch history and commit authorship verified. |
+| 14–15 Nov | Evaluation / viva. | Demonstrate only results reproducible from committed evidence; clearly distinguish measured results, open work, and out-of-scope features. |
 
-**Scheduling note:** on 2 November, Days 1–6 are in the past. Do not mark them complete from the calendar. If their work/evidence is missing, update priorities with the team and use the buffer/scope cut honestly rather than compressing unverified experiments into a false completion claim.
+The time available is short relative to the complete proposed matrix and seven evidence-backed limitations. Do not quietly reduce the required limitation count or call an incomplete capture an experiment. If seven real, reproducible rows and an evaluated original contribution cannot be completed by the deadline, get the scope change approved and document exactly what is complete. Prioritize a correct QUIC baseline, safe capture/key handling, and reproducible evidence over optional protocol features.
 
 ## 9. Acceptance criteria
 
