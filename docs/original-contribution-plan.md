@@ -2,7 +2,7 @@
 
 ## Decision status
 
-**Working candidate only; not an approved or novelty claim.** The current WSL byte comparison closes the clean-capture correctness gate for two QUIC v1 traces, but it does not establish a remaining functional gap: all ten recovered ClientHello byte strings reportedly match TShark's `tls.handshake_raw` output. L1's proposed reference-tool visibility gap is not supported by these samples.
+**No recovery gap demonstrated; diagnostic gap still unmeasured.** The user-reported WSL impairment run matches C++ and TShark on all retained complete ClientHellos across the six tested cases for each trace. This is negative evidence against an extraction/reordering/loss/truncation contribution in these conditions. Do not relabel a match with the mutated TShark output as recovery of all original handshakes: in the every-third-drop cases, the reference itself contains only two ClientHellos. A narrow completeness-diagnostics contribution remains only a hypothesis until the per-flow dispositions are checked against the known mutations. L1's clean-capture visibility gap is not supported.
 
 Do not describe the standards-defined QUIC Initial key derivation, classic-PCAP reading, or the clean-trace match as the original contribution. First establish a reproducible gap under a measured capture condition and show an improvement over a declared baseline.
 
@@ -19,6 +19,29 @@ The candidate engineering direction is a **capture-quality-aware QUIC Initial re
 - The user reports that all ten C++ handshake byte strings match TShark 4.6.4 `tls.handshake_raw` values by set equality. TShark packet-arrival order differs from the CLI's DCID iteration order, so the reported comparison is set-based rather than positional.
 - User-reported WSL environment: TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5. The raw exports, exact commands, and comparison script have not yet been committed, so this result is recorded as user-reported, not independently reproduced in Arena.
 - The CLI reports ten candidate Initial DCIDs and five decrypt failures per capture while still recovering all five TShark ClientHellos. Those failures are **not** evidence of five missed ClientHellos; classify their packets before treating them as a gap.
+
+## User-reported impairment results (4 November 2026)
+
+The user reports running commit `fec3b11` on Ubuntu WSL with TShark 4.6.4 and seed 331. The reported C++-versus-TShark exact-byte comparison was:
+
+| Variant | curl reference / extracted / matched | Chromium reference / extracted / matched |
+|---|---:|---:|
+| Baseline | 5 / 5 / 5 | 5 / 5 / 5 |
+| Reverse record order | 5 / 5 / 5 | 5 / 5 / 5 |
+| Seeded record shuffle | 5 / 5 / 5 | 5 / 5 / 5 |
+| Drop one selected Initial CRYPTO record | 5 / 5 / 5 | 5 / 5 / 5 |
+| Drop every third selected Initial CRYPTO record | 2 / 2 / 2 | 2 / 2 / 2 |
+| Truncate 64 captured bytes from selected record | 5 / 5 / 5 | 5 / 5 / 5 |
+
+The user reports zero misses and extras in every mutated-reference comparison, and no false-complete outputs. The 2/2 result in the every-third-drop case is **conditional recall against TShark's mutated-capture output**, not five-of-five recovery against the original clean trace. These results establish no extraction gap against TShark for this limited deterministic matrix. They do not establish broad QUIC robustness, nor independently prove either tool's correctness; the raw `impairment-results.json`, case manifests, and logs have not been retained here and the TShark runs have not been independently rerun in this environment.
+
+The same run exposed an evaluation-pipeline issue: in this TShark `-T jsonraw` output, repeated `tls.handshake_raw` members can appear at the same object level. Python's default `json.loads()` keeps only the last value for a duplicate object key, so the initial harness could silently lose earlier ClientHellos (the baseline reference count became zero). Commit `fec3b11` scans the raw export text to preserve all matching values. This is a **tooling/data-ingestion finding**, not evidence of a QUIC extractor limitation or an original protocol contribution. The wording should be scoped to this observed TShark JSON output, not generalized to every JSON parser or dissector. A regression test is now added locally to ensure both repeated values survive.
+
+### Decision and next gate
+
+Do **not** pursue QUIC recovery improvements on these results. First time-box a diagnostics audit using the saved `impairment-results.json` from both traces: map each removed/truncated PCAP record to its DCID/CRYPTO range and expected affected ClientHello, then inspect whether C++ reports each broken flow as incomplete (rather than decrypt-failed, unsupported, or silently absent). Compare with TShark as a reference, but treat the mutation manifest and known source flows as the primary expected-outcome record. Only scope diagnostic reporting as the contribution if this reveals a material, reproducible classification gap and a change improves it without false-complete results.
+
+If no such gap exists, reject the QUIC contribution candidate rather than inventing one. L3 TCP vantage/JA4T proxy sanity checks are the fallback, but they are **not ready to become the contribution yet**: reproduce the targeted SYN/segment/frame measurements and resolve the existing T3 narrative-versus-aggregate discrepancy using raw packet-level evidence. Do not pursue both arms as simultaneous contribution claims.
 
 ## Measurement plan before claiming a contribution
 

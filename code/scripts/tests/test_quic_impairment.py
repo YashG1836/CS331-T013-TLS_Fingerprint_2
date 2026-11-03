@@ -1,3 +1,4 @@
+import json
 import struct
 import sys
 from pathlib import Path
@@ -73,6 +74,21 @@ def test_jsonraw_extracts_only_complete_clienthello_handshakes():
         }}
     }
     assert extract_hex_handshakes_from_jsonraw(document) == [client_hello]
+
+
+def test_jsonraw_preserves_duplicate_handshake_keys_from_raw_text():
+    first = "0100000100"
+    second = "0100000300aabb"
+    raw_text = (
+        '{"_source":{"layers":{"quic.frame":{'
+        f'"tls.handshake_raw":["{first}",0,5],'
+        f'"tls.handshake_raw":["{second}",5,6]'
+        '}}}}'
+    )
+    decoded = json.loads(raw_text)
+    # Default dict deserialization keeps only the later duplicate member.
+    assert extract_hex_handshakes_from_jsonraw(decoded) == [second]
+    assert extract_hex_handshakes_from_jsonraw(decoded, raw_text=raw_text) == [first, second]
 
 
 def test_variant_generation_is_deterministic_and_preserves_source(tmp_path: Path):
