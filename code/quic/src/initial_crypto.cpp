@@ -24,7 +24,7 @@ Result<Bytes> expand_label(std::span<const std::uint8_t> secret, std::string_vie
   if (!raw) return {std::nullopt, ParseError{"OpenSSL HKDF context allocation failed", 0}};
   std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)> ctx(raw, EVP_PKEY_CTX_free);
   std::size_t n = out.size();
-  if (EVP_PKEY_derive_init(ctx.get()) <= 0 || EVP_PKEY_CTX_hkdf_mode(ctx.get(), EVP_PKEY_HKDF_MODE_EXPAND_ONLY) <= 0 ||
+  if (EVP_PKEY_derive_init(ctx.get()) <= 0 || EVP_PKEY_CTX_hkdf_mode(ctx.get(), EVP_PKEY_HKDEF_MODE_EXPAND_ONLY) <= 0 ||
       EVP_PKEY_CTX_set_hkdf_md(ctx.get(), EVP_sha256()) <= 0 ||
       EVP_PKEY_CTX_set1_hkdf_key(ctx.get(), secret.data(), static_cast<int>(secret.size())) <= 0 ||
       EVP_PKEY_CTX_add1_hkdf_info(ctx.get(), info.data(), static_cast<int>(info.size())) <= 0 ||
@@ -61,7 +61,7 @@ Result<InitialKeys> derive_initial_keys(std::span<const std::uint8_t> dcid, bool
   EVP_PKEY_CTX* raw = EVP_PKEY_CTX_new_id(EVP_PKEY_HKDF, nullptr);
   if (!raw) return {std::nullopt, ParseError{"OpenSSL HKDF context allocation failed", 0}};
   std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)> x(raw, EVP_PKEY_CTX_free);
-  if (EVP_PKEY_derive_init(x.get())<=0 || EVP_PKEY_CTX_hkdf_mode(x.get(), EVP_PKEY_HKDF_MODE_EXTRACT_ONLY)<=0 ||
+  if (EVP_PKEY_derive_init(x.get())<=0 || EVP_PKEY_CTX_hkdf_mode(x.get(), EVP_PKEY_HKDEF_MODE_EXTRACT_ONLY)<=0 ||
       EVP_PKEY_CTX_set_hkdf_md(x.get(), EVP_sha256())<=0 || EVP_PKEY_CTX_set1_hkdf_salt(x.get(), salt.data(), static_cast<int>(salt.size()))<=0 ||
       EVP_PKEY_CTX_set1_hkdf_key(x.get(), dcid.data(), static_cast<int>(dcid.size()))<=0 || EVP_PKEY_derive(x.get(), initial_secret.data(), &n)<=0 || n!=32)
     return {std::nullopt, ParseError{"Initial secret derivation failed", 0}};
