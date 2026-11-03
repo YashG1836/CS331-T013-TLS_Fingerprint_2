@@ -1,0 +1,2 @@
+# Preserve trailing tab delimiters in raw reference-tool TSV output.
+results/baseline/*.tsv whitespace=-blank-at-eol

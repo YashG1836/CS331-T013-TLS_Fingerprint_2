@@ -58,7 +58,7 @@ QUIC remains the required investigation/depth-dive focus from the project brief.
 | Frame parsing and CRYPTO reassembly | C++20 | Parse offsets and assemble handshake bytes with explicit bounds, overlap checks, and allocation limits. |
 | TLS ClientHello extraction | C++20 | Validate handshake framing and nested lengths before extracting fields. |
 | JA4 construction | Verified reference implementation initially | Do not create a second JA4 implementation simply for convenience. Validate all QUIC-specific encoding and field construction against the published specification and an independent reference before emitting a result. |
-| Reference tools | FoxIO JA4+ Rust CLI v0.18.6 (tag commit `4490e6c5d317cbc6662005ad9482a4b994e320a9`) and Wireshark/TShark 4.0.6 or later | Treat as independent black boxes; compare identical bytes and record exact installed versions/commands. Verify actual fields with `make preflight`; the version alone does not prove QUIC/JA4 output support. |
+| Reference tools | FoxIO JA4+ Rust source release v1.0.1 (tag commit `896b951e438c2979e0ef077a94ad390b1c973c23`; supplied binary reports 0.18.6) and Wireshark/TShark 4.0.6 or later | Compare identical bytes and record exact versions/commands. FoxIO invokes TShark, so these are not fully independent packet decoders. Verify actual fields with `make preflight`; the version alone does not prove QUIC/JA4 output support. |
 | Capture | tcpdump/dumpcap as available | Prefer real traffic. Record vantage point, interface, direction, offload settings, MTU, NAT/proxy conditions, and capture start/stop. |
 | Orchestration/evaluation | Python 3.12 | Validate manifests, run tools, collect outputs, calculate statistics, and generate tables. Python does not replace the C++ QUIC processing core. |
 | Build | CMake | Reproducible C++ build with OpenSSL 3.x. |
@@ -193,13 +193,26 @@ make capture   # optional; document privileges/interface/configuration
 
 The evaluator should check referenced captures, run declared tools, collect machine-readable output, compare reference/custom results, calculate statistics, and report missing evidence or mismatches. It must also test failure paths: missing capture, missing executable, malformed tool output, duplicate manifest IDs, and inconsistent expected properties. A fresh clone should have one documented reproduction path.
 
-## 7. Revised execution schedule
+## 7. Team responsibilities and review
+
+| Role | Primary | Secondary / review |
+|---|---|---|
+| P1 | C++ QUIC packet parsing and Initial decryption | QUIC integration tests; explain supported/unsupported cases. |
+| P2 | ClientHello extraction and passive visibility | RFC field documentation; review QUIC parsing and key visibility. |
+| P3 | Client matrix, repeated connections, version/library comparison | Fingerprint construction validation; compute stability/collision statistics. |
+| P4 | Capture infrastructure, manifest, Python harness, CI | IPv4/IPv6 and vantage experiments; verify clean-clone reproduction. |
+
+The team must assign actual names to P1–P4; this document does not infer them. Each person should make a concrete code or technical-artifact contribution, review at least one component outside their primary responsibility, and be able to explain the overall pipeline. For a human contributor history, use team branches and reviewed PRs as the team setup allows; never invent contributions or author names.
+
+Keep raw, timestamped AI-use records as required by the course, and write `DECISIONS.md` in the team's own words. Neither file should be fabricated or retroactively presented as a contemporaneous record.
+
+## 8. Revised execution schedule
 
 **Code/repository deadline:** Friday, 6 November 2026 at 10:00 (GitHub commit time). **Evaluation:** 14–15 November 2026. This replaces the earlier 12 November freeze date. The schedule below is a compressed execution plan, not a claim that work has already been completed.
 
 | Date | Team focus | Required output / gate |
 |---|---|---|
-| Tue 3 Nov | Confirm scope against the professor's seven-limitations requirement; install and pin tools; build/test the current checkpoint; verify TShark's actual QUIC and JA4 fields; validate the capture interface and key-log method; take a baseline QUIC capture. | Scope decisions recorded; versions recorded; one baseline capture and command; no finding claimed until independently reproduced. |
+| Tue 3 Nov | Confirm scope; install and pin tools; build/test the current checkpoint; verify TShark fields; validate capture permissions; record and review the initial QUIC baseline. | One team-supplied baseline is now registered provisionally; exact capture/client commands and independent ClientHello-byte validation remain open; no limitation is claimed. |
 | Wed 4 Nov | Capture the highest-priority controlled comparisons; run FoxIO and TShark on identical pcaps; complete the C++ pcap/UDP integration only if the existing core passes its known vectors; collect the seven-row evidence status. | Captures and metadata committed; output tables generated from scripts; each missing row clearly marked rather than fabricated. |
 | Thu 5 Nov | Freeze feature work; regenerate results; cross-review evidence and citations; select a confirmed gap for the project-original contribution and demonstrate a before/after result only if the implementation and baseline are both tested. Prepare clean-clone reproduction. | Clean-clone test log; reviewed ledger; solution comparison with explicit metrics or a candid statement that this gate remains open. |
 | Fri 6 Nov, before 10:00 | Final acceptance pass, commit/push the validated checkpoint, submit the repository link. | No untested last-minute changes; branch history and commit authorship verified. |
@@ -207,7 +220,7 @@ The evaluator should check referenced captures, run declared tools, collect mach
 
 The time available is short relative to the complete proposed matrix and seven evidence-backed limitations. Do not quietly reduce the required limitation count or call an incomplete capture an experiment. If seven real, reproducible rows and an evaluated original contribution cannot be completed by the deadline, get the scope change approved and document exactly what is complete. Prioritize a correct QUIC baseline, safe capture/key handling, and reproducible evidence over optional protocol features.
 
-## 8. Acceptance criteria
+## 9. Acceptance criteria
 
 | Area | Required before claiming completion |
 |---|---|
@@ -225,7 +238,7 @@ The time available is short relative to the complete proposed matrix and seven e
 
 Use AddressSanitizer and UndefinedBehaviorSanitizer where supported. Test malformed/truncated inputs, extreme lengths, missing captures, missing tools, and inconsistent manifest entries intentionally.
 
-## 9. Questions to prepare for the viva
+## 10. Questions to prepare for the viva
 
 1. Why C++ for this core and Python for the harness? What evidence would justify a performance claim?
 2. Why can a passive observer derive QUIC Initial keys, and what does that not let them decrypt?
@@ -238,7 +251,7 @@ Use AddressSanitizer and UndefinedBehaviorSanitizer where supported. Test malfor
 9. What exactly changed in the PQ, IPv6, ECH, or encrypted-DNS scenario, and how did the capture prove it?
 10. Can another person regenerate every number in the report from the committed corpus?
 
-## 10. Shortcuts to avoid
+## 11. Shortcuts to avoid
 
 - Do not choose C++ merely to make the project look sophisticated, or claim it is inherently faster without measurements.
 - Do not rewrite cryptographic primitives.
@@ -253,16 +266,17 @@ Use AddressSanitizer and UndefinedBehaviorSanitizer where supported. Test malfor
 - Do not claim support for Retry, migration, 0-RTT, or QUIC v2 merely because the basic v1 Initial path works.
 - Do not leave integration, review, or report generation to one person.
 
-## 11. Checkpoint status and next action
+## 12. Checkpoint status and next action
 
-### Verification completed in the sandbox (3 November 2026)
+### Evidence and verification status (3 November 2026)
 
-- `make test`: passed with CMake 3.31.6, g++ 12.2.0, and OpenSSL 3.0.20. The C++ suite passed (1 CTest target); all 9 Python tests passed. Because the sandbox lacked development headers, OpenSSL 3.0.20 was built from its tagged source under `/tmp` and supplied through `CMAKE_PREFIX_PATH`; this temporary dependency is not part of the repository.
-- The C++ suite now checks RFC 9001 Appendix A.1 client and server Initial key vectors and Appendix A.2 full client Initial decryption, packet number, CRYPTO extraction, ClientHello parsing, and rejection of a tampered packet. It also checks coalesced packet boundaries, malformed/truncated inputs, frame parsing, reassembly overlaps/limits, and ClientHello length validation.
-- AddressSanitizer/UndefinedBehaviorSanitizer build and CTest: passed (1/1 CTest target).
-- `make check`: passed; manifest valid with 0 captures. `make eval`: emitted `no_evidence_yet`, not measured results.
-- The sandbox still lacks TShark, FoxIO's `ja4` executable, tcpdump, and dumpcap. The baseline runner and readiness check are implemented, but no packet was captured, no FoxIO/TShark comparison was run, and no limitation has an experimental result. These verification checks do not replace running the environment and capture gates on the team VM.
+- A real QUIC v1 pcapng from the team workspace is registered as provisional evidence. Its SHA-256 is `1cd5f8c05b5b966eed1ae339eeec80b86b830deccda81489dabefb28f272ec7a`. The pcapng structure was checked in this checkout (30 blocks, 27 enhanced packet blocks, no Decryption Secrets Blocks), and the supplied SHA file, metadata, and manifest agree.
+- The imported TShark 4.6.4 and FoxIO JA4 0.18.6 records report the same JA4 for frame 1. This one capture does not demonstrate an L1 tool-coverage gap; the two CLIs share TShark dissection. Exact dumpcap/client commands, an executable-to-source build attestation, and independent ClientHello-byte comparison remain missing.
+- The captured TShark/FoxIO outputs were generated with commands recorded in metadata. They have not been rerun in this checkout because the current integration environment lacks those tools. The current runner uses its own recorded command vector; do not relabel the imported output as generated by that runner.
+- The archived `make test` output came from a different workspace containing monolithic `quic.cpp` and GoogleTest. It does not validate the modular C++ implementation in this repository. The preserved C++ architecture and lightweight harness remain unchanged.
+- The archive also reports a full-UDP parser failure from its monolithic extractor. That observation is not yet reproduced against the current modular implementation and is not an L1 tool-coverage conclusion.
+- L2–L7 remain open. No original solution has been selected; first resolve the baseline's provenance and byte-level validation, then assess confirmed gaps.
 
-The C++ test executable is dependency-light rather than GoogleTest, while the tool table above names GoogleTest. Treat that as an unresolved plan/code mismatch; do not call the GoogleTest criterion complete without a team-approved reason or migration.
+The current C++ test executable is dependency-light rather than GoogleTest, while the tool table above names GoogleTest. The archive's GoogleTest results do not close this plan/code gap. Do not call it complete without a team-approved reason or migration.
 
-**Next action:** establish the reference baseline on the team VM using one real QUIC v1 capture and pinned FoxIO/TShark tools. Record the exact versions, commands, capture conditions, and outputs; only then decide whether any extractor extension is justified. Do not report a limitation result or claim a novel contribution without reproducible evidence. RFC-defined Initial decryption alone is not the novel contribution.
+**Next action:** rerun `make test`, `make check`, the baseline runner, and the evidence comparison on the intended Ubuntu/WSL environment. Preserve the imported baseline outputs while producing fresh outputs under `results/reference/`. Then finish provenance and ClientHello-byte validation before selecting an original solution. RFC-defined Initial decryption alone is not the novel contribution.

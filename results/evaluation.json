@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "capture_count": 1,
+  "validated_capture_count": 1,
+  "provisional_capture_count": 1,
+  "complete_provenance_count": 0,
+  "unclassified_capture_count": 0,
+  "status": "provisional_evidence",
+  "captures": [
+    {
+      "capture_id": "quic-v1-initial-baseline-2026-11-03",
+      "scenario": "L1_reference_tool_baseline",
+      "provenance_status": "provisional",
+      "sha256": "1cd5f8c05b5b966eed1ae339eeec80b86b830deccda81489dabefb28f272ec7a",
+      "missing_provenance": [
+        "exact dumpcap command and capture duration",
+        "aioquic client script and exact invocation",
+        "build attestation tying the reported JA4 executable SHA-256 to the pinned FoxIO v1.0.1 source commit",
+        "independent byte-for-byte ClientHello comparison against a reference decoder"
+      ]
+    }
+  ],
+  "note": "Capture artifacts and hashes validate, but provisional provenance remains open; no limitation conclusion is inferred."
+}

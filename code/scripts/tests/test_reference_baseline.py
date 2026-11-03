@@ -51,6 +51,9 @@ else:
     assert result["status"] == "commands_completed"
     assert result["capture_sha256"] == hashlib.sha256(capture.read_bytes()).hexdigest()
     assert result["tools"]["ja4_plus"]["version_command"]["stdout"].strip() == "ja4 0.18.6"
+    assert result["tools"]["ja4_plus"]["capture_command"]["argv"][1:] == [
+        "--json", str(capture.resolve())
+    ]
     assert result["tools"]["ja4_plus"]["parsed_json"] == [
         {"transport": "quic", "ja4": "q13example"}
     ]

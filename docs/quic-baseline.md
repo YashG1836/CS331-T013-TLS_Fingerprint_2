@@ -1,25 +1,35 @@
-# QUIC reference-tool baseline
+# QUIC v1 reference-tool baseline
 
-**Status:** procedure prepared; no project capture has been run through the reference tools. `captures/manifest.json` is empty, and the sandbox currently has neither TShark nor the FoxIO `ja4` executable. Do not treat the official JA4 repository's sample pcaps as this project's captured evidence.
+## Current evidence status
 
-## Reference versions
+One real QUIC v1 pcapng from the team workspace is registered as **provisional L1 baseline evidence**, not as a demonstrated tool-coverage limitation. Its SHA-256 is `1cd5f8c05b5b966eed1ae339eeec80b86b830deccda81489dabefb28f272ec7a`. The supplied TShark and FoxIO output both report the same ClientHello JA4 for frame 1:
 
-- FoxIO JA4+ Rust CLI: pin the `v0.18.6` source tag at commit `4490e6c5d317cbc6662005ad9482a4b994e320a9`. Record the installed binary's `ja4 --version` output with the experiment. The upstream project documents the CLI invocation `ja4 -j -r <pcap>` for JSON output with raw fields.
-- Wireshark TShark: the FoxIO README states TShark 4.0.6 or later is required for full functionality. Record the exact `tshark --version` output used; do not assume field presence from the version number. `make preflight` checks actual QUIC and JA3/JA4 field abbreviations.
+```text
+q13d0307h3_55b375c5d22e_1cecd519fee8
+```
 
-Upstream references checked 3 November 2026:
+The supplied TShark output also reports JA3 `121f6e4f22ee3205214b0676ed64b9e2`. The metadata explicitly notes that FoxIO's Rust CLI uses system TShark, so the two command outputs are not independent packet decoders. On this one capture, no L1 tool-coverage gap was observed. This does not establish behavior across clients, versions, or other capture conditions.
 
-- [FoxIO JA4+ repository](https://github.com/FoxIO-LLC/ja4)
-- [FoxIO Rust CLI usage](https://github.com/FoxIO-LLC/ja4/blob/v0.18.6/rust/README.md)
-- [Wireshark/TShark](https://www.wireshark.org/docs/man-pages/tshark.html)
+The pcap SHA-256 was recomputed in this checkout, and its pcapng structure was checked (30 blocks, including 27 enhanced packet blocks and no Decryption Secrets Blocks). The imported TShark/FoxIO commands and output files have **not** been rerun here because those executables are unavailable in this integration environment. See [`results/verification-status.md`](../results/verification-status.md) for the distinction between supplied logs and validation of the current modular implementation.
 
-## Baseline procedure
+## Reference versions and provenance
 
-1. Use a controlled, non-sensitive QUIC v1 client connection. Capture only project-related traffic. Never capture personal browsing or commit public-session TLS key logs.
-2. Review the pcap and add a matching record to `captures/manifest.json`, including capture provenance, client and server, commands, versions, interface/vantage, and the expected protocol properties. The file must exist under `captures/pcaps/`.
-3. Run `make preflight PYTHON=python3`. Confirm the actual TShark field availability and that both TShark and `ja4` are on `PATH`.
-4. Run `make baseline CAPTURE_ID=<registered-id> PYTHON=python3`.
-5. The script writes `results/reference/<registered-id>.json`. It records the pcap SHA-256, executable versions, exact argument vectors, TShark fields, exit codes, and raw tool outputs. It does **not** decide whether outputs agree or establish a limitation; interpret the values only after checking the same packets/flows and preserving the output as experiment evidence.
-6. If a command fails or a field is missing, keep that as a tool observation with the exact version and reproduction command. Do not rewrite a missing field as “QUIC is confidential.” QUIC v1 Initial protection and TLS handshake confidentiality are different questions; see RFC 9001 §§5.2–5.3 and RFC 8446 §4.4.
+The supplied capture metadata reports TShark/Wireshark 4.6.4 and a FoxIO JA4 executable that reports version 0.18.6 and was built from source release `v1.0.1`. The `v1.0.1` source tag resolves to commit `896b951e438c2979e0ef077a94ad390b1c973c23`; the reported executable SHA-256 is `c8603007a398e354bb1e9e8c5aa27817f9fe3334a60cd3d64e4d3418e4002675`. The binary itself and a build attestation were not included, so the relationship between that hash and the pinned source remains team-reported rather than independently verified here.
 
-The script runs FoxIO as `ja4 -j -r <capture>` and TShark with `-T fields`, selecting only fields actually reported by that TShark build. When the tool's QUIC fields, JA4 fields, or output schemas differ, preserve the raw results and record the discrepancy; do not silently normalize it away.
+The source-release tag (`v1.0.1`) and executable's reported program version (`0.18.6`) are different version labels; retain both. Upstream says the Rust CLI requires TShark 4.0.6 or later. References: [FoxIO release v1.0.1](https://github.com/FoxIO-LLC/ja4/releases/tag/v1.0.1), [source tag](https://github.com/FoxIO-LLC/ja4/tree/v1.0.1), [Rust CLI usage](https://github.com/FoxIO-LLC/ja4/tree/v1.0.1/rust), and [TShark manual](https://www.wireshark.org/docs/man-pages/tshark.html).
+
+## Supplied commands and output files
+
+The team recorded these commands for the same pcap:
+
+- TShark with a QUIC/ClientHello display filter and selected QUIC/TLS fields; exact command is in `captures/metadata/quic-v1-baseline.json`.
+- FoxIO `ja4 --json captures/pcaps/quic-v1-baseline.pcapng`.
+- `sha256sum captures/pcaps/quic-v1-baseline.pcapng`.
+
+Their outputs are preserved unmodified under `results/baseline/`. The command used in the supplied logs is not identical to the command vector emitted by the repository's `reference_baseline.py`; the imported files are therefore preserved as supplied evidence and are not represented as output generated by that script. `make baseline CAPTURE_ID=quic-v1-initial-baseline-2026-11-03` can rerun the current runner when TShark and JA4 are available; it writes a separate report under `results/reference/`.
+
+## Provenance gaps and next validation
+
+The record remains provisional because the exact `dumpcap` invocation and capture duration, the aioquic client script and invocation, an executable-to-source build attestation, and an independent byte-for-byte ClientHello comparison were not retained. The archived workspace also reports that its monolithic custom parser fails on the full UDP payload and succeeds on the packet-only bytes. That particular custom-extractor result has **not** been tested against this repository's modular C++ implementation and must not be attributed to it.
+
+When tools are available, rerun both references on the committed capture and compare the exact fields/bytes. Add the exact commands and versions; do not infer an L1 limitation from missing output, and do not call this one matched result a broad capability claim. QUIC v1 Initial recovery and TLS handshake confidentiality are different questions; see RFC 9000 §§12.2, 14.1, 19.1 and RFC 9001 §§4.1, 5.2–5.4.

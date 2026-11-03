@@ -20,8 +20,8 @@ The command-line wrapper is deliberately limited to one datagram passed as hexad
 ## Next engineering gates
 
 - Validate packet decryption against an independently published or generated full-packet vector, including tamper rejection and packet-number reconstruction.
-- Add real client Initial captures and compare the recovered ClientHello byte-for-byte with a trusted independent decoder.
+- Complete provenance for the registered provisional QUIC v1 client capture and compare the current modular implementation's recovered ClientHello byte-for-byte with a trusted reference. The archive's monolithic-parser result is not validation of this implementation.
 - Add a pcap/UDP extraction adapter without changing the core's bounded-span API.
 - Test multiple coalesced packets and CRYPTO fragments across datagrams, including out-of-order delivery and incomplete captures.
 - Verify JA4's QUIC protocol identifier and construction against the chosen reference implementation before emitting a JA4 result.
-- Add captured evidence to the manifest and make each measured result regenerate from that evidence.
+- For each additional capture, register its evidence and provenance in the manifest; make every measured result regenerate from the registered artifacts.

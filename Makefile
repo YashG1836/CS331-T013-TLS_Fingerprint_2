@@ -10,8 +10,10 @@ test: build
 	ctest --test-dir $(BUILD_DIR) --output-on-failure
 	$(PYTHON) -m pytest -q
 
+PREFLIGHT_OUTPUT ?= results/preflight-current.json
+
 preflight:
-	$(PYTHON) code/scripts/preflight.py --output results/preflight.json
+	$(PYTHON) code/scripts/preflight.py --output $(PREFLIGHT_OUTPUT)
 
 check:
 	$(PYTHON) code/scripts/evaluate.py --check-only

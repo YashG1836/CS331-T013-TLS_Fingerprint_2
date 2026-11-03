@@ -99,7 +99,7 @@ def run_capture_baseline(
         fields = parse_tshark_fields(tshark_field_listing.get("stdout", ""))
     selected_fields = select_tshark_fields(fields)
 
-    ja4_result = invoke((ja4_executable, "-j", "-r", str(capture_path)), timeout)
+    ja4_result = invoke((ja4_executable, "--json", str(capture_path)), timeout)
     tshark_result = None
     if selected_fields:
         tshark_result = invoke(

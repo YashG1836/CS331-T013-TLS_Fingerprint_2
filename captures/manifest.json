@@ -1,4 +1,68 @@
 {
   "schema_version": 1,
-  "captures": []
+  "captures": [
+    {
+      "capture_id": "quic-v1-initial-baseline-2026-11-03",
+      "scenario": "L1_reference_tool_baseline",
+      "capture_file": "captures/pcaps/quic-v1-baseline.pcapng",
+      "metadata_file": "captures/metadata/quic-v1-baseline.json",
+      "protocol": "QUIC v1",
+      "client": "aioquic 1.7.2 Python client requesting https://cloudflare.com with ALPN h3; exact script and invocation were not retained",
+      "commands": [
+        "tshark -r captures/pcaps/quic-v1-baseline.pcapng -Y 'quic || tls.handshake.type == 1' -T fields -E header=y -E separator=$'\\t' -E occurrence=a -E aggregator=, -e frame.number -e quic.version -e quic.long.packet_type -e quic.dcid -e quic.crypto.offset -e quic.crypto.length -e tls.handshake.type -e tls.handshake.ja3 -e tls.handshake.ja4",
+        "/tmp/ja4-1.0.1/rust/target/release/ja4 --json captures/pcaps/quic-v1-baseline.pcapng",
+        "sha256sum captures/pcaps/quic-v1-baseline.pcapng"
+      ],
+      "tool_versions": {
+        "tshark": "4.6.4",
+        "foxio_ja4": "0.18.6, built from FoxIO source release v1.0.1",
+        "aioquic": "1.7.2",
+        "python_environment": "3.14.4 WSL preflight; exact client interpreter not recorded"
+      },
+      "conditions": {
+        "capture_method": "dumpcap on WSL eth0 with UDP port 443 filter; exact command flags and capture duration not recorded",
+        "client_action": "one controlled request to https://cloudflare.com using aioquic with ALPN h3",
+        "flow": "192.168.38.227:51703 to 104.16.133.229:443 over UDP",
+        "capture_timestamp": "file mtime 2026-11-03T13:11:21Z; exact capture start time not recorded"
+      },
+      "observations": {
+        "frame": 1,
+        "quic_version": "0x00000001",
+        "long_header_packet_type": "Initial",
+        "quic_packet_length_bytes": 523,
+        "udp_payload_bytes": 1200,
+        "trailing_zero_bytes_after_initial": 677,
+        "crypto_offset": 0,
+        "crypto_length": 475,
+        "tls_handshake_type": "ClientHello",
+        "tshark_ja3": "121f6e4f22ee3205214b0676ed64b9e2",
+        "tshark_ja4": "q13d0307h3_55b375c5d22e_1cecd519fee8",
+        "foxio_ja4": "q13d0307h3_55b375c5d22e_1cecd519fee8",
+        "reference_ja4_match": true,
+        "tshark_coalesced_padding_data": true,
+        "reference_tool_conclusion": "On this capture, TShark and FoxIO both expose the QUIC v1 ClientHello and report the same JA4; this capture does not demonstrate an L1 tool-coverage gap.",
+        "reference_tools_share_dependency": "FoxIO ja4 invokes system TShark; agreement is a useful cross-CLI check but not a fully independent packet-decoder comparison."
+      },
+      "expected_properties": [],
+      "sha256": "1cd5f8c05b5b966eed1ae339eeec80b86b830deccda81489dabefb28f272ec7a",
+      "capture_hash_file": "results/baseline/capture_hash.txt",
+      "baseline_outputs": {
+        "foxio_ja4": "results/baseline/foxio_ja4.json",
+        "tshark_fields": "results/baseline/tshark_fields.tsv"
+      },
+      "evidence_files": [
+        "results/baseline/foxio_ja4.json",
+        "results/baseline/tshark_fields.tsv",
+        "results/baseline/capture_hash.txt"
+      ],
+      "provenance_status": "provisional",
+      "missing_provenance": [
+        "exact dumpcap command and capture duration",
+        "aioquic client script and exact invocation",
+        "build attestation tying the reported JA4 executable SHA-256 to the pinned FoxIO v1.0.1 source commit",
+        "independent byte-for-byte ClientHello comparison against a reference decoder"
+      ],
+      "foxio_executable_sha256": "c8603007a398e354bb1e9e8c5aa27817f9fe3334a60cd3d64e4d3418e4002675"
+    }
+  ]
 }
