@@ -22,6 +22,7 @@ PROBES: dict[str, tuple[str, ...]] = {
     "compiler": ("g++", "--version"),
     "openssl": ("openssl", "version"),
     "tshark": ("tshark", "--version"),
+    "ja4": ("ja4", "--version"),
     "tcpdump": ("tcpdump", "--version"),
     "dumpcap": ("dumpcap", "--version"),
     "curl": ("curl", "--version"),
@@ -109,13 +110,24 @@ def inspect_interfaces() -> dict:
     return {"available": False, "error": "No interface-listing tool succeeded (dumpcap, tcpdump, or ip)."}
 
 
+def baseline_is_ready(tools: dict, tshark: dict, interfaces: dict) -> bool:
+    """Require build dependencies, both reference tools, QUIC dissection, and capture support."""
+    required_tools = ("cmake", "compiler", "openssl", "tshark", "ja4")
+    if not all(tools.get(name, {}).get("available", False) for name in required_tools):
+        return False
+    if not tshark.get("available", False) or not tshark.get("has_quic_fields", False):
+        return False
+    if not interfaces.get("available", False):
+        return False
+    return any(tools.get(name, {}).get("available", False) for name in ("tcpdump", "dumpcap"))
+
+
 def build_report() -> dict:
     tools = {name: run_probe(argv) for name, argv in PROBES.items()}
     tshark = inspect_tshark()
     interfaces = inspect_interfaces()
     curl_text = "\n".join(tools["curl"].get("version", []))
-    ready = all(tools[name].get("available") for name in ("cmake", "compiler", "openssl", "tshark"))
-    ready = ready and any(tools[name].get("available") for name in ("tcpdump", "dumpcap"))
+    ready = baseline_is_ready(tools, tshark, interfaces)
     return {
         "schema_version": 1,
         "checked_at_utc": datetime.now(timezone.utc).isoformat(),

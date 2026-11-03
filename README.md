@@ -5,7 +5,8 @@ This repository is being rebuilt around the Project 2 research question: where d
 ## Team reading guide and implementation plan
 
 - [`docs/reading-guide.md`](docs/reading-guide.md): concepts and RFC sections behind the QUIC extractor, fingerprint families, and experiments.
-- [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md): architecture, implementation stages, evidence requirements, roles, acceptance gates, and the proposed schedule.
+- [`docs/quic-baseline.md`](docs/quic-baseline.md): pinned reference-tool versions and reproducible baseline procedure.
+- [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md): architecture, implementation stages, evidence requirements, acceptance gates, and the proposed schedule.
 
 ## Current implementation status
 
@@ -28,16 +29,17 @@ Not yet implemented or claimed: pcap/UDP extraction, TCP baseline experiments, Q
 - OpenSSL 3.x development headers/libraries
 - Python 3.12 for the declared project environment (the current tests use only standard-library features and pytest)
 
-On Debian/Ubuntu, install CMake, a C++ compiler, `libssl-dev`, and pytest.
+On Debian/Ubuntu, install CMake, a C++ compiler, `libssl-dev`, and pytest. Reference experiments additionally need TShark (4.0.6 or later), a capture tool (`tcpdump` or `dumpcap`), and the pinned FoxIO JA4+ CLI; see [`docs/quic-baseline.md`](docs/quic-baseline.md).
 
 ## Commands
 
 ```sh
-make preflight             # record available tools, versions, capture interfaces, TShark fields
+make preflight             # record CMake/compiler/OpenSSL, TShark/JA4, interfaces, and fields
 make build                 # CMake configure and C++ build
 make test                  # C++ tests and Python tests
 make check                 # validate captures/manifest references
 make eval                  # emit results/evaluation.json (no numbers until evidence exists)
+make baseline CAPTURE_ID=<id>  # run FoxIO JA4+ and TShark on one registered pcap
 ```
 
 For sanitizer builds:

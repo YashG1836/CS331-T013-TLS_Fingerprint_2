@@ -1,31 +1,270 @@
 #include "quic/crypto_reassembly.hpp"
-#ifdef QUIC_WITH_OPENSSL
+#include "quic/frame_parser.hpp"
 #include "quic/initial_crypto.hpp"
-#endif
 #include "quic/packet_parser.hpp"
 #include "tls/client_hello.hpp"
-#include <array>
-#include <cstdlib>
-#include <cstdint>
-#include <iostream>
-#include <string>
 
-#define CHECK(expr) do { if (!(expr)) { std::cerr << "CHECK failed: " #expr << " at " << __FILE__ << ":" << __LINE__ << "\n"; std::exit(1); } } while (false)
+#include <algorithm>
+#include <array>
+#include <cctype>
+#include <cstdint>
+#include <cstdlib>
+#include <iostream>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
+
+#define CHECK(expr)                                                                  \
+  do {                                                                               \
+    if (!(expr)) {                                                                   \
+      std::cerr << "CHECK failed: " #expr " at " << __FILE__ << ":" << __LINE__   \
+                << "\n";                                                            \
+      std::exit(1);                                                                  \
+    }                                                                                \
+  } while (false)
+
 namespace {
-#ifdef QUIC_WITH_OPENSSL
-quic::Bytes hex(const std::string&s){quic::Bytes b;for(std::size_t i=0;i+1<s.size();i+=2)b.push_back(static_cast<std::uint8_t>(std::stoul(s.substr(i,2),nullptr,16)));return b;}
-#endif
-void test_varints(){for(const auto&[encoded,value]:std::array<std::pair<quic::Bytes,std::uint64_t>,4>{{{{0x25},37},{{0x7b,0xbd},15293},{{0x9d,0x7f,0x3e,0x7d},494878333},{{0xc2,0x19,0x7c,0x5e,0xff,0x14,0xe8,0x8c},151288809941952652ULL}}}){auto r=quic::decode_varint(encoded,0);CHECK(r&&r.value->value==value&&r.value->encoded_length==encoded.size());}quic::Bytes bad{0x40};CHECK(!quic::decode_varint(bad,0));}
-void test_packet_parser(){quic::Bytes d{0xc0,0,0,0,1,1,0xaa,0,0,17};d.insert(d.end(),17,0);auto r=quic::parse_long_header_datagram(d);CHECK(r&&r.value->size()==1);CHECK(r.value->at(0).type==quic::PacketType::Initial);CHECK(r.value->at(0).destination_connection_id==quic::Bytes{0xaa});CHECK(r.value->at(0).packet_end==d.size());auto bad=quic::parse_long_header_datagram(std::span<const std::uint8_t>(d).first(8));CHECK(!bad);}
-#ifdef QUIC_WITH_OPENSSL
-void test_initial_keys_rfc9001(){auto dcid=hex("8394c8f03e515708");auto keys=quic::derive_initial_keys(dcid,true);CHECK(keys);const auto key=hex("1f369613dd76d5467730efcbe3b1a22d");const auto iv=hex("fa044b2f42a3fd3b46fb255c");const auto hp=hex("9f50449e04a0e810283a1e9933adedd2");CHECK(std::equal(keys.value->key.begin(),keys.value->key.end(),key.begin()));CHECK(std::equal(keys.value->iv.begin(),keys.value->iv.end(),iv.begin()));CHECK(std::equal(keys.value->header_protection_key.begin(),keys.value->header_protection_key.end(),hp.begin()));}
-#endif
-void test_reassembly(){quic::CryptoReassembly r;const quic::Bytes tail{3,4,5};CHECK(r.insert(2,tail));CHECK(r.contiguous_size()==0);const quic::Bytes head{1,2};CHECK(r.insert(0,head));CHECK(r.contiguous_size()==5);const quic::Bytes same{2,3};CHECK(r.insert(1,same));const quic::Bytes conflict{9};CHECK(!r.insert(1,conflict));}
-void test_frame_crypto(){const quic::Bytes plain{0x06,0x00,0x03,0x01,0x02,0x03};auto f=quic::parse_initial_frames(plain);CHECK(f&&f.value->crypto_frames.size()==1);CHECK(f.value->crypto_frames[0].offset==0&&f.value->crypto_frames[0].data.size()==3);}
-void test_client_hello(){quic::Bytes hs{1,0,0,50,0x03,0x03};hs.resize(hs.size()+32,0);hs.insert(hs.end(),{0,0,2,0x13,0x01,1,0,0,7,0,43,0,3,2,0x03,0x04});CHECK(hs.size()==54);quic::CryptoReassembly r;CHECK(r.insert(12,std::span<const std::uint8_t>(hs).subspan(12)));CHECK(!r.complete_handshake());CHECK(r.insert(0,std::span<const std::uint8_t>(hs).first(20)));CHECK(r.insert(20,std::span<const std::uint8_t>(hs).subspan(20,hs.size()-20)));auto complete=r.complete_handshake();CHECK(complete);auto parsed=tls::parse_client_hello(*complete);CHECK(parsed);CHECK(parsed.value->cipher_suites.size()==1&&parsed.value->cipher_suites[0]==0x1301);CHECK(parsed.value->supported_versions.size()==1&&parsed.value->supported_versions[0]==0x0304);}
+
+quic::Bytes hex(std::string_view text) {
+  const auto nibble = [](char ch) -> int {
+    if (ch >= '0' && ch <= '9') return ch - '0';
+    if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
+    if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
+    return -1;
+  };
+
+  quic::Bytes bytes;
+  int high = -1;
+  for (const char ch : text) {
+    if (std::isspace(static_cast<unsigned char>(ch))) continue;
+    const int value = nibble(ch);
+    CHECK(value >= 0);
+    if (high < 0) {
+      high = value;
+    } else {
+      bytes.push_back(static_cast<std::uint8_t>((high << 4) | value));
+      high = -1;
+    }
+  }
+  CHECK(high < 0);
+  return bytes;
 }
-int main(){test_varints();test_packet_parser();
-#ifdef QUIC_WITH_OPENSSL
- test_initial_keys_rfc9001();
-#endif
- test_reassembly();test_frame_crypto();test_client_hello();std::cout<<"all C++ core tests passed\n";}
+
+void test_varints() {
+  const std::array<std::pair<quic::Bytes, std::uint64_t>, 4> examples{{
+      {{0x25}, 37},
+      {{0x7b, 0xbd}, 15293},
+      {{0x9d, 0x7f, 0x3e, 0x7d}, 494878333},
+      {{0xc2, 0x19, 0x7c, 0x5e, 0xff, 0x14, 0xe8, 0x8c}, 151288809941952652ULL},
+  }};
+  for (const auto& [encoded, value] : examples) {
+    const auto result = quic::decode_varint(encoded, 0);
+    CHECK(result);
+    CHECK(result.value->value == value);
+    CHECK(result.value->encoded_length == encoded.size());
+  }
+
+  const quic::Bytes truncated{0x40};
+  CHECK(!quic::decode_varint(truncated, 0));
+  CHECK(!quic::decode_varint(quic::Bytes{}, 0));
+}
+
+void test_packet_parser() {
+  quic::Bytes datagram{0xc0, 0, 0, 0, 1, 1, 0xaa, 0, 0, 17};
+  datagram.insert(datagram.end(), 17, 0);
+  const auto parsed = quic::parse_long_header_datagram(datagram);
+  CHECK(parsed);
+  CHECK(parsed.value->size() == 1);
+  CHECK(parsed.value->at(0).type == quic::PacketType::Initial);
+  CHECK(parsed.value->at(0).destination_connection_id == quic::Bytes{0xaa});
+  CHECK(parsed.value->at(0).packet_end == datagram.size());
+
+  const auto truncated = quic::parse_long_header_datagram(
+      std::span<const std::uint8_t>(datagram).first(8));
+  CHECK(!truncated);
+
+  quic::Bytes coalesced = datagram;
+  quic::Bytes handshake{0xe0, 0, 0, 0, 1, 0, 0, 17};
+  handshake.insert(handshake.end(), 17, 0);
+  coalesced.insert(coalesced.end(), handshake.begin(), handshake.end());
+  const auto parsed_coalesced = quic::parse_long_header_datagram(coalesced);
+  CHECK(parsed_coalesced);
+  CHECK(parsed_coalesced.value->size() == 2);
+  CHECK(parsed_coalesced.value->at(1).type == quic::PacketType::Handshake);
+  CHECK(parsed_coalesced.value->at(1).packet_start == datagram.size());
+}
+
+void test_initial_keys_rfc9001() {
+  const auto dcid = hex("8394c8f03e515708");
+  const auto client = quic::derive_initial_keys(dcid, true);
+  CHECK(client);
+  CHECK(std::equal(client.value->key.begin(), client.value->key.end(),
+                   hex("1f369613dd76d5467730efcbe3b1a22d").begin()));
+  CHECK(std::equal(client.value->iv.begin(), client.value->iv.end(),
+                   hex("fa044b2f42a3fd3b46fb255c").begin()));
+  CHECK(std::equal(client.value->header_protection_key.begin(),
+                   client.value->header_protection_key.end(),
+                   hex("9f50449e04a0e810283a1e9933adedd2").begin()));
+
+  const auto server = quic::derive_initial_keys(dcid, false);
+  CHECK(server);
+  CHECK(std::equal(server.value->key.begin(), server.value->key.end(),
+                   hex("cf3a5331653c364c88f0f379b6067e37").begin()));
+  CHECK(std::equal(server.value->iv.begin(), server.value->iv.end(),
+                   hex("0ac1493ca1905853b0bba03e").begin()));
+  CHECK(std::equal(server.value->header_protection_key.begin(),
+                   server.value->header_protection_key.end(),
+                   hex("c206b8d9b9f0f37644430b490eeaa314").begin()));
+
+  CHECK(!quic::derive_initial_keys(hex("000102030405060708090a0b0c0d0e0f1011121314"), true));
+}
+
+void test_initial_decryption_rfc9001() {
+  // RFC 9001 Appendix A.2, protected client Initial packet. The corresponding
+  // packet number is 2, and the packet contains a complete ClientHello CRYPTO
+  // frame followed by PADDING.
+  const auto packet_bytes = hex(R"HEX(
+    c000000001088394c8f03e5157080000 449e7b9aec34d1b1c98dd7689fb8ec11
+    d242b123dc9bd8bab936b47d92ec356c 0bab7df5976d27cd449f63300099f399
+    1c260ec4c60d17b31f8429157bb35a12 82a643a8d2262cad67500cadb8e7378c
+    8eb7539ec4d4905fed1bee1fc8aafba1 7c750e2c7ace01e6005f80fcb7df6212
+    30c83711b39343fa028cea7f7fb5ff89 eac2308249a02252155e2347b63d58c5
+    457afd84d05dfffdb20392844ae81215 4682e9cf012f9021a6f0be17ddd0c208
+    4dce25ff9b06cde535d0f920a2db1bf3 62c23e596d11a4f5a6cf3948838a3aec
+    4e15daf8500a6ef69ec4e3feb6b1d98e 610ac8b7ec3faf6ad760b7bad1db4ba3
+    485e8a94dc250ae3fdb41ed15fb6a8e5 eba0fc3dd60bc8e30c5c4287e53805db
+    059ae0648db2f64264ed5e39be2e20d8 2df566da8dd5998ccabdae053060ae6c
+    7b4378e846d29f37ed7b4ea9ec5d82e7 961b7f25a9323851f681d582363aa5f8
+    9937f5a67258bf63ad6f1a0b1d96dbd4 faddfcefc5266ba6611722395c906556
+    be52afe3f565636ad1b17d508b73d874 3eeb524be22b3dcbc2c7468d54119c74
+    68449a13d8e3b95811a198f3491de3e7 fe942b330407abf82a4ed7c1b311663a
+    c69890f4157015853d91e923037c227a 33cdd5ec281ca3f79c44546b9d90ca00
+    f064c99e3dd97911d39fe9c5d0b23a22 9a234cb36186c4819e8b9c5927726632
+    291d6a418211cc2962e20fe47feb3edf 330f2c603a9d48c0fcb5699dbfe58964
+    25c5bac4aee82e57a85aaf4e2513e4f0 5796b07ba2ee47d80506f8d2c25e50fd
+    14de71e6c418559302f939b0e1abd576 f279c4b2e0feb85c1f28ff18f58891ff
+    ef132eef2fa09346aee33c28eb130ff2 8f5b766953334113211996d20011a198
+    e3fc433f9f2541010ae17c1bf202580f 6047472fb36857fe843b19f5984009dd
+    c324044e847a4f4a0ab34f719595de37 252d6235365e9b84392b061085349d73
+    203a4a13e96f5432ec0fd4a1ee65accd d5e3904df54c1da510b0ff20dcc0c77f
+    cb2c0e0eb605cb0504db87632cf3d8b4 dae6e705769d1de354270123cb11450e
+    fc60ac47683d7b8d0f811365565fd98c 4c8eb936bcab8d069fc33bd801b03ade
+    a2e1fbc5aa463d08ca19896d2bf59a07 1b851e6c239052172f296bfb5e724047
+    90a2181014f3b94a4e97d117b4381303 68cc39dbb2d198065ae3986547926cd2
+    162f40a29f0c3c8745c0f50fba3852e5 66d44575c29d39a03f0cda721984b6f4
+    40591f355e12d439ff150aab7613499d bd49adabc8676eef023b15b65bfc5ca0
+    6948109f23f350db82123535eb8a7433 bdabcb909271a6ecbcb58b936a88cd4e
+    8f2e6ff5800175f113253d8fa9ca8885 c2f552e657dc603f252e1a8e308f76f0
+    be79e2fb8f5d5fbbe2e30ecadd220723 c8c0aea8078cdfcb3868263ff8f09400
+    54da48781893a7e49ad5aff4af300cd8 04a6b6279ab3ff3afb64491c85194aab
+    760d58a606654f9f4400e8b38591356f bf6425aca26dc85244259ff2b19c41b9
+    f96f3ca9ec1dde434da7d2d392b905dd f3d1f9af93d1af5950bd493f5aa731b4
+    056df31bd267b6b90a079831aaf579be 0a39013137aac6d404f518cfd4684064
+    7e78bfe706ca4cf5e9c5453e9f7cfd2b 8b4c8d169a44e55c88d4a9a7f9474241
+    e221af44860018ab0856972e194cd934
+  )HEX");
+
+  const auto packets = quic::parse_long_header_datagram(packet_bytes);
+  CHECK(packets);
+  CHECK(packets.value->size() == 1);
+  const auto& packet = packets.value->front();
+  CHECK(packet.type == quic::PacketType::Initial);
+  CHECK(packet.destination_connection_id == hex("8394c8f03e515708"));
+
+  const auto keys = quic::derive_initial_keys(packet.destination_connection_id, true);
+  CHECK(keys);
+  const auto decrypted = quic::decrypt_initial_packet(packet_bytes, packet, *keys.value);
+  CHECK(decrypted);
+  CHECK(decrypted.value->packet_number == 2);
+  CHECK(decrypted.value->plaintext.size() == 1162);
+
+  const auto frames = quic::parse_initial_frames(decrypted.value->plaintext);
+  CHECK(frames);
+  CHECK(frames.value->crypto_frames.size() == 1);
+  CHECK(frames.value->crypto_frames.front().offset == 0);
+  CHECK(frames.value->crypto_frames.front().data.size() == 241);
+
+  quic::CryptoReassembly reassembly;
+  CHECK(reassembly.insert(frames.value->crypto_frames.front().offset,
+                          frames.value->crypto_frames.front().data));
+  const auto handshake = reassembly.complete_handshake();
+  CHECK(handshake);
+  const auto hello = tls::parse_client_hello(*handshake);
+  CHECK(hello);
+  CHECK(!hello.value->cipher_suites.empty());
+  CHECK(hello.value->has_server_name);
+
+  auto tampered = packet_bytes;
+  tampered.back() ^= 0x01;
+  const auto rejected = quic::decrypt_initial_packet(tampered, packet, *keys.value);
+  CHECK(!rejected);
+}
+
+void test_reassembly() {
+  quic::CryptoReassembly reassembly(8);
+  const quic::Bytes tail{3, 4, 5};
+  CHECK(reassembly.insert(2, tail));
+  CHECK(reassembly.contiguous_size() == 0);
+  const quic::Bytes head{1, 2};
+  CHECK(reassembly.insert(0, head));
+  CHECK(reassembly.contiguous_size() == 5);
+  const quic::Bytes identical_overlap{2, 3};
+  CHECK(reassembly.insert(1, identical_overlap));
+  const quic::Bytes conflicting_overlap{9};
+  CHECK(!reassembly.insert(1, conflicting_overlap));
+  CHECK(!reassembly.insert(1024, quic::Bytes{1}));
+}
+
+void test_frame_parser() {
+  const quic::Bytes plaintext{0x06, 0x00, 0x03, 0x01, 0x02, 0x03};
+  const auto frames = quic::parse_initial_frames(plaintext);
+  CHECK(frames);
+  CHECK(frames.value->crypto_frames.size() == 1);
+  CHECK(frames.value->crypto_frames[0].offset == 0);
+  CHECK(frames.value->crypto_frames[0].data == quic::Bytes({1, 2, 3}));
+
+  const quic::Bytes truncated_crypto{0x06, 0x00, 0x04, 0x01, 0x02};
+  CHECK(!quic::parse_initial_frames(truncated_crypto));
+  const quic::Bytes unsupported{0x04};
+  CHECK(!quic::parse_initial_frames(unsupported));
+}
+
+void test_client_hello() {
+  quic::Bytes handshake{1, 0, 0, 50, 0x03, 0x03};
+  handshake.resize(handshake.size() + 32, 0);
+  handshake.insert(handshake.end(), {0, 0, 2, 0x13, 0x01, 1, 0, 0, 7, 0, 43, 0, 3, 2,
+                                     0x03, 0x04});
+  CHECK(handshake.size() == 54);
+
+  quic::CryptoReassembly reassembly;
+  CHECK(reassembly.insert(12, std::span<const std::uint8_t>(handshake).subspan(12)));
+  CHECK(!reassembly.complete_handshake());
+  CHECK(reassembly.insert(0, std::span<const std::uint8_t>(handshake).first(20)));
+  CHECK(reassembly.insert(20, std::span<const std::uint8_t>(handshake).subspan(20)));
+  const auto complete = reassembly.complete_handshake();
+  CHECK(complete);
+  const auto parsed = tls::parse_client_hello(*complete);
+  CHECK(parsed);
+  CHECK(parsed.value->cipher_suites.size() == 1);
+  CHECK(parsed.value->cipher_suites[0] == 0x1301);
+  CHECK(parsed.value->supported_versions.size() == 1);
+  CHECK(parsed.value->supported_versions[0] == 0x0304);
+
+  auto malformed = *complete;
+  malformed[3]--;
+  CHECK(!tls::parse_client_hello(malformed));
+}
+
+}  // namespace
+
+int main() {
+  test_varints();
+  test_packet_parser();
+  test_initial_keys_rfc9001();
+  test_initial_decryption_rfc9001();
+  test_reassembly();
+  test_frame_parser();
+  test_client_hello();
+  std::cout << "all C++ core tests passed\n";
+}

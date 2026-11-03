@@ -1,7 +1,7 @@
 BUILD_DIR ?= build
 PYTHON ?= python3
 
-.PHONY: build test preflight check eval clean
+.PHONY: build test preflight check eval baseline clean
 build:
 	cmake -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Release
 	cmake --build $(BUILD_DIR) --parallel
@@ -18,6 +18,10 @@ check:
 
 eval:
 	$(PYTHON) code/scripts/evaluate.py --output results/evaluation.json
+
+baseline:
+	@test -n "$(CAPTURE_ID)" || (echo "usage: make baseline CAPTURE_ID=<registered-id>" >&2; exit 2)
+	$(PYTHON) code/scripts/reference_baseline.py --capture-id "$(CAPTURE_ID)"
 
 clean:
 	rm -rf $(BUILD_DIR) .pytest_cache

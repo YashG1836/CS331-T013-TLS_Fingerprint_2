@@ -58,7 +58,7 @@ QUIC remains the required investigation/depth-dive focus from the project brief.
 | Frame parsing and CRYPTO reassembly | C++20 | Parse offsets and assemble handshake bytes with explicit bounds, overlap checks, and allocation limits. |
 | TLS ClientHello extraction | C++20 | Validate handshake framing and nested lengths before extracting fields. |
 | JA4 construction | Verified reference implementation initially | Do not create a second JA4 implementation simply for convenience. Validate all QUIC-specific encoding and field construction against the published specification and an independent reference before emitting a result. |
-| Reference tools | FoxIO JA4+ and Wireshark/tshark | Treat as independent black boxes; compare identical bytes and record exact versions/commands. |
+| Reference tools | FoxIO JA4+ Rust CLI v0.18.6 (tag commit `4490e6c5d317cbc6662005ad9482a4b994e320a9`) and Wireshark/TShark 4.0.6 or later | Treat as independent black boxes; compare identical bytes and record exact installed versions/commands. Verify actual fields with `make preflight`; the version alone does not prove QUIC/JA4 output support. |
 | Capture | tcpdump/dumpcap as available | Prefer real traffic. Record vantage point, interface, direction, offload settings, MTU, NAT/proxy conditions, and capture start/stop. |
 | Orchestration/evaluation | Python 3.12 | Validate manifests, run tools, collect outputs, calculate statistics, and generate tables. Python does not replace the C++ QUIC processing core. |
 | Build | CMake | Reproducible C++ build with OpenSSL 3.x. |
@@ -187,25 +187,13 @@ make build     # configure and build C++
 make test      # C++ tests and pytest suite
 make check     # validate manifest, evidence references, and invariants
 make eval      # run declared analyses and regenerate report data
+make baseline CAPTURE_ID=<id> # run FoxIO JA4+ and TShark on one registered pcap
 make capture   # optional; document privileges/interface/configuration
 ```
 
 The evaluator should check referenced captures, run declared tools, collect machine-readable output, compare reference/custom results, calculate statistics, and report missing evidence or mismatches. It must also test failure paths: missing capture, missing executable, malformed tool output, duplicate manifest IDs, and inconsistent expected properties. A fresh clone should have one documented reproduction path.
 
-## 7. Team responsibilities and review
-
-| Role | Primary | Secondary / review |
-|---|---|---|
-| P1 | C++ QUIC packet parsing and Initial decryption | QUIC integration tests; explain supported/unsupported cases. |
-| P2 | ClientHello extraction and passive visibility | RFC field documentation; review QUIC parsing and key visibility. |
-| P3 | Client matrix, repeated connections, version/library comparison | Fingerprint construction validation; compute stability/collision statistics. |
-| P4 | Capture infrastructure, manifest, Python harness, CI | IPv4/IPv6 and vantage experiments; verify clean-clone reproduction. |
-
-The team must assign actual names to P1–P4; this document does not infer them. Each person should make a concrete code or technical-artifact contribution, review at least one component outside their primary responsibility, and be able to explain the overall pipeline. For a human contributor history, use team branches and reviewed PRs as the team setup allows; never invent contributions or author names.
-
-Keep raw, timestamped AI-use records as required by the course, and write `DECISIONS.md` in the team's own words. Neither file should be fabricated or retroactively presented as a contemporaneous record.
-
-## 8. Revised execution schedule
+## 7. Revised execution schedule
 
 **Code/repository deadline:** Friday, 6 November 2026 at 10:00 (GitHub commit time). **Evaluation:** 14–15 November 2026. This replaces the earlier 12 November freeze date. The schedule below is a compressed execution plan, not a claim that work has already been completed.
 
@@ -219,7 +207,7 @@ Keep raw, timestamped AI-use records as required by the course, and write `DECIS
 
 The time available is short relative to the complete proposed matrix and seven evidence-backed limitations. Do not quietly reduce the required limitation count or call an incomplete capture an experiment. If seven real, reproducible rows and an evaluated original contribution cannot be completed by the deadline, get the scope change approved and document exactly what is complete. Prioritize a correct QUIC baseline, safe capture/key handling, and reproducible evidence over optional protocol features.
 
-## 9. Acceptance criteria
+## 8. Acceptance criteria
 
 | Area | Required before claiming completion |
 |---|---|
@@ -237,7 +225,7 @@ The time available is short relative to the complete proposed matrix and seven e
 
 Use AddressSanitizer and UndefinedBehaviorSanitizer where supported. Test malformed/truncated inputs, extreme lengths, missing captures, missing tools, and inconsistent manifest entries intentionally.
 
-## 10. Questions to prepare for the viva
+## 9. Questions to prepare for the viva
 
 1. Why C++ for this core and Python for the harness? What evidence would justify a performance claim?
 2. Why can a passive observer derive QUIC Initial keys, and what does that not let them decrypt?
@@ -250,7 +238,7 @@ Use AddressSanitizer and UndefinedBehaviorSanitizer where supported. Test malfor
 9. What exactly changed in the PQ, IPv6, ECH, or encrypted-DNS scenario, and how did the capture prove it?
 10. Can another person regenerate every number in the report from the committed corpus?
 
-## 11. Shortcuts to avoid
+## 10. Shortcuts to avoid
 
 - Do not choose C++ merely to make the project look sophisticated, or claim it is inherently faster without measurements.
 - Do not rewrite cryptographic primitives.
@@ -265,8 +253,16 @@ Use AddressSanitizer and UndefinedBehaviorSanitizer where supported. Test malfor
 - Do not claim support for Retry, migration, 0-RTT, or QUIC v2 merely because the basic v1 Initial path works.
 - Do not leave integration, review, or report generation to one person.
 
-## 12. Checkpoint status and next action
+## 11. Checkpoint status and next action
 
-The repository checkpoint contains the beginnings of the C++ v1 long-header, Initial-key, frame, reassembly, and ClientHello path under `code/quic`, plus Python manifest validation under `code/scripts`. The corpus is empty, so no limitation has an experimental result yet. The full OpenSSL-dependent build/decryption test still needs to be run on a machine with CMake and OpenSSL 3 development headers. The C++ test runner is currently dependency-light rather than GoogleTest; that remains a plan-vs-code gap to resolve explicitly.
+### Verification completed in the sandbox (3 November 2026)
 
-**Next action for the team:** first build and test the checkpoint using the commands in `README.md`; then establish the QUIC reference baseline from a real capture using pinned tools before extending the parser. Record test output and tool/capture versions in the repository. Review the measured limitations before selecting the original solution. Do not describe an acceptance gate as passed until the evidence exists, and do not present RFC-defined Initial decryption alone as the novel contribution.
+- `make test`: passed with CMake 3.31.6, g++ 12.2.0, and OpenSSL 3.0.20. The C++ suite passed (1 CTest target); all 9 Python tests passed. Because the sandbox lacked development headers, OpenSSL 3.0.20 was built from its tagged source under `/tmp` and supplied through `CMAKE_PREFIX_PATH`; this temporary dependency is not part of the repository.
+- The C++ suite now checks RFC 9001 Appendix A.1 client and server Initial key vectors and Appendix A.2 full client Initial decryption, packet number, CRYPTO extraction, ClientHello parsing, and rejection of a tampered packet. It also checks coalesced packet boundaries, malformed/truncated inputs, frame parsing, reassembly overlaps/limits, and ClientHello length validation.
+- AddressSanitizer/UndefinedBehaviorSanitizer build and CTest: passed (1/1 CTest target).
+- `make check`: passed; manifest valid with 0 captures. `make eval`: emitted `no_evidence_yet`, not measured results.
+- The sandbox still lacks TShark, FoxIO's `ja4` executable, tcpdump, and dumpcap. The baseline runner and readiness check are implemented, but no packet was captured, no FoxIO/TShark comparison was run, and no limitation has an experimental result. These verification checks do not replace running the environment and capture gates on the team VM.
+
+The C++ test executable is dependency-light rather than GoogleTest, while the tool table above names GoogleTest. Treat that as an unresolved plan/code mismatch; do not call the GoogleTest criterion complete without a team-approved reason or migration.
+
+**Next action:** establish the reference baseline on the team VM using one real QUIC v1 capture and pinned FoxIO/TShark tools. Record the exact versions, commands, capture conditions, and outputs; only then decide whether any extractor extension is justified. Do not report a limitation result or claim a novel contribution without reproducible evidence. RFC-defined Initial decryption alone is not the novel contribution.
