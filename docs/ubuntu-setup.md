@@ -50,6 +50,24 @@ tshark -r captures/pcaps/quic_curl.pcap -Y 'tls.handshake.type == 1' -T jsonraw 
 
 The user reports completing this check on Ubuntu WSL with TShark 4.6.4 using its `tls.handshake_raw` field: all five values per capture matched the C++ output as unordered byte-string sets. The raw exports, exact command, and comparison script are not yet retained in the repository. To make the reported pass reproducible, preserve those artifacts (or privacy-reviewed hashes and a comparison summary) and record the TShark version. If you rerun, compare full handshake bytes, not only lengths or fingerprint hashes; use an export path that retains reassembled TLS handshake bytes.
 
+### Controlled impairment matrix
+
+After the build and clean-reference check, run the deterministic harness on both sources. It uses TShark to select Initial records carrying CRYPTO and writes only to the ignored work directories; it does not edit the committed captures.
+
+```sh
+python3 code/scripts/quic_impairment.py \
+  --input captures/pcaps/quic_chromium.pcap \
+  --work-dir results/reproduced/quic_impairment/chromium \
+  --extractor build/code/quic/src/quic-fingerprint --tshark tshark --seed 331
+
+python3 code/scripts/quic_impairment.py \
+  --input captures/pcaps/quic_curl.pcap \
+  --work-dir results/reproduced/quic_impairment/curl \
+  --extractor build/code/quic/src/quic-fingerprint --tshark tshark --seed 331
+```
+
+Each run compares the current C++ extractor and TShark on the same clean and mutated PCAPs: reverse order, fixed-seed shuffle, drop one/every third TShark-identified Initial CRYPTO-carrying record, and truncate the captured tail of one such record by 64 bytes. It prints exact-byte recall, missed/extra handshakes, and saves per-case commands, hashes, logs, and details to `impairment-results.json`. Inspect `cases.json` to see which frames were selected. If TShark 4.6.4 formats `quic.long.packet_type` or the display filter differently, stop and report the error rather than relabeling a different packet as Initial.
+
 ## Track 1 Docker lab
 
 With Docker installed and network access for the image build:

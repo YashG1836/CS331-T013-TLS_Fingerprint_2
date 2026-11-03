@@ -34,7 +34,7 @@ The candidate engineering direction is a **capture-quality-aware QUIC Initial re
 - Reverse packet-record order and a fixed-seed packet-record shuffle.
 - Remove selected UDP records, including records carrying Initial CRYPTO data; record the exact removed frame numbers and hashes.
 - Create selected snap-length/truncation variants while preserving valid PCAP record framing.
-- Include one unsupported-link/IP-header case to verify that unsupported input is reported rather than misclassified as an incomplete ClientHello.
+- Add a separate synthetic unsupported-link/IP-header case to verify that unsupported input is reported rather than misclassified as an incomplete ClientHello; the current mutation harness does not generate that case yet.
 
 For each condition, compare tools on the same mutated bytes. Do not assume TShark is ground truth for every impairment without checking its own output and failure behavior.
 
@@ -50,11 +50,29 @@ For each condition, compare tools on the same mutated bytes. Do not assume TShar
 
 Continue this candidate only if a controlled condition produces a reproducible, material gap in the current implementation or the reference workflow, and a scoped change measurably improves exact-byte recovery or failure diagnosis without introducing false-complete results. Otherwise reject this candidate and reassess alternatives using the reconciled L2–L7 evidence. Check prior art and the course rubric with the team before promoting any candidate to the final contribution.
 
-## Scaffolded implementation tasks
+## Scaffolded implementation and commands
 
-1. Preserve and test current clean-capture baseline; add a reusable byte-set comparison test/command once raw reference artifacts are available.
-2. Add a deterministic PCAP mutation/evaluation harness with immutable inputs, per-case hashes, and machine-readable results.
-3. Extend C++ reporting only where measurements identify a missing disposition or recovery behavior (for example, CRYPTO gaps versus unsupported frames); avoid speculative feature work before that measurement.
+`code/scripts/quic_impairment.py` now provides the first deterministic mutation/evaluation harness. It leaves source PCAPs untouched, uses TShark's `quic.crypto.length` and `quic.long.packet_type` fields to locate Initial CRYPTO-carrying records, records input/variant hashes and exact tool argv, then compares complete ClientHello byte-string multisets from the C++ CLI and TShark on each variant. It generates: clean baseline, reverse record order, fixed-seed shuffle, drop one median Initial-CRYPTO record, drop every third such record, and truncate the captured tail of the median record (64 bytes by default). Logs and raw TShark JSON are written under the ignored work directory.
+
+Run after `make build` and installing TShark:
+
+```sh
+python3 code/scripts/quic_impairment.py \
+  --input captures/pcaps/quic_chromium.pcap \
+  --work-dir results/reproduced/quic_impairment/chromium \
+  --extractor build/code/quic/src/quic-fingerprint --tshark tshark --seed 331
+
+python3 code/scripts/quic_impairment.py \
+  --input captures/pcaps/quic_curl.pcap \
+  --work-dir results/reproduced/quic_impairment/curl \
+  --extractor build/code/quic/src/quic-fingerprint --tshark tshark --seed 331
+```
+
+Each run writes `cases.json`, per-case extractor/TShark logs, and `impairment-results.json` with exact-byte recall, missed/extra outputs, incomplete flows, decryption failures, and tool return codes. It exits nonzero on a tool/comparison error. Inspect the selected frame numbers in `cases.json`; the automated cases target TShark-identified Initial CRYPTO records, but verify the chosen frames and mutation semantics before interpreting results. Keep these raw experiment artifacts under ignored `results/reproduced/` unless reviewed for privacy and deliberately curated.
+
+1. Retain the user's clean-capture raw reference export/command/script or a reviewed hashed summary.
+2. Run the deterministic impairment matrix and compare both tools on identical bytes; do not treat TShark as infallible under impaired captures.
+3. Extend C++ reporting only if measurements identify a missing disposition or recovery behavior; avoid speculative feature work.
 4. Evaluate controlled cases, publish failures as well as successes, then decide whether the contribution is novel and course-appropriate.
 
 ## Alternatives not selected at this stage

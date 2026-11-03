@@ -56,6 +56,7 @@ Track 2 classic-PCAP reader → UDP datagrams → modular QUIC v1 core
 | `code/scripts/evaluate.py` | Hash/metadata/artifact validation and conservative evidence status. |
 | `code/scripts/reference_baseline.py` | Existing single-capture reference runner. |
 | `code/scripts/analyze.py` | Track 1 multi-capture TShark/FoxIO runner; new outputs go to `results/reproduced/`. |
+| `code/scripts/quic_impairment.py` | Deterministic QUIC PCAP reordering/loss/truncation variants plus TShark/C++ byte-recall evaluation; use an ignored output directory. |
 | `code/scripts/capture.py` | Explicit, opt-in Track 1 recapture tool; refuses to overwrite committed PCAPs by default. |
 | `code/scripts/versions.sh` | Records the lab's JA4/TShark/client tool versions. |
 | `code/Dockerfile` | Pinned Linux reference-tool lab image. |

@@ -8,5 +8,6 @@ Python orchestrates experiment metadata and reference-tool runs; C++ remains the
 - `analyze.py` reruns the Track 1 multi-capture TShark/FoxIO analysis. `make lab-eval` writes fresh tool output under ignored `results/reproduced/`, never replacing imported `results/raw/` or `results/summary.*`.
 - `capture.py` can recapture one reviewed Track 1 recipe only when explicitly invoked with `--confirm-network`. It writes to ignored `captures/reproduced/`, records command outcomes, and never overwrites committed evidence by default.
 - `versions.sh` records the lab's exact tool versions; `make lab-versions` writes to ignored `results/reproduced/versions.txt`.
+- `quic_impairment.py` creates deterministic record-order, Initial-CRYPTO loss, and snap-length-truncation PCAP variants, then compares complete ClientHello byte multisets from the C++ extractor and TShark. It records input/variant hashes, commands, raw logs, exact-byte recall, missed/extra outputs, and failure diagnostics. Send `--work-dir` under ignored `results/reproduced/`; source captures are never modified.
 
-The imported Track 1 outputs are team-supplied from a Docker environment; current TShark/FoxIO/Docker results have not been rerun in this checkout. See `docs/track1-evidence-audit.md`.
+The imported Track 1 analysis is team-supplied from a Docker environment and has not been rerun as a full suite. The user separately reports a TShark 4.6.4 byte-set comparison for the two QUIC PCAPs. See `docs/track1-evidence-audit.md` and `results/verification-status.md`.

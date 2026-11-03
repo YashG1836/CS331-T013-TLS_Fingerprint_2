@@ -6,8 +6,8 @@ This record separates current-branch checks from imported teammate outputs and f
 
 ### Manifest and automated suites
 
-- The user reports `make test` passed on Ubuntu WSL: CTest 1/1 and pytest 20/20.
-- The user reports `make check` validated 16 records: 15 with packets, one empty, all 16 provisional. The user reports `make eval` emitted `provisional_evidence`.
+- On the earlier pushed extraction commit, the user reports `make test` passed on Ubuntu WSL: CTest 1/1 and pytest 20/20. The user reports `make check` validated 16 records: 15 with packets, one empty, all 16 provisional, and `make eval` emitted `provisional_evidence`.
+- Since then, the deterministic impairment harness and six Python tests were added. The expanded suite passes 26/26 locally with Python 3.11 and pytest 9.1.1. Rerun `make test`, `make check`, and `make eval` on the new branch head in WSL; the TShark-dependent impairment matrix also remains to be run there.
 - The Python suite and C++ suite had also passed in the integration sandbox before the commit was pushed. The pushed branch is `arena/0d29f32c-cs331-phase2`.
 - Imported raw/summary cross-check passed for hello counts, distinct JA3/JA4 counts, and reported TShark/FoxIO agreement. The repeated-Chromium `ja4-main` summary value cannot be recomputed because per-capture raw `ja4-main` output is absent.
 - The Track 1 Docker/TShark/FoxIO analysis was not rerun as a full suite. The user's separate TShark raw-handshake check for the two QUIC captures is recorded below; it does not make the rest of the imported analyses independently reproduced.

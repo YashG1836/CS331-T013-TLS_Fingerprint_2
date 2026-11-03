@@ -25,7 +25,7 @@ Implemented in this first increment:
 - Bounds-checked TLS ClientHello structure and selected extension parsing.
 - Classic-PCAP v2.x Ethernet UDP adapter for unfragmented IPv4/IPv6, with explicit unsupported-case reporting.
 - `--pcap` CLI integration for QUIC v1 client Initial decryption, per-DCID CRYPTO reassembly, and full ClientHello hex output; the existing `--hex` mode remains available.
-- Lightweight C++ tests, pytest manifest/script validation, and CMake/CI configuration.
+- Lightweight C++ tests, pytest manifest/script validation, a deterministic QUIC PCAP impairment harness, and CMake/CI configuration.
 
 The repository registers the earlier aioquic baseline plus all 15 Track 1 capture attempts and teammate-supplied analysis. Fourteen of Yash's PCAPs contain packets; the IPv6 file is empty and is not treated as a comparison. The full Track 1 tool suite remains imported/provisional and has not been rerun here. The user separately reports a direct Ubuntu WSL TShark `tls.handshake_raw` comparison: the current C++ CLI's five ClientHellos from each of the two QUIC captures match all ten raw references byte-for-byte by set equality. The raw exports/comparison script are not yet retained in the repository. See the Track 1 audit, verification status, and Track 2 plan for provenance and caveats.
 
