@@ -1,9 +1,11 @@
 import json
+import sys
 from pathlib import Path
 
 import pytest
 
-from experiments.evaluate import ROOT, load_manifest
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from evaluate import ROOT, load_manifest
 
 
 def test_committed_manifest_is_valid():
@@ -13,7 +15,7 @@ def test_committed_manifest_is_valid():
 def test_missing_capture_is_rejected(tmp_path: Path):
     manifest = tmp_path / "manifest.json"
     manifest.write_text(json.dumps({"schema_version": 1, "captures": [{
-        "capture_id": "missing", "capture_file": "corpus/not-there.pcap"
+        "capture_id": "missing", "capture_file": "captures/not-there.pcap"
     }]}), encoding="utf-8")
     with pytest.raises(ValueError, match="does not exist"):
         load_manifest(manifest)

@@ -211,7 +211,7 @@ and every cell is a question sir can ask.
 4. **Containerise the client matrix** (`docker`): curl, openssl, python, a Go
    binary, a Node service, aioquic. Pin image digests. Old versions come from
    pinned tags, not from an installer archive.
-5. **One manifest, one truth.** `corpus/manifest.json`: pcap → scenario →
+5. **One manifest, one truth.** `captures/manifest.json`: pcap → scenario →
    tool → expected output → doc that quotes it. Tests regenerate and diff it.
    Every hash printed in the report is read from here. (This is the defect found
    in project 1: docs quoting hashes that the committed pcap no longer produces.)

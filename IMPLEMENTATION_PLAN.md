@@ -27,7 +27,7 @@ Document JA3, JA3S, JA4, JA4S, JA4T, JA4X, and JA4H. For each, record:
 
 Investigate the seven limitation hypotheses in §6, subject to the approved project scope. Each row needs a real committed capture, a reproducible command, exact tool/configuration metadata, an observed result, and a protocol-level explanation with RFC section citations. Predictions stay labelled as hypotheses until the evidence is collected. If a limitation is removed, replaced, or combined, record the reason and obtain the required instructor/team approval rather than silently changing the approved count.
 
-**Target file:** `LEDGER.md`, linked to capture records in `corpus/manifest.json` and generated evaluation outputs. Simulations must be explicitly labelled and must not be presented as observed deployments.
+**Target file:** `LEDGER.md`, linked to capture records in `captures/manifest.json` and generated evaluation outputs. Simulations must be explicitly labelled and must not be presented as observed deployments.
 
 ### C. Two depth dives and a solution
 
@@ -98,7 +98,7 @@ docs/                          # shared technical notes, RFC tables, reading gui
 .github/workflows/ci.yml
 ```
 
-Keep the user's specified `code/quic`, `code/scripts`, `captures`, `results`, `report`, `ppt`, and `ai` structure canonical. The present checkpoint still has the earlier `src/`, `experiments/`, and `corpus/` scaffold; that path mismatch is an explicit migration task. Migrate once and update Makefiles, CI, tests, documentation, and ignore rules together—do not maintain duplicate implementations or silently drift between two layouts. Keep key logs out of Git unless they are deliberately generated for a controlled, non-sensitive test capture and the team has reviewed the disclosure risk.
+The repository now follows the specified `code/quic`, `code/scripts`, `captures`, `results`, `report`, `ppt`, and `ai` layout for implementation and evidence. Root-level build configuration and `docs/` remain for build orchestration and shared technical notes. Keep key logs out of Git unless they are deliberately generated for a controlled, non-sensitive test capture and the team has reviewed the disclosure risk.
 
 The Project 1 tool is not the base project. Reuse only a specific JA4 calculation after fixing and revalidating its known defect; rebuild the capture, flow, evidence, and evaluation model around Project 2.
 
@@ -177,7 +177,7 @@ Encrypted DNS belongs in attribution analysis: it does not automatically change 
 
 ## 6. Python experiment harness
 
-`corpus/manifest.json` is the record connecting evidence to reproducible results. Each capture record should include a stable ID, scenario, capture path, protocol/client/version, capture method and vantage, commands, tool versions, expected properties, and links/IDs for metadata and report sections. Exact generated values belong in machine-generated output, not hand-typed report tables.
+`captures/manifest.json` is the record connecting evidence to reproducible results. Each capture record should include a stable ID, scenario, capture path, protocol/client/version, capture method and vantage, commands, tool versions, expected properties, and links/IDs for metadata and report sections. Exact generated values belong in machine-generated output, not hand-typed report tables.
 
 The command surface should be:
 
@@ -266,6 +266,6 @@ Use AddressSanitizer and UndefinedBehaviorSanitizer where supported. Test malfor
 
 ## 12. Checkpoint status and next action
 
-The repository checkpoint currently contains the beginnings of the C++ v1 long-header, Initial-key, frame, reassembly, and ClientHello path plus Python manifest validation. The corpus is empty, so no limitation has an experimental result yet. The full OpenSSL-dependent build/decryption test still needs to be run on a machine with CMake and OpenSSL 3 development headers. The C++ test runner is currently dependency-light rather than GoogleTest; that remains a plan-vs-code gap to resolve explicitly.
+The repository checkpoint contains the beginnings of the C++ v1 long-header, Initial-key, frame, reassembly, and ClientHello path under `code/quic`, plus Python manifest validation under `code/scripts`. The corpus is empty, so no limitation has an experimental result yet. The full OpenSSL-dependent build/decryption test still needs to be run on a machine with CMake and OpenSSL 3 development headers. The C++ test runner is currently dependency-light rather than GoogleTest; that remains a plan-vs-code gap to resolve explicitly.
 
 **Next action for the team:** first build and test the checkpoint using the commands in `README.md`; then establish the QUIC reference baseline from a real capture using pinned tools before extending the parser. Record test output and tool/capture versions in the repository. Review the measured limitations before selecting the original solution. Do not describe an acceptance gate as passed until the evidence exists, and do not present RFC-defined Initial decryption alone as the novel contribution.

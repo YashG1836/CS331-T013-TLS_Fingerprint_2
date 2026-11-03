@@ -11,10 +11,10 @@ test: build
 	$(PYTHON) -m pytest -q
 
 check:
-	$(PYTHON) experiments/evaluate.py --check-only
+	$(PYTHON) code/scripts/evaluate.py --check-only
 
 eval:
-	$(PYTHON) experiments/evaluate.py --output results/evaluation.json
+	$(PYTHON) code/scripts/evaluate.py --output results/evaluation.json
 
 clean:
 	rm -rf $(BUILD_DIR) .pytest_cache

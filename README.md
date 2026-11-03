@@ -35,7 +35,7 @@ On Debian/Ubuntu, install CMake, a C++ compiler, `libssl-dev`, and pytest.
 ```sh
 make build                 # CMake configure and C++ build
 make test                  # C++ tests and Python tests
-make check                 # validate corpus/manifest references
+make check                 # validate captures/manifest references
 make eval                  # emit results/evaluation.json (no numbers until evidence exists)
 ```
 
@@ -50,14 +50,14 @@ ctest --test-dir build --output-on-failure
 The first-stage CLI accepts one UDP datagram as hex:
 
 ```sh
-build/src/quic_fingerprint/quic-fingerprint --hex '<hex bytes>'
+build/code/quic/src/quic-fingerprint --hex '<hex bytes>'
 ```
 
 It prints packet boundaries and, if the input includes a decryptable client Initial and complete ClientHello, reports parsed field counts and the recovered handshake bytes. Do not interpret this CLI's input mode as pcap support.
 
 ## Evidence and result integrity
 
-`corpus/manifest.json` is the initial source of truth. It intentionally has zero capture records until packet evidence and its provenance are available. `make eval` therefore emits an explicit `no_evidence_yet` status rather than fabricated measurements. Every future capture must have its conditions, exact commands, tools/versions, and expected properties recorded in the manifest before a result is quoted in the report.
+`captures/manifest.json` is the initial source of truth. It intentionally has zero capture records until packet evidence and its provenance are available. `make eval` therefore emits an explicit `no_evidence_yet` status rather than fabricated measurements. Every future capture must have its conditions, exact commands, tools/versions, and expected properties recorded in the manifest before a result is quoted in the report.
 
 ## Design boundaries
 

@@ -11,8 +11,8 @@ import json
 from pathlib import Path
 import sys
 
-ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = ROOT / "corpus" / "manifest.json"
+ROOT = Path(__file__).resolve().parents[2]
+MANIFEST = ROOT / "captures" / "manifest.json"
 
 
 def load_manifest(path: Path = MANIFEST) -> dict:
