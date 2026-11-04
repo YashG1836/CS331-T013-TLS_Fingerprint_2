@@ -217,6 +217,16 @@ void test_reassembly() {
   const quic::Bytes conflicting_overlap{9};
   CHECK(!reassembly.insert(1, conflicting_overlap));
   CHECK(!reassembly.insert(1024, quic::Bytes{1}));
+
+  quic::CryptoReassembly damaged(32);
+  const quic::Bytes prefix{1, 0, 0, 8, 10, 11}; // ClientHello handshake length is 12 bytes total.
+  const quic::Bytes suffix{20, 21, 22};
+  CHECK(damaged.insert(0, prefix));
+  CHECK(damaged.insert(8, suffix));
+  CHECK(damaged.expected_client_hello_size() == 12U);
+  CHECK(damaged.observed_extent() == 11U);
+  const std::vector<std::pair<std::uint64_t, std::uint64_t>> expected_gaps{{6U, 8U}, {11U, 12U}};
+  CHECK(damaged.missing_ranges(12U) == expected_gaps);
 }
 
 void test_frame_parser() {

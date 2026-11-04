@@ -13,6 +13,8 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <utility>
+#include <vector>
 
 namespace {
 quic::Result<quic::Bytes> from_hex(const std::string& text) {
@@ -50,6 +52,17 @@ std::string to_hex(const quic::Bytes& bytes) {
   for (const auto byte : bytes) {
     out.push_back(digits[byte >> 4U]);
     out.push_back(digits[byte & 0x0fU]);
+  }
+  return out;
+}
+
+std::string format_ranges(
+    const std::vector<std::pair<std::uint64_t, std::uint64_t>>& ranges) {
+  if (ranges.empty()) return "none";
+  std::string out;
+  for (const auto& [begin, end] : ranges) {
+    if (!out.empty()) out += ",";
+    out += "[" + std::to_string(begin) + "," + std::to_string(end) + ")";
   }
   return out;
 }
@@ -144,7 +157,18 @@ int process_pcap(const std::string& path, std::uint16_t destination_port) {
               << " contiguous_crypto_bytes=" << state.crypto.contiguous_size() << "\n";
     const auto handshake = state.crypto.complete_handshake();
     if (!handshake) {
-      std::cout << "client_hello=incomplete\n";
+      const auto expected = state.crypto.expected_client_hello_size();
+      const auto extent = state.crypto.observed_extent();
+      const auto range_limit = expected.value_or(extent);
+      std::cout << "client_hello=incomplete\n"
+                << "client_hello_expected_bytes=";
+      if (expected) std::cout << *expected;
+      else std::cout << "unknown";
+      std::cout << "\ncrypto_observed_extent_bytes=" << extent
+                << "\ncrypto_missing_ranges_scope="
+                << (expected ? "expected_client_hello" : "observed_extent_only")
+                << "\ncrypto_missing_ranges="
+                << format_ranges(state.crypto.missing_ranges(range_limit)) << "\n";
       continue;
     }
     const auto hello = tls::parse_client_hello(*handshake);

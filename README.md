@@ -8,7 +8,8 @@ This repository is being rebuilt around the Project 2 research question: where d
 - [`docs/quic-baseline.md`](docs/quic-baseline.md): the original QUIC v1 reference capture and its provenance.
 - [`docs/track1-evidence-audit.md`](docs/track1-evidence-audit.md): cross-check of Yash's 15-capture Track 1 import, known discrepancies, and reproduction caveats.
 - [`docs/track2-integration-plan.md`](docs/track2-integration-plan.md): current PCAP-to-modular-C++ status and controlled follow-up measurements.
-- [`docs/original-contribution-plan.md`](docs/original-contribution-plan.md): provisional contribution hypothesis, experiment design, and reject/continue gate.
+- [`docs/l3-contribution-plan.md`](docs/l3-contribution-plan.md): primary L3 capture-vantage/proxy-aware JA4T candidate and evidence gates.
+- [`docs/original-contribution-plan.md`](docs/original-contribution-plan.md): QUIC recovery candidate disposition and bounded damaged-flow diagnostic audit.
 - [`docs/tests/README.md`](docs/tests/README.md): imported T0–T7 empirical-lab explanations.
 - [`GLOSSARY.md`](GLOSSARY.md), [`PHASES.md`](PHASES.md), [`FILES_GUIDE.md`](FILES_GUIDE.md), [`VIVA_QUESTIONS.md`](VIVA_QUESTIONS.md), [`PRESENTATION_GUIDE.md`](PRESENTATION_GUIDE.md): adopted learning and presentation guides.
 - [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md): architecture, roles, evidence requirements, acceptance gates, and schedule.
@@ -21,7 +22,7 @@ Implemented in this first increment:
 - QUIC v1 client Initial key derivation using OpenSSL 3 and RFC 9001 test-vector validation.
 - Initial header-protection removal and AES-128-GCM authenticated decryption.
 - Parsing of Initial PADDING, PING, ACK/ACK_ECN, CRYPTO, and CONNECTION_CLOSE frames.
-- Offset-aware CRYPTO reassembly with out-of-order, duplicate, conflicting-overlap, and size-limit handling.
+- Offset-aware CRYPTO reassembly with out-of-order, duplicate, conflicting-overlap, and size-limit handling; incomplete-flow output includes missing CRYPTO byte ranges when the declared ClientHello length is available.
 - Bounds-checked TLS ClientHello structure and selected extension parsing.
 - Classic-PCAP v2.x Ethernet UDP adapter for unfragmented IPv4/IPv6, with explicit unsupported-case reporting.
 - `--pcap` CLI integration for QUIC v1 client Initial decryption, per-DCID CRYPTO reassembly, and full ClientHello hex output; the existing `--hex` mode remains available.
@@ -29,7 +30,7 @@ Implemented in this first increment:
 
 The repository registers the earlier aioquic baseline plus all 15 Track 1 capture attempts and teammate-supplied analysis. Fourteen of Yash's PCAPs contain packets; the IPv6 file is empty and is not treated as a comparison. The full Track 1 tool suite remains imported/provisional and has not been rerun here. The user separately reports a direct Ubuntu WSL TShark `tls.handshake_raw` comparison: the current C++ CLI's five ClientHellos from each of the two QUIC captures match all ten raw references byte-for-byte by set equality. The raw exports/comparison script are not yet retained in the repository. See the Track 1 audit, verification status, and Track 2 plan for provenance and caveats.
 
-Still incomplete or unclaimed: a complete bidirectional connection/migration model; retained raw artifacts for the user-reported packet reordering/loss/truncation matrix; a per-flow diagnostic-gap assessment; QUIC v2; Retry processing; custom JA4 output; final limitation conclusions; and an approved original contribution. The reported impairment matrix shows equal C++/TShark ClientHello bytes in the tested cases, so it does not establish a QUIC extraction contribution. The PCAP adapter is intentionally limited to classic Ethernet PCAP and supported unfragmented IPv4/IPv6 UDP; PCAPNG and unsupported link/IP headers are not handled. The provisional original-contribution direction and decision gate are in `docs/original-contribution-plan.md`.
+Still incomplete or unclaimed: a complete bidirectional connection/migration model; WSL validation of the new incomplete-flow range diagnostics; retention of the reported raw-byte comparison artifacts; QUIC v2; Retry processing; custom JA4 output; final limitation conclusions; and an approved original contribution. The reported impairment matrix shows equal C++/TShark ClientHello bytes in the tested cases, so it does not establish a QUIC extraction contribution. L3 proxy-aware capture-vantage attribution is the primary candidate to investigate, pending the raw SYN/paired-vantage evidence in `docs/l3-contribution-plan.md`. The PCAP adapter remains limited to classic Ethernet PCAP and supported unfragmented IPv4/IPv6 UDP.
 
 ## Requirements
 

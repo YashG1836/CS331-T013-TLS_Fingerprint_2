@@ -18,13 +18,13 @@ The user reports a direct Ubuntu WSL run in which the CLI recovered five ClientH
 4. Parse the supported Initial frame subset to find CRYPTO ranges. Unknown frame types fail explicitly.
 5. Insert CRYPTO ranges at protocol offsets; equal overlaps are accepted, conflicting overlaps rejected, and a size bound prevents unbounded allocation.
 6. Return a handshake only when bytes from offset zero cover the declared ClientHello length, then validate the TLS structure and selected extensions.
-7. For PCAP mode, report per-DCID candidate, decrypt, frame, reassembly, and completeness counts. Five additional candidate DCIDs per imported trace failed decryption but did not correspond to missed TShark ClientHellos in the reported 5/5 byte-set matches; their packet roles remain unclassified.
+7. For PCAP mode, report per-DCID candidate, decrypt, frame, reassembly, and completeness counts. For incomplete ClientHellos, report the declared expected byte length and missing half-open CRYPTO ranges when the first four bytes are present; otherwise label ranges as limited to the observed extent. Five additional candidate DCIDs per imported trace failed decryption but did not correspond to missed TShark ClientHellos in the reported 5/5 byte-set matches; their packet roles remain unclassified.
 
 ## Next engineering and research gates
 
 - Preserve the user's `tls.handshake_raw` exports, exact TShark invocation, and byte-set comparison script/output. The exact comparison currently has user-reported rather than Arena-reproduced provenance.
-- Add deterministic derived-PCAP tests for reversed/shuffled record order, selected Initial/CRYPTO loss, and truncation. Compare the current extractor and TShark on identical mutated inputs; record exact-byte recall, false-complete results, and explicit incomplete/decrypt-failed/unsupported dispositions.
-- Extend C++ fixture coverage for IPv6, malformed/truncated records, VLAN/IP fragments, and packet-number/reassembly behavior under reordering.
+- Run `make test` in WSL for the new C++ missing-range reporting and its synthetic range test; the Arena checkout lacks CMake and OpenSSL development headers.
+- Use the WSL `drop-every-third-initial-crypto-record` PCAP to map removed original frames to DCIDs and CRYPTO offsets, then verify incomplete statuses and expected byte-range scope. The impairment results remain user-reported and raw JSON/case artifacts are not committed.
 - For the earlier registered pcapng QUIC baseline, establish a separate exact-byte result; the user's reported raw-byte check covers only `quic_chromium.pcap` and `quic_curl.pcap`.
 - Verify JA4's QUIC protocol identifier and construction against a chosen reference before emitting any custom JA4.
-- Promote the capture-quality-aware recovery direction to a contribution only if controlled measurements establish a material reproducible gap and the implementation measurably improves it. Check prior art and the course rubric; see `docs/original-contribution-plan.md`.
+- QUIC recovery is not the contribution candidate for the measured conditions. L3 proxy-aware capture-vantage attribution is now the primary candidate to investigate, subject to raw SYN evidence, a paired-vantage experiment, resolving the T3 aggregate/narrative discrepancy, prior-art review, and the course rubric; see `docs/l3-contribution-plan.md`.

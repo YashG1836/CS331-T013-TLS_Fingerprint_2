@@ -68,6 +68,37 @@ python3 code/scripts/quic_impairment.py \
 
 Each run compares the current C++ extractor and TShark on the same clean and mutated PCAPs: reverse order, fixed-seed shuffle, drop one/every third TShark-identified Initial CRYPTO-carrying record, and truncate the captured tail of one such record by 64 bytes. It prints exact-byte recall, missed/extra handshakes, and saves per-case commands, hashes, logs, and details to `impairment-results.json`. Inspect `cases.json` to see which frames were selected. If TShark 4.6.4 formats `quic.long.packet_type` or the display filter differently, stop and report the error rather than relabeling a different packet as Initial.
 
+### Incomplete-flow/missing-range audit
+
+After updating the branch and rebuilding, the extractor reports each incomplete DCID, the expected ClientHello byte length when its four-byte handshake header is present, the observed CRYPTO extent, and missing half-open ranges `[start,end)`. If the header itself is missing, it marks the range scope as `observed_extent_only`; a missing suffix cannot be known without the declared total length. Re-run the exact every-third-drop variants from the existing reproduction directory and save a privacy-minimized summary (the filter below excludes ClientHello hex):
+
+```sh
+set -o pipefail
+make build && make test
+mkdir -p results/reproduced/quic_impairment/diagnostic-audit
+for name in curl chromium; do
+  pcap="results/reproduced/quic_impairment/${name}/variants/drop-every-third-initial-crypto-record.pcap"
+  build/code/quic/src/quic-fingerprint --pcap "$pcap" 2>&1 \
+    | grep -E '^(pcap_|non_matching_destination_port=|flow_dcid=|client_hello=|client_hello_expected_bytes=|crypto_observed_extent_bytes=|crypto_missing_ranges_scope=|crypto_missing_ranges=|complete_client_hellos=)' \
+    > "results/reproduced/quic_impairment/diagnostic-audit/${name}.txt"
+done
+```
+
+Compare each flow's status/range with the original frame list in that case's `cases.json` and this source-packet map (the latter prints all QUIC CRYPTO rows; use the packet-type field to select Initial rows):
+
+```sh
+for name in curl chromium; do
+  tshark -r "captures/pcaps/quic_${name}.pcap" \
+    -Y 'quic.crypto.length > 0' -T fields \
+    -E header=y -E separator=$'\t' -E occurrence=a -E aggregator=, \
+    -e frame.number -e quic.long.packet_type -e quic.dcid \
+    -e quic.crypto.offset -e quic.crypto.length \
+    > "results/reproduced/quic_impairment/diagnostic-audit/${name}-crypto-frames.tsv"
+done
+```
+
+The expected ClientHello set on the mutated capture is not the original five: the reported every-third-drop reference retained only two. Do not call `2/2` recovery of all five.
+
 ## Track 1 Docker lab
 
 With Docker installed and network access for the image build:

@@ -22,7 +22,8 @@ Track 2 classic-PCAP reader → UDP datagrams → modular QUIC v1 core
 | `README.md` | Current architecture, scope, and commands. |
 | `IMPLEMENTATION_PLAN.md` | Milestones, roles, deadlines, and acceptance gates. |
 | `LEDGER.md` | Seven limitation rows, imported evidence status, and contribution candidates. |
-| `docs/original-contribution-plan.md` | Provisional QUIC capture-quality hypothesis, test matrix, and decision gate. |
+| `docs/original-contribution-plan.md` | QUIC recovery candidate disposition and bounded damaged-flow diagnostic audit. |
+| `docs/l3-contribution-plan.md` | Primary L3 capture-vantage/proxy-aware JA4T candidate and evidence gates. |
 | `PHASES.md` | Phase 1 lessons and Track 1/Track 2 state. |
 | `GLOSSARY.md` | Plain-language protocol and fingerprint terms, including the QUIC Initial visibility distinction. |
 | `VIVA_QUESTIONS.md` | Study guide; imported claims are qualified by current evidence status. |

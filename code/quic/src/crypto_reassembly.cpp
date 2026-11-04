@@ -16,6 +16,29 @@ Result<bool> CryptoReassembly::insert(std::uint64_t offset,std::span<const std::
 std::size_t CryptoReassembly::contiguous_size() const {
   std::size_t n=0; for(const auto& [offset,value]:bytes_){(void)value;if(offset!=n)break;++n;} return n;
 }
+std::uint64_t CryptoReassembly::observed_extent() const {
+  return bytes_.empty() ? 0U : bytes_.rbegin()->first + 1U;
+}
+std::optional<std::uint64_t> CryptoReassembly::expected_client_hello_size() const {
+  if (contiguous_size() < 4U || bytes_.at(0) != 1U) return std::nullopt;
+  const std::uint64_t body = (static_cast<std::uint64_t>(bytes_.at(1)) << 16U)
+                           | (static_cast<std::uint64_t>(bytes_.at(2)) << 8U)
+                           | static_cast<std::uint64_t>(bytes_.at(3));
+  return body + 4U;
+}
+std::vector<std::pair<std::uint64_t, std::uint64_t>>
+CryptoReassembly::missing_ranges(std::uint64_t limit) const {
+  std::vector<std::pair<std::uint64_t, std::uint64_t>> ranges;
+  std::uint64_t cursor = 0;
+  for (const auto& [offset, value] : bytes_) {
+    (void)value;
+    if (offset >= limit) break;
+    if (offset > cursor) ranges.emplace_back(cursor, offset);
+    cursor = offset + 1U;
+  }
+  if (cursor < limit) ranges.emplace_back(cursor, limit);
+  return ranges;
+}
 std::optional<Bytes> CryptoReassembly::complete_handshake() const {
   if(contiguous_size()<4)return std::nullopt;
   const auto type=bytes_.at(0);

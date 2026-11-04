@@ -56,7 +56,7 @@ The WSL baseline snapshot and Yash's Docker lab use different tool versions; do 
 
 ## 7. Next work and contribution candidate
 
-The current modular C++ core is connected to `quic_chromium.pcap` and `quic_curl.pcap`; the user reports exact byte-set agreement with TShark `tls.handshake_raw` for both. Preserve that raw reference and comparison script, then test deterministic packet reordering, loss, and truncation. Treat capture-quality-aware QUIC recovery as a provisional contribution direction only: continue only if measurements reveal and fix a material gap. Check prior art and course expectations before any novelty claim. JA4T/MSS proxy checks remain an alternative after T3 is reconciled.
+The current modular C++ core is connected to `quic_chromium.pcap` and `quic_curl.pcap`; the user reports exact byte-set agreement with TShark `tls.handshake_raw` on clean captures and the tested reorder/loss/truncation variants. QUIC recovery is not the original-contribution candidate for these conditions; a WSL audit of new damaged-flow missing-range diagnostics remains. L3 proxy-aware capture-vantage attribution for JA4T/JA4TS is the primary candidate to investigate, not a finding: re-export raw SYN/SYN-ACK rows, resolve the T3 discrepancy, and compare captures at documented sides of the suspected proxy while separating TSO/GSO. Check prior art and course expectations before any novelty claim.
 
 ## 8. If something fails
 

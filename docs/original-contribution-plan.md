@@ -1,16 +1,16 @@
-# Original-contribution scaffold: QUIC capture-quality recovery
+# QUIC recovery candidate disposition and diagnostic audit
 
 ## Decision status
 
-**No recovery gap demonstrated; diagnostic gap still unmeasured.** The user-reported WSL impairment run matches C++ and TShark on all retained complete ClientHellos across the six tested cases for each trace. This is negative evidence against an extraction/reordering/loss/truncation contribution in these conditions. Do not relabel a match with the mutated TShark output as recovery of all original handshakes: in the every-third-drop cases, the reference itself contains only two ClientHellos. A narrow completeness-diagnostics contribution remains only a hypothesis until the per-flow dispositions are checked against the known mutations. L1's clean-capture visibility gap is not supported.
+**QUIC extraction/recovery is rejected as the original contribution for the tested conditions.** The user-reported WSL impairment run matches C++ and TShark on all retained complete ClientHellos across the six tested cases for each trace. In every-third-drop cases, the reference itself contains only two ClientHellos; that is conditional agreement on the surviving handshakes, not recovery of all five originals. The requested per-flow diagnostic audit remains a bounded verification task, not a co-equal contribution candidate. L1's clean-capture visibility gap is not supported. The primary contribution candidate is now L3 capture-vantage/proxy-aware JA4T attribution; its hypothesis, evidence gates, and first WSL commands are in [`l3-contribution-plan.md`](l3-contribution-plan.md). L3 is still provisional and must not be presented as a finding until its raw packet evidence is reproduced.
 
 Do not describe the standards-defined QUIC Initial key derivation, classic-PCAP reading, or the clean-trace match as the original contribution. First establish a reproducible gap under a measured capture condition and show an improvement over a declared baseline.
 
-## Provisional research question
+## QUIC research question evaluated (not the active contribution candidate)
 
 > Under controlled packet-capture degradation, how do QUIC v1 ClientHello recovery tools differ in exact-byte recall and in distinguishing incomplete evidence from unsupported or undecryptable traffic?
 
-The candidate engineering direction is a **capture-quality-aware QUIC Initial recovery and completeness-diagnostics pipeline**. The possible contribution would be limited to a demonstrated, reproducible improvement in a defined impairment regime—not a general claim that other tools fail.
+The evaluated direction was a **capture-quality-aware QUIC Initial recovery and completeness-diagnostics pipeline**. Recovery is rejected for the tested regimes; only a measured diagnostic classification gap could reopen that narrow question. Do not interpret this as the active contribution direction.
 
 ## Baseline now available
 
@@ -35,13 +35,13 @@ The user reports running commit `fec3b11` on Ubuntu WSL with TShark 4.6.4 and se
 
 The user reports zero misses and extras in every mutated-reference comparison, and no false-complete outputs. The 2/2 result in the every-third-drop case is **conditional recall against TShark's mutated-capture output**, not five-of-five recovery against the original clean trace. These results establish no extraction gap against TShark for this limited deterministic matrix. They do not establish broad QUIC robustness, nor independently prove either tool's correctness; the raw `impairment-results.json`, case manifests, and logs have not been retained here and the TShark runs have not been independently rerun in this environment.
 
-The same run exposed an evaluation-pipeline issue: in this TShark `-T jsonraw` output, repeated `tls.handshake_raw` members can appear at the same object level. Python's default `json.loads()` keeps only the last value for a duplicate object key, so the initial harness could silently lose earlier ClientHellos (the baseline reference count became zero). Commit `fec3b11` scans the raw export text to preserve all matching values. This is a **tooling/data-ingestion finding**, not evidence of a QUIC extractor limitation or an original protocol contribution. The wording should be scoped to this observed TShark JSON output, not generalized to every JSON parser or dissector. A regression test is now added locally to ensure both repeated values survive.
+The same run exposed an evaluation-pipeline issue: in this TShark `-T jsonraw` output, repeated `tls.handshake_raw` members can appear at the same object level. Python's default `json.loads()` keeps only the last value for a duplicate object key, so the initial harness could silently lose earlier ClientHellos (the baseline reference count became zero). Commit `fec3b11` scans the raw export text to preserve all matching values. This is a **tooling/data-ingestion finding**, not evidence of a QUIC extractor limitation or an original protocol contribution. The wording should be scoped to this observed TShark JSON output, not generalized to every JSON parser or dissector. A duplicate-key regression test is committed and passes in the current branch's 27-test Python suite.
 
 ### Decision and next gate
 
-Do **not** pursue QUIC recovery improvements on these results. First time-box a diagnostics audit using the saved `impairment-results.json` from both traces: map each removed/truncated PCAP record to its DCID/CRYPTO range and expected affected ClientHello, then inspect whether C++ reports each broken flow as incomplete (rather than decrypt-failed, unsupported, or silently absent). Compare with TShark as a reference, but treat the mutation manifest and known source flows as the primary expected-outcome record. Only scope diagnostic reporting as the contribution if this reveals a material, reproducible classification gap and a change improves it without false-complete results.
+Do **not** pursue QUIC recovery improvements on these results. Run the bounded diagnostic audit on the generated `drop-every-third-initial-crypto-record` variants: map removed original frame numbers to DCIDs/CRYPTO ranges, then check that every flow with an incomplete ClientHello has a corresponding per-flow status and (where its handshake length is known) explicit missing byte ranges. The current code now emits this range detail; when the first four CRYPTO bytes are absent, it labels ranges as observed-extent-only because the expected handshake end is unknowable. Compare TShark as a reference, but use the mutation manifest and known source flows as the expected-outcome record. Treat any diagnostic gap as a separate possible contribution only if it is material, reproducible, and improved without false-complete output.
 
-If no such gap exists, reject the QUIC contribution candidate rather than inventing one. L3 TCP vantage/JA4T proxy sanity checks are the fallback, but they are **not ready to become the contribution yet**: reproduce the targeted SYN/segment/frame measurements and resolve the existing T3 narrative-versus-aggregate discrepancy using raw packet-level evidence. Do not pursue both arms as simultaneous contribution claims.
+L3 is now the primary candidate to investigate, but it is **not yet a final contribution claim**. Reproduce the targeted SYN/segment/frame measurements at documented capture points and resolve the T3 narrative-versus-aggregate discrepancy using raw packet evidence. Separate TCP termination/vantage effects from TSO/GSO segmentation effects; see `docs/l3-contribution-plan.md`. Do not describe an MSS outlier alone as proof of a proxy or of JA4T corruption.
 
 ## Measurement plan before claiming a contribution
 
@@ -69,9 +69,9 @@ For each condition, compare tools on the same mutated bytes. Do not assume TShar
 - Incomplete, decrypt-failed, parse-failed, and unsupported dispositions, with packet/frame counts and missing CRYPTO ranges where measurable.
 - Runtime may be recorded, but is not a novelty result by itself.
 
-### Decision gate
+### Diagnostic-only continuation gate
 
-Continue this candidate only if a controlled condition produces a reproducible, material gap in the current implementation or the reference workflow, and a scoped change measurably improves exact-byte recovery or failure diagnosis without introducing false-complete results. Otherwise reject this candidate and reassess alternatives using the reconciled L2–L7 evidence. Check prior art and the course rubric with the team before promoting any candidate to the final contribution.
+Reopen only the damaged-flow diagnostics question if the frame-to-flow audit demonstrates a reproducible, material misclassification or silent absence, and a scoped diagnostic change improves attribution without false-complete results. Otherwise keep QUIC recovery/diagnostics out of the original-contribution claim and continue with the L3 candidate in `docs/l3-contribution-plan.md`. Check prior art and the course rubric with the team before promoting any candidate to a final contribution.
 
 ## Scaffolded implementation and commands
 
@@ -102,5 +102,5 @@ Each run writes `cases.json`, per-case extractor/TShark logs, and `impairment-re
 
 - L1 reference-tool coverage is not supported by the current clean-trace results.
 - L5's reported released-versus-unreleased JA4 difference is not a clean contribution candidate until the missing `ja4-main` raw results and source/build provenance are reproducible; the reported issue is already fixed upstream.
-- L3 JA4T/MSS capture-vantage analysis remains blocked on the narrative/aggregate mismatch and missing raw SYN evidence.
+- L3 capture-vantage/JA4T proxy-aware attribution is the primary candidate to investigate; it remains unverified until raw SYN evidence and the narrative/aggregate mismatch are resolved. See `docs/l3-contribution-plan.md`.
 - L2, L6, and the L7 DoH arm still have missing or incomplete evidence.
