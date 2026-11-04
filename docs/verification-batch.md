@@ -1,31 +1,39 @@
 # One-pass WSL verification batch
 
-To avoid separate back-and-forth for each small offline check, run the following once from the repository root in Ubuntu WSL, after pulling the current branch:
+The batch runner produces a dated, tracked evidence directory without staging or committing files. It was run by the user from Ubuntu WSL at commit `619a694a9fe449d97b4a54e487f0db7254b1fc08` on the active branch, timestamp `2026-11-04T20:19:36Z`. The resulting artifacts are now present at `results/track2/verification-batch-20261104-201936/` (added by commit `00f34e4`). The SHA256 manifest passed from the repository root; relevant JSON parsed successfully. This makes the outputs inspectable, but does not make the WSL run an independent Arena reproduction.
+
+## What the batch records
+
+1. Environment/preflight snapshot, tracked capture-manifest check, and `make test`.
+2. Hashes for source PCAPs and scripts.
+3. QUIC v1 DCID/SCID header inventory for the Chromium and curl PCAPs.
+4. TShark SYN/SYN-ACK summaries for separate imported offload-on/off PCAPs; no cross-capture pairing is inferred.
+5. Deterministic C++/TShark impairment evaluations for both QUIC traces (seed 331), including cases, variant PCAPs, raw TShark exports, logs, result JSON, and hashes.
+
+## Recorded result snapshot
+
+- Environment: TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5, Python 3.14.4, Linux `6.18.33.2-microsoft-standard-WSL2`.
+- Manifest: 16 capture records, 15 packet-bearing and one empty; all 16 remain provisional.
+- Build/test: CTest 1/1; pytest 39/39; build log contains no warning output.
+- Impairment: for each trace, six cases compare C++ output to TShark output on that same case's PCAP. All emitted reference ClientHellos match byte-for-byte as a multiset: 27/27 per trace; 54/54 total; zero misses and extras. Every-third-drop yields 2/2 in each tool per trace, not recovery of all five original ClientHellos. This is not independent ground truth or proof of broad QUIC correctness.
+- Offload SYN analysis: each separate capture has three complete streams; client profile MSS/window-scale/window/TTL `1460/10/64240/64`, peer profile `65495/7/65408/63`. The analyzer says not to infer a proxy from one capture.
+
+See `results/verification-status.md`, `DECISIONS.md`, and `LEDGER.md` for evidence provenance, comparisons, and caveats. The raw output directory should remain immutable after review; run a fresh batch into a new timestamped directory rather than overwrite it.
+
+## Re-run command
+
+From the repository root in Ubuntu WSL, after pulling the current branch and checking the local worktree:
 
 ```sh
 git pull --ff-only origin arena/0d29f32c-cs331-phase2
 code/scripts/verify_submission_batch.sh
 ```
 
-The script batches:
-
-1. Environment/preflight snapshot, tracked-manifest check, and `make test` (C++ build/CTest plus pytest).
-2. Hashes for the four source PCAPs and the scripts used.
-3. QUIC v1 DCID/SCID packet-header inventory for both QUIC PCAPs.
-4. TShark SYN/SYN-ACK summary for the separate imported offload-on/off PCAPs (it does not pair them).
-5. Deterministic C++/TShark impairment evaluations for both QUIC traces (seed 331), including cases, variants, logs, JSON results, and output hashes.
-
-All output goes to a newly created `results/track2/verification-batch-<timestamp>/` directory, which is tracked rather than hidden by `.gitignore`. The script does not stage or commit anything. Review the generated JSON/PCAPs and privacy implications first; then send the directory or commit it on this session branch. It needs the WSL C++ build dependencies and TShark on `PATH`. The user reports a successful run at commit `619a694` (manifest 16 captures; build with zero warnings; CTest 1/1; pytest 39/39; impairment recall 1.0) in `results/track2/verification-batch-20261104-201936/`. That output directory has not yet been transferred into this shared checkout, so those run results remain user-reported here.
-
-## One coordinated Windows-side capture session
-
-The latest user-reported run did not see the container flow on Ubuntu WSL `eth0`, so that interface is not the outer point for that probe. For the next run, first list Windows capture interfaces using elevated PowerShell and Wireshark `dumpcap`; start 45-second captures on the WSL/vEthernet-facing adapter and physical adapter at the same time. While they are running, run the controlled container/bridge probe from `docs/l3-contribution-plan.md`. This is one short coordinated capture session, not several sequential experiments. The Windows interface IDs are machine-specific and must be selected from `dumpcap -D`.
-
-Afterward, copy the original Windows PCAPNGs and the WSL container/bridge PCAPs into a tracked `results/track2/l3-paired-<run-id>/` directory with `sha256sum`, exact commands, interface descriptions, and tool versions. Run `l3_proxy_sanity.py` over the simultaneous observations, but create a pair manifest only after checking the same request and both handshake directions. Do not infer proxying from distinct TCP legs alone. Keep TSO/GSO toggle measurements separate.
+The script requires the WSL C++ build dependencies and TShark on `PATH`. It does not stage or commit generated files. Before adding a new run, review privacy and file sizes; preserve original commands, versions, source hashes, and the generated manifest.
 
 ## Human-required items
 
-- `DECISIONS.md` is a working record and still requires team review/approval.
-- `docs/landscape.md` is a scaffold, not a completed prior-art search.
-- `ai/prompts.txt` is a partial log because the complete approved timestamped AI-use export was not supplied. Replace/augment it only with the actual export; do not reconstruct it.
-- The raw WSL output from earlier runs is not in this checkout. A copied Markdown summary is not a substitute for the original JSON/PCAP evidence.
+- Team review/approval of `DECISIONS.md`, the contribution choice, and final wording remains open.
+- `docs/landscape.md` is a sourced comparative survey, not a completed comprehensive prior-art search.
+- `ai/prompts.txt` remains partial because the full approved timestamped AI-use export was not supplied; do not reconstruct it.
+- Raw Windows-host/outer captures for the L3 paired-vantage experiment are still missing. The current WSL batch does not contain them.

@@ -10,14 +10,14 @@ Use precise language: a proxy does not necessarily “corrupt” JA4T. JA4T desc
 
 ## User-reported initial evidence (4 November 2026)
 
-The user reports rerunning the imported captures with TShark 4.6.4. Both offload conditions have the same SYN values:
+The committed WSL batch at `results/track2/verification-batch-20261104-201936/` contains the TShark 4.6.4 SYN analysis and source PCAP hashes. In each of the two separate offload captures, three complete streams have the same SYN profiles:
 
 | Capture | Client SYN MSS / TTL | SYN-ACK MSS / TTL | SYN/SYN-ACK frame length |
 |---|---:|---:|---:|
 | TSO/GSO on | 1460 / 64 | 65495 / 63 | 74 bytes each |
 | TSO/GSO off | 1460 / 64 | 65495 / 63 | 74 bytes each |
 
-The traces are from a Docker-side capture with client address `172.17.0.2`; these are single-vantage observations re-exported by the user, not a paired WSL/outer capture. The user initially reported WSL `eth0` MTU 1500, Docker bridges/veth interfaces present, `docker0` down, and Docker Desktop integration inactive; in a later report, Docker Desktop 4.97.0 / Engine 29.9.2 was started and WSL integration became active, with the default bridge at `172.17.0.0/16` and container address `172.17.0.2`. Neither report includes a paired outside capture, so the MSS values do **not** yet establish that Docker Desktop generated the SYN-ACK.
+The full profile is client `MSS/window-scale/window/TTL = 1460/10/64240/64` and peer `65495/7/65408/63`; each SYN/SYN-ACK has IP length 60 bytes. The batch analyzer flags same-capture MSS, window-scale, and window asymmetry and explicitly says not to infer a proxy from one capture. These are separate Docker-side, single-vantage traces with client address `172.17.0.2`, not a paired WSL/outer capture. The interface and Docker Desktop topology reports remain user-supplied context; neither shows a paired outside leg, so the observed SYN-ACK values do **not** establish that Docker Desktop generated them.
 
 MSS 65495 is not syntactically impossible: it equals 65535 minus the minimum 20-byte IPv4 and 20-byte TCP headers, and is compatible with an endpoint advertising a very large receive segment size. Advertised MSS is not an observed frame size or a guarantee about path MTU. TTL 63 is consistent with a one-hop decrement from 64 but does not identify the sender's initial TTL or prove proxying. The repeated values across the two captures support that the observed SYN profile did not change with the offload toggle; they do not establish the source stack's identity. The claim that Cloudflare never advertises this value needs independent support and must not be stated as fact from these rows alone.
 

@@ -48,7 +48,7 @@ tshark -r captures/pcaps/quic_chromium.pcap -Y 'tls.handshake.type == 1' -T json
 tshark -r captures/pcaps/quic_curl.pcap -Y 'tls.handshake.type == 1' -T jsonraw > /tmp/quic_curl-clienthellos.json
 ```
 
-The user reports completing this check on Ubuntu WSL with TShark 4.6.4 using its `tls.handshake_raw` field: all five values per capture matched the C++ output as unordered byte-string sets. The raw exports, exact command, and comparison script are not yet retained in the repository. To make the reported pass reproducible, preserve those artifacts (or privacy-reviewed hashes and a comparison summary) and record the TShark version. If you rerun, compare full handshake bytes, not only lengths or fingerprint hashes; use an export path that retains reassembled TLS handshake bytes.
+The committed WSL batch at `results/track2/verification-batch-20261104-201936/` preserves per-case TShark `jsonraw` exports, C++ output logs, commands, variants, and comparison metrics for the bounded impairment matrix. It reports exact-byte equality on those cases, but the WSL run was not independently regenerated in Arena. The earlier standalone `tls.handshake_raw` export/script is not saved separately. If you rerun, compare full handshake bytes, not only lengths or fingerprint hashes; retain reassembled TLS handshake bytes, raw outputs, exact commands, and TShark version.
 
 ### Controlled impairment matrix
 
