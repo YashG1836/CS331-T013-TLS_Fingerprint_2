@@ -15,7 +15,7 @@ The script batches:
 4. TShark SYN/SYN-ACK summary for the separate imported offload-on/off PCAPs (it does not pair them).
 5. Deterministic C++/TShark impairment evaluations for both QUIC traces (seed 331), including cases, variants, logs, JSON results, and output hashes.
 
-All output goes to a newly created `results/track2/verification-batch-<timestamp>/` directory, which is tracked rather than hidden by `.gitignore`. The script does not stage or commit anything. Review the generated JSON/PCAPs and privacy implications first; then send the directory or commit it on this session branch. It needs the WSL C++ build dependencies and TShark on `PATH`.
+All output goes to a newly created `results/track2/verification-batch-<timestamp>/` directory, which is tracked rather than hidden by `.gitignore`. The script does not stage or commit anything. Review the generated JSON/PCAPs and privacy implications first; then send the directory or commit it on this session branch. It needs the WSL C++ build dependencies and TShark on `PATH`. The user reports a successful run at commit `619a694` (manifest 16 captures; build with zero warnings; CTest 1/1; pytest 39/39; impairment recall 1.0) in `results/track2/verification-batch-20261104-201936/`. That output directory has not yet been transferred into this shared checkout, so those run results remain user-reported here.
 
 ## One coordinated Windows-side capture session
 

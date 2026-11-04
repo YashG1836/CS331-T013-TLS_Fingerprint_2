@@ -2,7 +2,7 @@
 
 - `quic-initial-dcid-inventory.json` is generated from the two committed classic-PCAP QUIC v1 captures by `code/scripts/quic_initial_inventory.py`. It preserves source PCAP SHA-256 values, packet record numbers, UDP endpoints, Initial DCIDs/SCIDs, and per-UDP-flow summaries. It is a derived header inventory, not a raw TShark export and not decrypted payload evidence.
 
-The WSL impairment harness's original `cases.json`, `impairment-results.json`, TShark raw exports, and the recent paired-probe PCAP/JSON files are not available in this checkout. Do not reconstruct or label a transcribed summary as those raw artifacts. The user-reported measurements are documented with provenance in `results/verification-status.md`, `results/track2/l3-paired-probe-c28a486.md`, and `docs/l3-contribution-plan.md`.
+The user reports that the latest WSL batch generated `cases.json`, `impairment-results.json`, TShark raw exports, and variant PCAPs under `results/track2/verification-batch-20261104-201936/`, but that directory is not present in this shared checkout as of 5 November 2026. The recent paired-probe PCAP/JSON files are also not available here. Do not reconstruct or label a transcribed summary as those raw artifacts. The user-reported measurements are documented with provenance in `results/verification-status.md`, `results/track2/l3-paired-probe-c28a486.md`, and `docs/l3-contribution-plan.md`; transfer the actual run directory before committing the raw outputs.
 
 To regenerate the impairment artifacts directly into a tracked location in WSL (after checking disk/privacy policy), use:
 
