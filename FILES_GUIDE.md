@@ -58,6 +58,7 @@ Track 2 classic-PCAP reader → UDP datagrams → modular QUIC v1 core
 | `code/scripts/reference_baseline.py` | Existing single-capture reference runner. |
 | `code/scripts/analyze.py` | Track 1 multi-capture TShark/FoxIO runner; new outputs go to `results/reproduced/`. |
 | `code/scripts/quic_impairment.py` | Deterministic QUIC PCAP reordering/loss/truncation variants plus TShark/C++ byte-recall evaluation; use an ignored output directory. |
+| `code/scripts/l3_proxy_sanity.py` | Extracts SYN/SYN-ACK profiles and conservatively compares manually paired captures; does not calculate JA4T or infer a proxy from MSS/TTL alone. |
 | `code/scripts/capture.py` | Explicit, opt-in Track 1 recapture tool; refuses to overwrite committed PCAPs by default. |
 | `code/scripts/versions.sh` | Records the lab's JA4/TShark/client tool versions. |
 | `code/Dockerfile` | Pinned Linux reference-tool lab image. |
