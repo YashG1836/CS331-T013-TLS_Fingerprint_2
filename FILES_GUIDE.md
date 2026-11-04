@@ -24,6 +24,9 @@ Track 2 classic-PCAP reader → UDP datagrams → modular QUIC v1 core
 | `LEDGER.md` | Seven limitation rows, imported evidence status, and contribution candidates. |
 | `docs/original-contribution-plan.md` | QUIC recovery candidate disposition and bounded damaged-flow diagnostic audit. |
 | `docs/l3-contribution-plan.md` | Primary L3 capture-vantage/proxy-aware JA4T candidate and evidence gates. |
+| `docs/landscape.md` | Preliminary fingerprint-family landscape and open prior-art review matrix. |
+| `DECISIONS.md` | Evidence-based working decisions and human approval gates; not a fabricated team meeting record. |
+| `ai/prompts.txt` | Partial, explicitly incomplete verbatim prompt record; not a full timestamped course export. |
 | `PHASES.md` | Phase 1 lessons and Track 1/Track 2 state. |
 | `GLOSSARY.md` | Plain-language protocol and fingerprint terms, including the QUIC Initial visibility distinction. |
 | `VIVA_QUESTIONS.md` | Study guide; imported claims are qualified by current evidence status. |
@@ -58,6 +61,7 @@ Track 2 classic-PCAP reader → UDP datagrams → modular QUIC v1 core
 | `code/scripts/reference_baseline.py` | Existing single-capture reference runner. |
 | `code/scripts/analyze.py` | Track 1 multi-capture TShark/FoxIO runner; new outputs go to `results/reproduced/`. |
 | `code/scripts/quic_impairment.py` | Deterministic QUIC PCAP reordering/loss/truncation variants plus TShark/C++ byte-recall evaluation; use an ignored output directory. |
+| `code/scripts/quic_initial_inventory.py` | Header-only QUIC v1 Initial DCID/SCID inventory by UDP direction; no payload decryption. |
 | `code/scripts/l3_proxy_sanity.py` | Extracts SYN/SYN-ACK profiles and conservatively compares manually paired captures; does not calculate JA4T or infer a proxy from MSS/TTL alone. |
 | `code/scripts/capture.py` | Explicit, opt-in Track 1 recapture tool; refuses to overwrite committed PCAPs by default. |
 | `code/scripts/versions.sh` | Records the lab's JA4/TShark/client tool versions. |
@@ -79,7 +83,8 @@ Track 2 classic-PCAP reader → UDP datagrams → modular QUIC v1 core
 | `results/versions.txt` | Team-supplied Docker tool versions. |
 | `results/checkpoint_build_test.txt` | Teammate-supplied C++/pytest/sanitizer log; exact source SHA is not recorded. |
 | `results/track1/` | Import provenance, capture-log context, and privacy-trimmed ECH page observations. |
-| `results/reproduced/` | Ignored outputs from a fresh reference run. |
+| `results/track2/` | Reproducible QUIC header inventory plus explicitly user-reported paired-probe summary; raw WSL PCAPs/JSON are not yet present. |
+| `results/reproduced/` | Ignored outputs from a fresh reference run; copy reviewed artifacts to tracked results before submission. |
 | `results/evaluation.json` | Current manifest/evidence status, separate from the Track 1 analysis summary. |
 
 ## Reproduction

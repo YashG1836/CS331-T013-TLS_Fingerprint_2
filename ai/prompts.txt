@@ -1,0 +1,30 @@
+# Partial AI prompt record (NOT a complete course-required export)
+
+This file contains only the verbatim user message available in the current session context. The session date is 2026-11-05; an exact message timestamp and earlier raw prompts are not available in this checkout. Do not present this partial record as a complete timestamped export. Append/export the actual approved conversation log from the source system; do not reconstruct missing prompts. Arena/system instructions and private/internal content are intentionally not included.
+
+## Entry 1 — user prompt
+
+```text
+Here are the results from running the paired probe and `l3_proxy_sanity.py` in Ubuntu WSL:
+
+1. **Paired Probe Execution**:
+   - The probe executed successfully: 27 packets captured inside `container-eth0.pcap`, and 80 packets on `wsl-eth0.pcap`.
+   - **Container Handshake**:
+     - Client SYN (`172.17.0.3:42910 -> 104.16.123.96:443`): `MSS=1460, WScale=10, Win=64240, TTL=64`.
+     - Peer SYN-ACK (`104.16.123.96:443 -> 172.17.0.3:42910`): `MSS=1460, WScale=7, Win=29184, TTL=63`.
+     - Option asymmetry: `["window_scale", "window"]` (notice MSS was 1460 in this clean bridge run).
+
+2. **Crucial Vantage Point Observation**:
+   - **WSL `eth0` does NOT observe the container's traffic**: The container connection (`172.17.0.3 -> 104.16.123.96:443`) did not appear on WSL `eth0`.
+   - Because Docker Desktop runs in its own sibling WSL utility VM (`docker-desktop`), bridge egress routes directly to the Windows host Hyper-V switch, bypassing the Ubuntu distro's `eth0`.
+   - This directly confirms your caveat: WSL `eth0` is **not** a valid outer leg for Docker Desktop containers. True bracketing requires either a native Linux host or tapping the Windows host adapter.
+
+3. **Addressing the Critical Project Review**:
+   We also received an audit review of our repository highlighting essential grading items we need to fix before Friday:
+   - **Commit raw evaluation files**: Move/commit `results/reproduced/` JSON outputs, cases, and comparison scripts into the repository (e.g., under `results/track1/` or `results/l3/`) so nothing vital is hidden in `.gitignore`.
+   - **Document Root Causes**: Add the post-switch DCID explanation (RFC 9001 §5.2 / RFC 9000 §7.2) for the 5 server-direction decrypt failures to our report/findings.
+   - **Required Human Docs**: Write and commit `DECISIONS.md` (explaining why we pivoted to L3 and our architecture choices) and raw prompt logs in `ai/prompts.txt`.
+   - **Deliverable A (Landscape)**: Scaffold `docs/landscape.md` and basic fingerprint tables.
+
+Let's commit the L3 probe findings and start knocking out these required submission deliverables!
+```

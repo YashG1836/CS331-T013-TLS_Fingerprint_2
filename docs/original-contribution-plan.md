@@ -18,7 +18,7 @@ The evaluated direction was a **capture-quality-aware QUIC Initial recovery and 
 - `quic_curl.pcap`: five extracted ClientHellos, each 1509 bytes.
 - The user reports that all ten C++ handshake byte strings match TShark 4.6.4 `tls.handshake_raw` values by set equality. TShark packet-arrival order differs from the CLI's DCID iteration order, so the reported comparison is set-based rather than positional.
 - User-reported WSL environment: TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5. The raw exports, exact commands, and comparison script have not yet been committed, so this result is recorded as user-reported, not independently reproduced in Arena.
-- The CLI reports ten candidate Initial DCIDs and five decrypt failures per capture while still recovering all five TShark ClientHellos. Those failures are **not** evidence of five missed ClientHellos; classify their packets before treating them as a gap.
+- The CLI reports ten per-DCID Initial buckets and five decrypt failures per capture while still recovering all five TShark ClientHellos. A new header-only inventory maps the five extra buckets to later client-to-server Initial packets whose DCID switched to the server Initial SCID; they are not server-direction decrypt attempts or missed ClientHellos. The current CLI derives from each packet's current DCID instead of retaining the connection's original DCID. See `docs/quic/implementation-status.md` and `results/track2/quic-initial-dcid-inventory.json`.
 
 ## User-reported impairment results (4 November 2026)
 

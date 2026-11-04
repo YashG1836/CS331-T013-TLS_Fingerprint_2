@@ -2,7 +2,7 @@
 
 ## Status and research question
 
-**Primary candidate to investigate; not yet a contribution claim.** QUIC Initial recovery is not the candidate for the tested impairment matrix: the user reports identical C++/TShark outputs. The user-reported QUIC damaged-flow audit shows three incomplete statuses per trace and no material diagnostic gap. Baseline correlation finds no missing suffix for the unknown-length curl flow and shows that Chromium's unknown-length flow is missing `[1026,1891)` beyond its observed extent; the C++ tool correctly marks that length as unknown. L3 is now the primary contribution candidate because the imported T3 evidence suggests TCP fields observed inside Docker may belong to a nearby proxy/virtual-network stack rather than the remote endpoint. User-reported SYN rows show the MSS asymmetry, but their TSV/raw PCAP is not retained here, the frame-size narrative conflicts with aggregate data, and there is no paired outer capture.
+**Primary candidate to investigate; not yet a contribution claim.** QUIC Initial recovery is not the candidate for the tested impairment matrix: the user reports identical C++/TShark outputs. The user-reported QUIC damaged-flow audit shows three incomplete statuses per trace and no material diagnostic gap. Baseline correlation finds no missing suffix for the unknown-length curl flow and shows that Chromium's unknown-length flow is missing `[1026,1891)` beyond its observed extent; the C++ tool correctly marks that length as unknown. L3 is now the primary candidate because the imported T3 evidence suggests TCP fields observed inside Docker may describe a nearby TCP stack rather than the remote endpoint. The user has run a simultaneous container/WSL-`eth0` probe, but the flow was absent from WSL `eth0`; this does not provide an outer leg. The Windows-host/physical-side capture is still missing, so no proxy or termination finding is established.
 
 > Can paired captures at documented points around a local proxy or virtual-network boundary identify when a passive TCP fingerprint describes the adjacent TCP endpoint rather than the intended remote peer?
 
@@ -26,6 +26,12 @@ MSS 65495 is not syntactically impossible: it equals 65535 minus the minimum 20-
 The user reports running the checker with TShark 4.6.4 on the two imported offload PCAPs and reports the expanded pytest suite passed 36/36 in WSL. Each PCAP yielded six SYN/SYN-ACK observations across three streams; every stream had a complete handshake. Across all three streams per capture, the reported client SYN profile was MSS 1460, window scale 10, window 64240, TTL 64; the peer SYN-ACK profile was MSS 65495, window scale 7, window 65408, TTL 63. The checker flagged same-capture differences in MSS, window scale, and window. It correctly made no cross-capture pairing. The user's JSON remains user-reported and is not present in this checkout; Arena did not rerun TShark on the PCAPs.
 
 The same WSL inventory reports default bridge configuration `docker0` for `172.17.0.0/16` (`172.17.0.1` gateway), but `docker0` was **DOWN** at inventory time. Two other bridges (`br-0670013d5ec3` at `172.18.0.1/16`, and `br-3cd2d23489f7` at `172.19.0.1/16`) and two veth interfaces were UP; WSL `eth0` was `192.168.38.227/20`, with the default route via `192.168.32.1`. This inventory does not map the active veths to containers or show any packets crossing a proxy. In particular, the user's statement that traffic then traverses a host proxy is a hypothesis, not a conclusion established by these interface/route outputs. Inspect the active Docker network/container mapping and capture the same request at simultaneous points before identifying a TCP-terminating proxy.
+### Later paired-probe result (user-reported, 5 November 2026)
+
+The user reports a probe with 27 packets in `container-eth0.pcap` and 80 packets in `wsl-eth0.pcap`. The reported container handshake was `172.17.0.3:42910 -> 104.16.123.96:443`: client SYN MSS 1460, window scale 10, window 64240, TTL 64; peer SYN-ACK MSS 1460, window scale 7, window 29184, TTL 63. Same-capture option differences were window scale and window, not MSS. The user reports the corresponding container flow did not appear on WSL `eth0`.
+
+This rules out WSL `eth0` as the outer observation point for this particular probe, assuming the reported capture filter and timing were correct. The explanation that Docker Desktop's sibling utility VM routes through a Windows Hyper-V path is the user's topology hypothesis; no Windows-side PCAP, interface capture, bridge-PCAP count, hash, or original JSON was supplied to verify it. The summary is retained (explicitly as a transcription, not raw evidence) in `results/track2/l3-paired-probe-c28a486.md`. Next, capture simultaneously on the container/active Linux bridge and a Windows host vEthernet/physical interface, then correlate both TCP legs. A native-Linux host is an alternative control.
+
 ## Separate the hypotheses
 
 1. **Capture vantage / TCP termination:** compare SYN and SYN-ACK observations on both accessible sides of the suspected Docker/WSL proxy or translation boundary. If TCP is terminated and recreated, expect different 4-tuples/initial sequence numbers and potentially different SYN options on the two legs. If only NAT is present, do not infer termination merely from address translation.
@@ -119,7 +125,7 @@ For future paired captures, a manually reviewed pairing manifest can compare str
 
 Then add `--pair-manifest results/reproduced/l3/pairs.json`. It requires SYN and SYN-ACK on both legs and emits conservative labels such as same handshake/tuple translation, sequence or option mismatch, separate TCP legs, or insufficient evidence. Even a `separate_tcp_legs_or_sequence_rewrite` result is not proxy proof by itself.
 
-The latest inventory has `docker0` **DOWN** while two custom bridges and their veths are UP, so do not use `--network bridge` or assume `docker0` is the active inner point. Create a short-lived, uniquely named bridge for one controlled request. This brackets the container and Linux bridge, while WSL `eth0` remains only a *candidate* outer observation—not a proven wire-side point. The command also saves all outputs under the ignored results directory and removes only the temporary container/network it creates.
+The latest inventory had `docker0` **DOWN** while two custom bridges and their veths were UP, so do not assume `docker0` is the active inner point. The command below recreates a short-lived, uniquely named bridge and captures the container/bridge plus WSL `eth0`; the user has already reported that WSL `eth0` did not see the probe. Do not treat it as the outer leg. Re-run the inner/bridge capture only at the same time as Windows-host vEthernet/physical captures. The command saves scratch output under ignored results and removes only its own temporary container/network.
 
 ```sh
 set -euo pipefail
@@ -186,4 +192,25 @@ python3 code/scripts/l3_proxy_sanity.py \
   --tshark tshark --output "$out/syn-analysis.json"
 ```
 
-Inspect the streams and verify a matching destination and the controlled request before writing any pair manifest. If WSL `eth0` contains no corresponding flow, or only a gateway-side connection, do not call it the outer leg; capture the Windows host's physical/vEthernet interface with an approved Windows tool. Even distinct TCP legs in simultaneous captures do not alone prove that a particular host proxy caused them. The two imported offload PCAPs remain separate runs and must not be entered as a paired transaction.
+Inspect the streams and verify the controlled request before writing any pair manifest. For the next run, list Windows capture interfaces using Wireshark's `dumpcap` from an elevated PowerShell window:
+
+```powershell
+$dumpcap = Join-Path $env:ProgramFiles 'Wireshark\dumpcap.exe'
+& $dumpcap -D
+```
+
+Choose the Windows vEthernet/WSL-facing interface and the physical adapter from that list. In two elevated PowerShell windows, start a 45-second capture on each (replace the example interface numbers with the IDs from `dumpcap -D`), then run the WSL container/bridge probe while both are active:
+
+```powershell
+New-Item -ItemType Directory -Force C:\Temp | Out-Null
+$dumpcap = Join-Path $env:ProgramFiles 'Wireshark\dumpcap.exe'
+& $dumpcap -i 5 -a duration:45 -f 'tcp port 443' -w C:\Temp\l3-vethernet.pcapng
+```
+
+```powershell
+New-Item -ItemType Directory -Force C:\Temp | Out-Null
+$dumpcap = Join-Path $env:ProgramFiles 'Wireshark\dumpcap.exe'
+& $dumpcap -i 4 -a duration:45 -f 'tcp port 443' -w C:\Temp\l3-physical.pcapng
+```
+
+After a privacy review, copy the Windows captures from WSL's mounted C: drive plus the inner captures and JSON into a tracked `results/track2/l3-paired-<run-id>/` directory, and write `sha256sum` output there. The original `.pcapng` files and the user-run WSL JSON/cases are not currently present in this checkout; a transcribed summary is not a substitute for those raw artifacts. Only pair streams after verifying the same controlled transaction and both handshake directions at each point. Different TCP legs do not alone prove that a particular host proxy caused them. The imported offload-on/off PCAPs remain separate runs and must not be entered as a paired transaction.
