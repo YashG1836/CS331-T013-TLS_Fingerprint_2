@@ -21,6 +21,11 @@ The traces are from a Docker-side capture with client address `172.17.0.2`; thes
 
 MSS 65495 is not syntactically impossible: it equals 65535 minus the minimum 20-byte IPv4 and 20-byte TCP headers, and is compatible with an endpoint advertising a very large receive segment size. Advertised MSS is not an observed frame size or a guarantee about path MTU. TTL 63 is consistent with a one-hop decrement from 64 but does not identify the sender's initial TTL or prove proxying. The repeated values across the two captures support that the observed SYN profile did not change with the offload toggle; they do not establish the source stack's identity. The claim that Cloudflare never advertises this value needs independent support and must not be stated as fact from these rows alone.
 
+### Follow-up evidence reported 5 November 2026 (commit `c28a486`)
+
+The user reports running the checker with TShark 4.6.4 on the two imported offload PCAPs and reports the expanded pytest suite passed 36/36 in WSL. Each PCAP yielded six SYN/SYN-ACK observations across three streams; every stream had a complete handshake. Across all three streams per capture, the reported client SYN profile was MSS 1460, window scale 10, window 64240, TTL 64; the peer SYN-ACK profile was MSS 65495, window scale 7, window 65408, TTL 63. The checker flagged same-capture differences in MSS, window scale, and window. It correctly made no cross-capture pairing. The user's JSON remains user-reported and is not present in this checkout; Arena did not rerun TShark on the PCAPs.
+
+The same WSL inventory reports default bridge configuration `docker0` for `172.17.0.0/16` (`172.17.0.1` gateway), but `docker0` was **DOWN** at inventory time. Two other bridges (`br-0670013d5ec3` at `172.18.0.1/16`, and `br-3cd2d23489f7` at `172.19.0.1/16`) and two veth interfaces were UP; WSL `eth0` was `192.168.38.227/20`, with the default route via `192.168.32.1`. This inventory does not map the active veths to containers or show any packets crossing a proxy. In particular, the user's statement that traffic then traverses a host proxy is a hypothesis, not a conclusion established by these interface/route outputs. Inspect the active Docker network/container mapping and capture the same request at simultaneous points before identifying a TCP-terminating proxy.
 ## Separate the hypotheses
 
 1. **Capture vantage / TCP termination:** compare SYN and SYN-ACK observations on both accessible sides of the suspected Docker/WSL proxy or translation boundary. If TCP is terminated and recreated, expect different 4-tuples/initial sequence numbers and potentially different SYN options on the two legs. If only NAT is present, do not infer termination merely from address translation.
@@ -114,33 +119,71 @@ For future paired captures, a manually reviewed pairing manifest can compare str
 
 Then add `--pair-manifest results/reproduced/l3/pairs.json`. It requires SYN and SYN-ACK on both legs and emits conservative labels such as same handshake/tuple translation, sequence or option mismatch, separate TCP legs, or insufficient evidence. Even a `separate_tcp_legs_or_sequence_rewrite` result is not proxy proof by itself.
 
-Send the interface inventory plus the JSON/TSV summaries (or privacy-reviewed excerpts). Once the active Linux bridge is confirmed, the first paired probe can capture a single controlled request inside the container and on WSL `eth0`; use the same Docker image and exact request on every run:
+The latest inventory has `docker0` **DOWN** while two custom bridges and their veths are UP, so do not use `--network bridge` or assume `docker0` is the active inner point. Create a short-lived, uniquely named bridge for one controlled request. This brackets the container and Linux bridge, while WSL `eth0` remains only a *candidate* outer observation—not a proven wire-side point. The command also saves all outputs under the ignored results directory and removes only the temporary container/network it creates.
 
 ```sh
-# Build once if cn-lab is not already available; this uses network access.
-make lab-image
-mkdir -p results/reproduced/l3/paired-01
+set -euo pipefail
 
-# Start the WSL-eth0 capture, then run one HTTP/1.1 request from a bridged container.
-sudo timeout -s INT 25s tcpdump -i eth0 -nn -s 0 -U \
-  -w results/reproduced/l3/paired-01/wsl-eth0.pcap 'tcp port 443' &
-host_capture_pid=$!
+docker image inspect cn-lab >/dev/null 2>&1 || make lab-image
+stamp=$(date +%s)
+net="l3probe-${stamp}"
+bridge="br-l3p${stamp: -6}"
+container="l3probe-${stamp}"
+out="$PWD/results/reproduced/l3/paired-${stamp}"
+mkdir -p "$out"
+cleanup() {
+  docker rm -f "$container" >/dev/null 2>&1 || true
+  docker network rm "$net" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
+docker network create --driver bridge \
+  --opt "com.docker.network.bridge.name=$bridge" "$net"
+docker run -d --name "$container" --network "$net" --cap-add NET_RAW \
+  -v "$out:/out" --entrypoint sh cn-lab -c 'sleep 60'
+docker network inspect "$net" --format '{{json .Options}} {{json .IPAM.Config}}'
+ip -br link show "$bridge"
+
+sudo timeout --preserve-status -s INT 30s tcpdump -i "$bridge" -nn -s 0 -U \
+  -w "$out/bridge.pcap" 'tcp port 443' &
+bridge_capture_pid=$!
+sudo timeout --preserve-status -s INT 30s tcpdump -i eth0 -nn -s 0 -U \
+  -w "$out/wsl-eth0.pcap" 'tcp port 443' &
+eth0_capture_pid=$!
 sleep 2
 
-docker run --rm --network bridge --cap-add NET_RAW \
-  -v "$PWD/results/reproduced/l3/paired-01:/out" cn-lab sh -c '
-    tcpdump -i eth0 -nn -s 0 -U -w /out/container-eth0.pcap "tcp port 443" &
-    capture_pid=$!
-    sleep 2
-    curl -4 --http1.1 --connect-timeout 8 --max-time 15 -sS -o /dev/null \
-      "https://www.cloudflare.com/cdn-cgi/trace?l3audit=$(date +%s%N)"
-    curl_status=$?
-    sleep 2
-    kill -INT "$capture_pid" 2>/dev/null || true
-    wait "$capture_pid"
-    exit "$curl_status"
-  '
-wait "$host_capture_pid"
+set +e
+docker exec "$container" sh -c '
+  tcpdump -i eth0 -nn -s 0 -U -w /out/container-eth0.pcap "tcp port 443" &
+  capture_pid=$!
+  sleep 2
+  curl -4 --http1.1 --connect-timeout 8 --max-time 15 -sS -o /dev/null \
+    "https://www.cloudflare.com/cdn-cgi/trace?l3audit=$(date +%s%N)"
+  curl_status=$?
+  sleep 2
+  kill -INT "$capture_pid" 2>/dev/null || true
+  wait "$capture_pid"
+  exit "$curl_status"
+'
+probe_status=$?
+set -e
+wait "$bridge_capture_pid"
+wait "$eth0_capture_pid"
+printf 'Probe exit status: %s\nCaptures: %s\n' "$probe_status" "$out"
+if [ "$probe_status" -ne 0 ]; then
+  echo "Probe failed; retain the PCAPs for troubleshooting." >&2
+  exit "$probe_status"
+fi
 ```
 
-This probe is network-active; run it only when authorized. Verify both captures contain the probe and the same destination before pairing streams. If WSL `eth0` sees no corresponding flow, or only a gateway-side connection, stop treating it as the outer leg and capture the Windows host's physical/vEthernet interface with an approved Windows capture tool. The two existing offload PCAPs remain separate runs and must not be entered as a paired transaction. Keep all outputs under ignored `results/reproduced/l3/` until reviewed and provenance is complete.
+The probe is network-active; run it only when authorized. It waits up to 30 seconds for host captures, then cleans up the temporary container and network while retaining the PCAPs. Analyze all three captures without auto-pairing first:
+
+```sh
+python3 code/scripts/l3_proxy_sanity.py \
+  --capture container="$out/container-eth0.pcap" \
+  --capture bridge="$out/bridge.pcap" \
+  --capture wsl_eth0="$out/wsl-eth0.pcap" \
+  --tshark tshark --output "$out/syn-analysis.json"
+```
+
+Inspect the streams and verify a matching destination and the controlled request before writing any pair manifest. If WSL `eth0` contains no corresponding flow, or only a gateway-side connection, do not call it the outer leg; capture the Windows host's physical/vEthernet interface with an approved Windows tool. Even distinct TCP legs in simultaneous captures do not alone prove that a particular host proxy caused them. The two imported offload PCAPs remain separate runs and must not be entered as a paired transaction.
