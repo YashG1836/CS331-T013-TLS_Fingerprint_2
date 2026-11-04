@@ -1,0 +1,21 @@
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+-- Configuring done (0.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: /tmp/CS331-Phase2/build
+cmake --build build --parallel
+gmake[1]: Entering directory '/tmp/CS331-Phase2/build'
+[ 63%] Built target quic_core
+[ 81%] Built target quic_core_tests
+[100%] Built target quic-fingerprint
+gmake[1]: Leaving directory '/tmp/CS331-Phase2/build'
+ctest --test-dir build --output-on-failure
+Test project /tmp/CS331-Phase2/build
+    Start 1: quic_core_tests
+1/1 Test #1: quic_core_tests ..................   Passed    0.02 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.02 sec
+python3 -m pytest -q
+.......................................                                  [100%]
+39 passed in 0.37s

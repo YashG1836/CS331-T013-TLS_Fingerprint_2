@@ -1,0 +1,3 @@
+wrote results/track2/verification-batch-20261104-201936/offload-syn-analysis.json
+offload_on: 6 SYN/SYN-ACK observations, 3 TCP stream(s); no proxy inference from one capture
+offload_off: 6 SYN/SYN-ACK observations, 3 TCP stream(s); no proxy inference from one capture
