@@ -11,6 +11,7 @@ This repository is being rebuilt around the Project 2 research question: where d
 - [`docs/l3-contribution-plan.md`](docs/l3-contribution-plan.md): primary L3 capture-vantage/proxy-aware JA4T candidate and evidence gates.
 - [`docs/original-contribution-plan.md`](docs/original-contribution-plan.md): QUIC recovery candidate disposition and bounded damaged-flow diagnostic audit.
 - [`docs/landscape.md`](docs/landscape.md): preliminary fingerprint-family landscape and prior-art review scaffold.
+- [`docs/verification-batch.md`](docs/verification-batch.md): one-pass WSL verification and evidence-collection procedure.
 - [`DECISIONS.md`](DECISIONS.md): evidence-based working decisions and human approval gates (not a signed team record).
 - [`docs/tests/README.md`](docs/tests/README.md): imported T0–T7 empirical-lab explanations.
 - [`GLOSSARY.md`](GLOSSARY.md), [`PHASES.md`](PHASES.md), [`FILES_GUIDE.md`](FILES_GUIDE.md), [`VIVA_QUESTIONS.md`](VIVA_QUESTIONS.md), [`PRESENTATION_GUIDE.md`](PRESENTATION_GUIDE.md): adopted learning and presentation guides.

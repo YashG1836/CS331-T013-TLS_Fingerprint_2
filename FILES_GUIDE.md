@@ -25,6 +25,7 @@ Track 2 classic-PCAP reader → UDP datagrams → modular QUIC v1 core
 | `docs/original-contribution-plan.md` | QUIC recovery candidate disposition and bounded damaged-flow diagnostic audit. |
 | `docs/l3-contribution-plan.md` | Primary L3 capture-vantage/proxy-aware JA4T candidate and evidence gates. |
 | `docs/landscape.md` | Preliminary fingerprint-family landscape and open prior-art review matrix. |
+| `docs/verification-batch.md` | One-pass WSL verification and evidence collection, with the Windows capture as a coordinated manual step. |
 | `DECISIONS.md` | Evidence-based working decisions and human approval gates; not a fabricated team meeting record. |
 | `ai/prompts.txt` | Partial, explicitly incomplete verbatim prompt record; not a full timestamped course export. |
 | `PHASES.md` | Phase 1 lessons and Track 1/Track 2 state. |
@@ -63,6 +64,7 @@ Track 2 classic-PCAP reader → UDP datagrams → modular QUIC v1 core
 | `code/scripts/quic_impairment.py` | Deterministic QUIC PCAP reordering/loss/truncation variants plus TShark/C++ byte-recall evaluation; use an ignored output directory. |
 | `code/scripts/quic_initial_inventory.py` | Header-only QUIC v1 Initial DCID/SCID inventory by UDP direction; no payload decryption. |
 | `code/scripts/l3_proxy_sanity.py` | Extracts SYN/SYN-ACK profiles and conservatively compares manually paired captures; does not calculate JA4T or infer a proxy from MSS/TTL alone. |
+| `code/scripts/verify_submission_batch.sh` | One-pass WSL test, manifest, inventory, L3 baseline, and QUIC impairment batch; writes evidence under tracked `results/track2/`. |
 | `code/scripts/capture.py` | Explicit, opt-in Track 1 recapture tool; refuses to overwrite committed PCAPs by default. |
 | `code/scripts/versions.sh` | Records the lab's JA4/TShark/client tool versions. |
 | `code/Dockerfile` | Pinned Linux reference-tool lab image. |
