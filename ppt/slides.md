@@ -5,7 +5,7 @@
 
 **Authors:** [insert approved team member names]
 
-**Status:** Working deck outline; final contribution claim and team/rubric sign-off remain open.
+**Status:** Draft deck aligned with the project’s agreed engineering/evaluation contribution framing; final course-rubric review and submission sign-off remain open.
 
 > **Persistent evidence labels:** `WSL BATCH — user-run, artifacts committed/inspected; not independently reproduced in Arena` and `TRACK 1 — imported/team-supplied`. TShark 4.6.4 is the same-PCAP comparison reference, not independent ground truth.
 
@@ -18,9 +18,9 @@
 - Primary depth dive: QUIC v1 Initial packet accounting and ClientHello extraction.
 - Secondary investigation: TCP capture vantage and fingerprint attribution limits.
 - Result framing: CID/state tracking is established QUIC-stack and analyzer practice, not the novelty claim.
-- Proposed scope: evaluate a minimal stateless-to-stateful transition in lightweight passive streaming fingerprinting; novelty remains unestablished pending prior-art/rubric review.
+- Project contribution: the proposal’s “measured map plus one first step”—demonstrate a lightweight extractor’s packet-accounting blindspot, then design, implement, and evaluate `InitialContextAssociator`.
 
-**Speaker notes:** Keep focus on what a sensor can observe. A fingerprint is not an identity guarantee. Team members, course section, and final title approval are to be filled in.
+**Speaker notes:** Keep focus on what a sensor can observe. A fingerprint is not an identity guarantee. The contribution is an engineering/evaluation result for lightweight passive extractors, not invention of stateful CID tracking as a QUIC protocol mechanism. Fill in approved team names/course details.
 
 **Evidence cue:** `report/report.md`, `DECISIONS.md`.
 
@@ -77,12 +77,12 @@ classic PCAP → Ethernet/IP/UDP → QUIC v1 Initial
 - Two committed baseline traces: curl and Chromium.
 - Six deterministic cases per trace: baseline, reverse order, shuffle, drop one selected Initial-CRYPTO record, drop every third selected record, truncate a selected record.
 - Byte comparison uses a **multiset of complete ClientHello bytes** from C++ and TShark on the **same PCAP variant**.
-- WSL environment: TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5, Python 3.14.4.
+- WSL QUIC batch: TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5, Python 3.14.4. Docker `cn-lab` Track 1: TShark 4.4.19; FoxIO `ja4` tag `v0.18.6` reports 0.18.5, while `ja4-main` reports 0.18.6.
 - Build/tests: CTest **1/1**, pytest **52/52**.
 
 **Evidence label:** `WSL BATCH — user-run; source commit fa9fcdb; batch committed in 7a2584c`.
 
-**Speaker notes:** Batch files, logs, variant PCAPs, raw TShark exports, JSON, and script hashes are in `results/track2/verification-batch-20261105-105416/`. We inspected the artifacts and source hashes in this checkout, but did not rerun the WSL experiment in Arena.
+**Speaker notes:** Batch files, logs, variant PCAPs, raw TShark exports, JSON, and script hashes are in `results/track2/verification-batch-20261105-105416/`. We inspected the artifacts and source hashes in this checkout, but did not rerun the WSL experiment in Arena. Keep WSL and Docker versions/results separate; the FoxIO tag and reported binary version are not interchangeable labels.
 
 ---
 
@@ -142,11 +142,11 @@ classic PCAP → Ethernet/IP/UDP → QUIC v1 Initial
 ## Slide 8 — Seven-row status and IPv6 limit
 
 - L1, L2, L3, L4, L5, L7: artifact and requested live checks **PASS** in the batch JSON.
-- L6 artifact: **NOT_MEASURED** for public IPv6 egress; the committed PCAP contains only a PCAP header.
-- Optional local `::1` live capture: **FAIL**—tcpdump produced no packet-bearing IPv6 PCAP.
+- L6 artifact: **NOT_MEASURED** for public IPv6 egress; this scope is accepted. The committed PCAP contains only a PCAP header.
+- Optional local `::1` control: **FAIL**—tcpdump produced no packet-bearing IPv6 PCAP; it is not a public-egress measurement.
 - Overall artifact status: **INCOMPLETE**; overall live status: **FAIL**.
 
-**Speaker notes:** The WSL uplink was reported to lack a global IPv6 route. The local loopback failure is not a public-egress measurement. Do not compress this to “all seven rows pass” or say L6 was measured.
+**Speaker notes:** L6 is accepted as NOT_MEASURED for public IPv6 egress. The WSL uplink was reported to lack a global IPv6 route. The local loopback control failed to produce a packet-bearing PCAP and does not count as public egress. Do not say L6 was measured.
 
 **Evidence:** `results/track2/verification-batch-20261105-105416/seven-rows-live.json` and `.log`.
 
@@ -156,7 +156,8 @@ classic PCAP → Ethernet/IP/UDP → QUIC v1 Initial
 
 - **L3:** selected container/Wi-Fi observations have distinct tuples and initial sequence numbers; consistent with separate TCP legs or sequence rewrite. No proxy identity, termination mechanism, OS misclassification, or JA4T/JA4TS error is established.
 - **L4/L5/L7:** imported/team-supplied TLS samples show configuration-linked fingerprint differences, GREASE-associated variability, and ECH outer-name observations within narrow sample scopes.
-- **L2/L6:** key-dependent result remains provisional; public IPv6 egress remains unmeasured.
+- **L2:** one imported/team-run TLS 1.3 sample reports **0 JA4X/JA4H outputs without session secrets vs 5 with secrets** (4 JA4X certificate-chain entries + 1 JA4H). The key log is intentionally absent; this is sample-scoped evidence, not an independently reproducible or universal result.
+- **L6:** public IPv6 egress is accepted as **NOT_MEASURED**; the local `::1` control failed and is not a substitute.
 
 **Speaker notes:** Keep Track 1 labels visible. The complete row-level values and source caveats are in `LEDGER.md` and `docs/track1-evidence-audit.md`. A DoH target-page arm is incomplete; the ECH observations do not establish broad privacy guarantees.
 
@@ -164,15 +165,15 @@ classic PCAP → Ethernet/IP/UDP → QUIC v1 Initial
 
 ## Slide 10 — Validity, scope, and takeaway
 
-**Supported:** On two captured-order traces, stateful accounting recovers 10 curl + 6 Chromium client Initial packets that the prototype's legacy per-DCID accounting missed; ClientHello byte parity remains 5/5 per trace. This is a bounded evaluation of stateless-to-stateful accounting for a lightweight passive streaming fingerprinter—not a claim that CID tracking itself is new.
+**Project contribution — measured map plus one first step:** The stateless prototype’s per-current-DCID accounting misses 10 curl + 6 Chromium client Initial packets. The C++ `InitialContextAssociator` applies original-DCID/SCID-alias context aligned with RFC 9001 §5.2, decrypts 16 additional packets with zero client failures in the tested captured-order traces, and matches complete ClientHello bytes 5/5 per trace against TShark 4.6.4. This is an engineering/evaluation contribution for lightweight passive extractors—not a new QUIC CID protocol mechanism.
 
 **Not supported:**
 - General QUIC correctness or order-independent recovery.
 - Full RFC 9001 conformance, Retry, or connection migration.
 - Wireshark/TShark failure, proxy identification, or JA4T misattribution.
-- Public IPv6 measurement, broad privacy, novelty, or course-rubric completion.
+- Global novelty of stateful CID tracking, full RFC coverage, public IPv6 measurement, broad privacy, or course-rubric completion.
 
-**Speaker notes:** The stateful feature is best presented as a narrow engineering result. Keep the distinction between packet-accounting improvement and ClientHello recall explicit.
+**Speaker notes:** This is the project’s approved engineering/evaluation framing: a measured map of the accounting blindspot plus one implemented first step. Keep the distinction between packet-accounting improvement and ClientHello recall explicit, and do not claim the protocol mechanism itself is new.
 
 ---
 
@@ -182,7 +183,7 @@ classic PCAP → Ethernet/IP/UDP → QUIC v1 Initial
 2. Extend authenticated CID lifecycle to controlled tuple migration/NAT rebinding.
 3. Improve order-robust context establishment with bounded buffering and regression tests.
 4. For L3, collect synchronized captures at known boundaries before attributing causes or considering normalization.
-5. Complete targeted prior-art and rubric review; obtain team approval before selecting an original contribution.
+5. Complete targeted prior-art and rubric review; confirm that the adopted engineering/evaluation framing satisfies the course contribution criterion.
 
 **Future scope, not current claims.**
 
@@ -193,8 +194,8 @@ classic PCAP → Ethernet/IP/UDP → QUIC v1 Initial
 - RFC 9001 §5.2 — QUIC Initial key derivation: <https://www.rfc-editor.org/rfc/rfc9001.html#section-5.2>
 - RFC 9000 §7.2 — Connection IDs: <https://www.rfc-editor.org/rfc/rfc9000.html#section-7.2>
 - FoxIO JA4 v1.0.1 implementation reference: <https://github.com/FoxIO-LLC/ja4/releases/tag/v1.0.1>
-- TShark 4.6.4, batch environment and outputs: `results/track2/verification-batch-20261105-105416/`; user-reported zero-failure filters are supplemental and not archived.
+- WSL QUIC reference: TShark 4.6.4; Docker `cn-lab`: TShark 4.4.19, FoxIO `ja4`/`ja4-main` version labels differ. See `docs/track1-evidence-audit.md` and `results/track2/verification-batch-20261105-105416/`. User-reported zero-failure filters are supplemental and not archived.
 - Google QUICHE: <https://github.com/google/quiche>; ngtcp2: <https://github.com/ngtcp2/ngtcp2>; Wireshark: <https://github.com/wireshark/wireshark> (illustrative stateful implementations/analyzer; not a systematic prior-art review).
 - Full methods, generated tables, threats to validity, and references: `report/report.md`
 
-**Discussion prompt:** What additional evidence would be required to turn the bounded accounting result—or the L3 capture-vantage question—into a defensible contribution claim?
+**Discussion prompt:** How does the measured-map-plus-first-step engineering contribution differ from claiming a new QUIC protocol mechanism, and what does its order-sensitive evaluation teach us?
