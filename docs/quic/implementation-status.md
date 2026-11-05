@@ -53,7 +53,7 @@ Source references: [RFC 9001 §5.2](https://www.rfc-editor.org/rfc/rfc9001.html#
 - For the earlier registered pcapng QUIC baseline, establish a separate exact-byte result; the user's reported raw-byte check covers only `quic_chromium.pcap` and `quic_curl.pcap`.
 - Verify JA4's QUIC protocol identifier and construction against a chosen reference before emitting any custom JA4.
 - The earlier recovery/completeness-diagnostics contribution hypothesis remains rejected for the measured impairments. The narrower Initial connection/CID association is the current engineering result. Its captured-order baseline byte comparison is archived; its reverse/shuffle misses are also measured and must remain part of any claim. Novelty, rubric fit, and team approval remain open.
-- L3 capture-vantage remains secondary: the committed batch contains three manual timing-based container/Wi-Fi pairs, but the bridge capture failed and the intermediary/mechanism is unresolved. See `docs/l3-contribution-plan.md`.
+- L3 capture-vantage remains secondary: the committed batch contains three manual timing-based container/Wi-Fi pairs, but the bridge capture failed and the intermediary/mechanism is unresolved. See `docs/planning/l3-contribution-plan.md`.
 
 ## Future scope (not implemented or claimed complete)
 
