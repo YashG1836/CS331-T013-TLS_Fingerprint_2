@@ -20,7 +20,7 @@ Yash's repository snapshot at commit `b1ffd7c65ae47af1b62184549262ef838c4a234d` 
 
 | Test | Imported observation | Current evidence status |
 |---|---|---|
-| T1 QUIC | TShark/FoxIO outputs report 5/5 ClientHellos for Chromium and curl; Chromium has up to 21 CRYPTO fragments. User separately reports 10/10 C++/TShark `tls.handshake_raw` byte-set matches. | Raw comparison/export is not retained in Git; user-reported WSL pass. The clean-trace L1 gap is unsupported; impaired-capture testing remains. |
+| T1 QUIC | Imported reference outputs report 5/5 ClientHellos for Chromium and curl; Chromium has up to 21 CRYPTO fragments. The committed 5 Nov stateful WSL batch records exact baseline 5/5 ClientHello byte-multiset matches per trace against TShark 4.6.4. | Inspectable user-run WSL evidence, not independent Arena reproduction. Stateful reverse-order and shuffle cases match 0/5 and 4/5 per trace; only captured-order baseline preservation is supported. Separate prior `tls.handshake_raw` export/script remains absent. |
 | T2 keys | Summary reports JA4X/JA4H count 0 without keys and 5 with keys. | Key log intentionally absent; keyed output cannot be regenerated. |
 | T3 capture point | Summary reports `pieces_max` 1 vs 2 with TSO/GSO changed; narrative also reports large frames and proxy MSS. | Docker vantage; narrative frame values disagree with aggregate summary; targeted rerun needed. |
 | T4 post-quantum | Summary reports ClientHello lengths 508 vs 1511 bytes and selected groups 29 vs 4588; JA4 differs. | Team-supplied, one client/environment; no claim that JA4 directly encodes the group. |
@@ -34,9 +34,9 @@ The supplied C++ checkpoint log records one CTest target and sanitizer target pa
 
 ## Still to do
 
-- Reproduce the reference analysis in the Docker lab using `make lab-image` and `make lab-eval`; outputs go under ignored `results/reproduced/` so imported evidence is preserved.
-- Reconcile T3 measurements and repeat T6 only on a network with working IPv6.
-- Preserve the user-reported TShark `tls.handshake_raw` export, exact command, and byte-set comparison script/output for auditability. The clean-capture comparison is reported 10/10 byte-identical, but was not independently reproduced in Arena. Next measure controlled reordering/loss/truncation before selecting a contribution. See [`docs/track2-integration-plan.md`](docs/track2-integration-plan.md).
-- Evaluate the Track 2 QUIC recovery pipeline as a candidate contribution, but verify prior art and the course rubric before claiming novelty. The reported T5 fix already exists upstream in unreleased code.
+- Reproduce imported Track 1 analysis in the Docker lab using `make lab-image` and `make lab-eval` if time permits; outputs go under ignored `results/reproduced/` so imported evidence stays immutable.
+- Repeat public IPv6 L6 only on a network with working global IPv6. The current artifact is empty and the optional WSL loopback capture attempt failed; neither is a public-egress measurement.
+- The 5 November stateful QUIC batch now preserves per-case TShark `jsonraw`, exact baseline byte multisets, directional/per-connection counts, commands, environment, and tests. Its order-mutated cases reveal statefulness limits; include these in any final report. The separate earlier `tls.handshake_raw` export/script remains absent. See [`docs/track2-integration-plan.md`](docs/track2-integration-plan.md) and [`report/report.md`](docs/report/report.md).
+- Complete targeted prior-art and course-rubric review before selecting a contribution. The imported T5 upstream fix remains unsuitable as a new code contribution.
 - Keep TLS key logs local and ignored; do not commit secrets.
 - Write team decisions and contribution records as the team, not retroactively or by inference.

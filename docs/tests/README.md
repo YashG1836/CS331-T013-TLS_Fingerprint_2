@@ -17,7 +17,7 @@ The committed summaries are teammate-supplied outputs, not rerun in this checkou
 | File | Question in one line | Changed variable | Result |
 |---|---|---|---|
 | [T0_lab_checks.md](T0_lab_checks.md) | Can we trust our lab and scripts? | - | passed |
-| [T1_quic.md](T1_quic.md) | Can the reference tools fingerprint QUIC? | TCP → QUIC, two clients | imported results: 5/5 each; C++ not yet tested |
+| [T1_quic.md](T1_quic.md) | Can the reference tools fingerprint QUIC? | TCP → QUIC, two clients | imported reference results: 5/5 each; committed stateful C++ baseline matches 5/5 byte multisets per trace against TShark 4.6.4; reordered stateful variants remain order-sensitive |
 | [T2_keys.md](T2_keys.md) | Which fingerprints work without TLS keys? | keys given / not given | imported output: 0 vs 5; key log omitted |
 | [T3_vantage_offload.md](T3_vantage_offload.md) | Does *where/how* we capture change what we see? | offload on / off | imported metrics differ; narrative mismatch open |
 | [T4_post_quantum.md](T4_post_quantum.md) | What does a post-quantum key share change? | PQ group on / off | imported size/group/JA4 observations |

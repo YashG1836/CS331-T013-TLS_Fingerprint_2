@@ -14,7 +14,7 @@ For each observation, state the question, changed condition, supplied output, pr
 
 **Show:** `README.md` and `PHASES.md`.
 
-Explain that Track 1 uses deployed reference tools and controlled captures; Track 2 preserves the modular C++ QUIC path: packet parsing, Initial crypto, frame parsing, CRYPTO reassembly, and ClientHello parsing. The current CLI accepts hex datagrams and classic Ethernet PCAP; on the imported Chromium and curl captures it recovered five ClientHellos each. The user reports a TShark 4.6.4 `tls.handshake_raw` byte-set match for all ten. Attribute this to the WSL run and note the raw exports/script are not yet retained in the repo. The clean-capture L1 gap is not supported; the flow model remains limited.
+Explain that Track 1 uses imported reference-tool results; Track 2 contains the modular C++ QUIC path: packet parsing, Initial crypto, frame parsing, CRYPTO reassembly, and ClientHello parsing. The current CLI accepts hex datagrams and classic Ethernet PCAP. The committed 5 November WSL batch (`results/track2/verification-batch-20261105-105416/`) records stateful captured-order baseline equality with TShark 4.6.4: 5/5 ClientHello byte multisets for each of curl and Chromium. The separate earlier `tls.handshake_raw` export/script is not retained; the committed batch does retain per-case TShark `jsonraw` outputs. Statefulness is order-sensitive in reverse/shuffle variants. The clean-capture L1 extraction gap is not supported; the flow model remains limited.
 
 ## 2. What is visible in a ClientHello?
 
@@ -42,7 +42,7 @@ This re-runs TShark/FoxIO on the registered Track 1 captures and writes fresh ou
 
 ## 5. Report observations with caveats
 
-- **T1 / QUIC:** the imported summary reports 5/5 ClientHellos for Chromium and curl, and as many as 21 Chromium CRYPTO fragments. It does not validate our C++ extractor.
+- **T1 / QUIC:** the imported summary reports five baseline ClientHellos per Chromium and curl trace. The committed stateful WSL batch independently runs the C++ mode against those captures and byte-matches TShark 4.6.4 5/5 per captured-order baseline trace. Do not claim general conformance: stateful reverse-order matches 0/5 and shuffle 4/5 per trace.
 - **T2 / keys:** the summary reports 0 JA4X/JA4H without keys and 5 with keys. The key log is not committed, so the keyed arm cannot be regenerated from this checkout.
 - **T3 / capture point:** the aggregate output reports `pieces_max` 1 vs 2. The narrative's 1586-byte and `1514 + 138` frame values differ from the saved aggregate metrics, and the SYN/MSS data is not preserved in the raw JSON. Do not claim a final proxy result without a targeted rerun.
 - **T4 / key share:** the imported output reports a 508-to-1511-byte ClientHello difference and selected groups 29 vs 4588; JA4 changes with the extensions. One client/environment does not establish general behavior.
@@ -52,11 +52,11 @@ This re-runs TShark/FoxIO on the registered Track 1 captures and writes fresh ou
 
 ## 6. Tool versions and test evidence
 
-The WSL baseline snapshot and Yash's Docker lab use different tool versions; do not combine them as one pin. `results/checkpoint_build_test.txt` is the teammate's captured log, not a run tied to a recorded commit SHA. Current-branch test results should come from `make test` and current CI.
+The 5 November WSL snapshot records TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5, Python 3.14.4, CTest 1/1, and pytest 52/52 at source commit `fa9fcdb`; the archived batch is `results/track2/verification-batch-20261105-105416/`. Yash's Docker lab uses different versions; do not combine them as one pin. `results/checkpoint_build_test.txt` is an older teammate log, not the current WSL run.
 
 ## 7. Next work and contribution candidate
 
-The current modular C++ core is connected to `quic_chromium.pcap` and `quic_curl.pcap`; the committed user-run batch reports exact byte-set agreement with TShark on the tested clean and impaired variants. Broad recovery/completeness diagnostics remain unsupported as a contribution for those conditions. The user reports that stateful mode improves client Initial decrypt counts from 10/16 to 16/16 for Chromium and 10/20 to 20/20 for curl, with five switched-DCID alias buckets per trace; complete ClientHello counts are 5/5 in both modes. CTest 1/1 and pytest 51/51 are also user-reported. The raw new WSL outputs are not retained here, and the post-stateful byte-for-byte TShark comparison was not stated in the supplied summary. Present the metrics as user-reported and do not claim broader TShark failure or unchanged bytes until the corresponding outputs are archived. L3 is secondary: three manual container/Wi-Fi timing-correlated pairs show different tuples/ISNs, but the bridge capture failed and the mechanism/JA4T effect remains unresolved. Check prior art and course expectations before any novelty claim.
+The committed 5 November batch shows stateful captured-order client Initial decrypts improve from 10/20 to 20/20 for curl and 10/16 to 16/16 for Chromium; five switched-DCID alias buckets contain 10 and 6 client packet records, respectively. The baseline stateful output byte-matches TShark 4.6.4 5/5 per trace. This does not increase recall versus the earlier baseline; stateful reverse/shuffle cases produce 0/5 and 4/5 matches per trace. The raw WSL logs, JSON, per-direction/per-connection counters, and `jsonraw` outputs are committed. The run is inspectable, not independently reproduced in Arena. L3 remains secondary: three manual container/Wi-Fi timing-correlated pairs show different tuples/ISNs, but the bridge capture failed and the mechanism/JA4T effect remains unresolved. The seven-row artifact audit passes L1/L2/L3/L4/L5/L7; L6 public egress remains NOT_MEASURED, the optional `::1` live capture failed, and overall live status is FAIL. Check prior art and course expectations before any novelty claim.
 
 ## 8. If something fails
 

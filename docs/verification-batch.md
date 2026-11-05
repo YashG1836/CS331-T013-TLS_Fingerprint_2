@@ -1,6 +1,6 @@
 # One-pass WSL verification batch
 
-The batch runner produces a dated, tracked evidence directory without staging or committing files. It was run by the user from Ubuntu WSL at commit `619a694a9fe449d97b4a54e487f0db7254b1fc08` on the active branch, timestamp `2026-11-04T20:19:36Z`. The resulting artifacts are now present at `results/track2/verification-batch-20261104-201936/` (added by commit `00f34e4`). The SHA256 manifest passed from the repository root; relevant JSON parsed successfully. This makes the outputs inspectable, but does not make the WSL run an independent Arena reproduction.
+The batch runner produces a dated, tracked evidence directory without staging or committing files. The 4 November user-run WSL batch at `results/track2/verification-batch-20261104-201936/` predates the stateful mode. The updated runner was run in Ubuntu WSL on 5 November against source commit `fa9fcdb`; its results, logs, variant PCAPs, per-case JSON, and seven-row JSON are committed at `results/track2/verification-batch-20261105-105416/` (batch commit `7a2584c`). This makes the post-change output inspectable in this checkout, but does not make the WSL execution an independent Arena reproduction.
 
 ## What the batch records
 
@@ -8,7 +8,7 @@ The batch runner produces a dated, tracked evidence directory without staging or
 2. Hashes for source PCAPs and scripts.
 3. QUIC v1 DCID/SCID header inventory for the Chromium and curl PCAPs.
 4. TShark SYN/SYN-ACK summaries for separate imported offload-on/off PCAPs; no cross-capture pairing is inferred.
-5. Deterministic legacy and stateful C++/TShark impairment evaluations for both QUIC traces (seed 331), including cases, variant PCAPs, raw TShark exports, logs, directional/per-connection accounting, result JSON, and hashes. The already committed 4 November batch predates the stateful mode; the updated runner will record that mode in a new dated run.
+5. Deterministic legacy and stateful C++/TShark impairment evaluations for both QUIC traces (seed 331), including cases, variant PCAPs, raw TShark exports, logs, directional/per-connection accounting, result JSON, and hashes. The 4 November batch is the earlier stateless matrix; the 5 November batch adds the stateful mode and exact baseline byte comparisons.
 6. Seven-row artifact/live audit, plus an optional packet-bearing `[::1]` TLS control PCAP and metadata sidecar. The local capture is explicitly separate from public IPv6 egress.
 
 ## Recorded result snapshot
@@ -19,7 +19,15 @@ The batch runner produces a dated, tracked evidence directory without staging or
 - Impairment: for each trace, six cases compare C++ output to TShark output on that same case's PCAP. All emitted reference ClientHellos match byte-for-byte as a multiset: 27/27 per trace; 54/54 total; zero misses and extras. Every-third-drop yields 2/2 in each tool per trace, not recovery of all five original ClientHellos. This is not independent ground truth or proof of broad QUIC correctness.
 - Offload SYN analysis: each separate capture has three complete streams; client profile MSS/window-scale/window/TTL `1460/10/64240/64`, peer profile `65495/7/65408/63`. The analyzer says not to infer a proxy from one capture.
 
-See `results/verification-status.md`, `DECISIONS.md`, and `LEDGER.md` for evidence provenance, comparisons, and caveats. The raw output directory should remain immutable after review; run a fresh batch into a new timestamped directory rather than overwrite it.
+## Post-change 5 November result snapshot
+
+The committed batch ran against `fa9fcdb` and recorded TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5, Python 3.14.4, CTest **1/1**, and pytest **52/52**. In the stateful captured-order baseline, curl's 20 client Initial packets decrypt **20/20** (legacy DCID-keyed accounting: 10/20); Chromium's 16 decrypt **16/16** (legacy: 10/16). Each trace also has five server Initials, all decrypted, zero context misses, and five associations. The stateful baseline C++ ClientHello byte multisets match TShark 4.6.4 **5/5 per trace**, with zero misses/extras. The five alias buckets are distinct CID values; the 10/6 alias counts are packet records.
+
+The stateful matrix is order-sensitive: reverse-record-order matches **0/5** in both traces and shuffle matches **4/5** in both; drop-one and truncate match 5/5, while every-third-drop matches 2/2 (TShark produces two references for those mutated PCAPs). By contrast, the earlier stateless matrix remains 27/27 per trace across six cases. Thus byte-equivalence/no-recall-regression is supported for the captured-order stateful baseline only, not for reordered traces. Full per-case data and directional/per-connection rows are in `quic-stateful/{curl,chromium}/impairment-results.json`.
+
+The seven-row artifact audit reports L1/L2/L3/L4/L5/L7 PASS and L6 public egress NOT_MEASURED. The optional `::1` live check failed because tcpdump produced no packet-bearing IPv6 PCAP; the JSON therefore has overall live status FAIL. The WSL uplink was reported to lack global IPv6 routing. Do not summarize this as a clean overall live pass or as an IPv6 egress measurement.
+
+See `results/verification-status.md`, `DECISIONS.md`, and `LEDGER.md` for evidence provenance, comparisons, and caveats. Keep the raw output directory immutable after review; run a fresh batch into a new timestamped directory rather than overwrite it.
 
 ## Re-run command
 
@@ -30,7 +38,7 @@ git pull --ff-only origin arena/0d29f32c-cs331-phase2
 code/scripts/verify_submission_batch.sh
 ```
 
-The script requires the WSL C++ build dependencies, OpenSSL development headers, and TShark on `PATH`. It now runs both legacy and stateful QUIC modes; the user reports a successful WSL build/CTest/pytest and positive stateful CLI counts on 5 November, but those outputs were not produced by this batch runner or retained in this checkout. Run the updated script to archive a reproducible batch. It does not stage or commit generated files. Before adding a new run, review privacy and file sizes; preserve original commands, versions, source hashes, and the generated manifest.
+The script requires the WSL C++ build dependencies, OpenSSL development headers, and TShark on `PATH`. It now runs both legacy and stateful QUIC modes and the seven-row verifier with a local-loopback capture attempt. The 5 November run is archived; it records CTest 1/1 and pytest 52/52. To repeat after code changes, run the command above into a fresh timestamped directory. The runner does not stage or commit generated files. Review privacy and file sizes before committing a new batch.
 
 ## Seven-row verifier and tests
 
@@ -46,16 +54,14 @@ An artifact `PASS` means only that the stated checks passed at their existing pr
 
 The automated test exercises each of the seven artifact rows and validates the seven-row/live JSON schema without depending on optional tools or external connectivity. Run with pytest where installed, or with the standard library as `python3 -m unittest discover -s code/scripts/tests -p 'test_seven_rows_verification.py' -v`.
 
-## Evidence still needed to close the post-stateful validation loop
+## Remaining gates after the evidence archive
 
-The 5 November WSL results are user-reported, not archived in this checkout. Preserve the exact command lines, tool/environment versions, build/CTest/pytest logs, seven-row JSON, stateful stdout/JSON, and source revision in a new timestamped `results/track2/` directory before relabeling those results as inspectable evidence. In particular, retain:
+The 5 November batch now preserves tool versions, build/CTest/pytest logs, source hashes, stateful stdout/JSON, per-direction and per-connection counts, TShark raw exports, and exact baseline byte-multiset comparisons. The remaining evidence/interpretation gates are:
 
-- Stateful per-connection rows and both client/server direction packet/decrypt/failure/context-miss counts. Do not infer omitted server-direction or context-miss values are zero.
-- A post-stateful complete-ClientHello byte-multiset comparison against TShark 4.6.4, including the actual raw byte comparison/output. `5/5` complete hellos in each tool is a count, not byte-identity evidence.
-- A fresh seven-row JSON from the updated verifier and the persistent local-loopback PCAP/sidecar if that control is run. Keep L6 public egress `NOT_MEASURED` until a packet-bearing global-IPv6 egress capture is reviewed.
-- For public L6, the dual-stack capture script's route/interface, endpoint IPv6 address, TShark extracts, PCAP and hashes. A no-route diagnostic is useful provenance but is not a measurement.
-
-Do not reconstruct missing logs from the summary or claim a full course-rubric/team sign-off from these technical results.
+- The stateful `reverse-record-order` and `shuffle-record-order` misses must remain visible in any report; the claimed byte preservation is for original captured order only. Do not present a blanket order-independent recall claim.
+- Public IPv6 L6 remains `NOT_MEASURED`. To measure it, run `code/scripts/capture_ipv6_egress.sh` on a dual-stack uplink with a global route, then review the endpoint address, capture point, PCAP, TShark extracts, and hashes. A `::1` control is not a substitute.
+- The separate earlier `tls.handshake_raw` export/script is still not retained as a standalone artifact; the current batch contains TShark `jsonraw` outputs for its recorded cases.
+- Independent Arena reproduction, targeted prior-art review, course-rubric assessment, and team approval are still open. Do not infer them from WSL test success or the batch results.
 
 ## Human-required items
 

@@ -83,7 +83,7 @@ This is an adopted study guide. Track 1 numbers below are team-supplied and prov
 ## C. Limitations (our tests)
 
 21. **QUIC: how can a passive observer recover an Initial?**
-    QUIC v1 Initial secrets are derived from a public salt and the packet's DCID (RFC 9001 §5.2). Initial protection therefore does not hide the ClientHello from an observer who implements the derivation. Later Handshake packets use secrets that are not public. The imported T1 reference outputs report five ClientHellos per client. Our current C++ PCAP CLI also recovers five from each. The user reports all ten are byte-identical to TShark 4.6.4 `tls.handshake_raw` values by set comparison on Ubuntu WSL. The raw exports and comparison script are not yet retained in the repo, so attribute the result to that reported run rather than claiming independent reproduction.
+    QUIC v1 Initial secrets derive from the Initial key context and DCID defined by RFC 9001 §5.2; for the captured-order no-Retry cases, the original client Initial DCID is retained even when later client packets use a server SCID as their current DCID. The committed 5 November WSL batch reports curl 20/20 and Chromium 16/16 client Initial decrypts in stateful mode (legacy accounting was 10/20 and 10/16). The stateful complete ClientHello byte multisets match TShark 4.6.4 5/5 per baseline trace. The per-case JSON and `jsonraw` exports are retained in `results/track2/verification-batch-20261105-105416/`; the separate earlier `tls.handshake_raw` export/script is not. The run is inspectable but was not independently reproduced in Arena. The stateful reverse/shuffle cases are order-sensitive (0/5 and 4/5), so do not claim general order-independent recall.
 
 22. **Why remove header protection before decrypting?**
     The packet number is hidden by header protection, and the packet number is needed to build the decryption nonce (RFC 9001 §5.3, §5.4).
@@ -95,7 +95,7 @@ This is an adopted study guide. Track 1 numbers below are team-supplied and prov
     T4's summary reports a 508-to-1511-byte ClientHello difference and selected groups 29 vs 4588. JA4 differs alongside extension-set differences; it should not be described as directly encoding the selected group. Segment counts depend on the capture/offload setting; see the T3 discrepancy note.
 
 25. **IPv6?**
-    Not measured: our network has no IPv6 (T6). What we'd check: same JA4 expected (JA4 has no IP field); TCP MSS and IP-based attribution could change.
+    Public IPv6 egress remains NOT_MEASURED: the WSL uplink was reported to have no global IPv6 route and the committed PCAP is empty. The optional local `::1` attempt also failed to produce a packet-bearing capture; that is a separate local control, not public egress. Use an IPv6-capable uplink and a packet-bearing capture before comparing JA4/TCP observations. Do not assume a fingerprint result without measuring it.
 
 26. **Encrypted DNS?**
     DoH hides DNS requests from passive observers on the network path; it does not itself change the ClientHello. T7's saved page outputs report the site SNI as encrypted with ECH on. The intended ECH+DoH page did not load in the imported run, so that arm remains incomplete.

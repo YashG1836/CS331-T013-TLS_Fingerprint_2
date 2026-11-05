@@ -29,18 +29,22 @@ The batch preserves `cases.json`, per-case variant PCAPs, TShark raw `jsonraw` e
 
 The committed header inventory identifies five UDP flows in each capture. Each flow has an initial client DCID and later client Initial packet(s) whose DCID matches a server Initial SCID. The legacy logs show five extra switched-DCID alias buckets per trace; Chromium has 16 client Initial records with 10 successes/6 failures, and curl has 20 with 10 successes/10 failures. These are later **client-to-server** packets, not server-direction attempts or missed ClientHellos. RFC 9001 §5.2 derives Initial secrets from the original client Initial DCID (with Retry-specific handling), while the legacy CLI derives from each packet's current DCID. See `docs/quic/implementation-status.md` and `results/track2/quic-initial-dcid-inventory.json`.
 
-The broad extraction/reordering/loss/truncation comparison shows no gap relative to TShark in tested conditions, so no recall gain is claimed. A stateful 4-tuple/SCID association and harness mode have been added with separate client/server packet-number contexts. The user now reports a positive WSL before/after result; details and evidence provenance are recorded below. Do not generalize the legacy prototype's failure to Wireshark/TShark: the existing TShark comparison recovered five complete hellos per trace, and no TShark per-packet failure count was supplied.
+The earlier stateless extraction/reordering/loss/truncation comparison shows no gap relative to TShark in its tested conditions, so no broad recovery/recall contribution is claimed. The separate post-change stateful results below establish the captured-order baseline accounting and byte comparison, while revealing order sensitivity in the synthetic reorderings. Do not generalize the prototype's legacy per-packet DCID failures to Wireshark/TShark: TShark 4.6.4 is the same-PCAP comparator and emits five complete baseline ClientHellos per trace.
 
-## User-reported post-change WSL validation (5 November 2026)
+## Post-change WSL verification batch (5 November 2026)
 
-The user reports pulling commit `35a3462` into Ubuntu WSL, completing the live CMake build, passing CTest `quic_core_tests` **1/1** and pytest **51/51**, and running `verify_all_seven_rows.py --live`. Reported row states: L1/L2/L3/L4/L5/L7 **PASS** for artifact plus live checks; L6 **NOT_MEASURED** because this uplink has no global IPv6 route. The command logs, environment snapshot, seven-row JSON, and stateful per-connection output are not yet retained in this checkout; these outcomes are therefore user-reported, not independently inspected here.
+The user ran the updated batch in Ubuntu WSL against source commit `fa9fcdb`; artifacts were committed in `7a2584c` at `results/track2/verification-batch-20261105-105416/`. This checkout has inspected the JSON/logs and verified the listed source-script SHA256 values, but has not independently regenerated the WSL run in Arena. The environment records TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5, Python 3.14.4, and WSL Linux 6.18.33.2; `make-test.log` records CTest **1/1** and pytest **52/52**.
 
-| Trace | Client Initial records | Legacy client decrypted / failed | Switched aliases / alias packets | Stateful client decrypted / failed | Complete ClientHellos, legacy / stateful |
-|---|---:|---:|---:|---:|---:|
-| curl | 20 | 10 / 10 | 5 / 10 | 20 / 0 | 5 / 5 |
-| Chromium | 16 | 10 / 6 | 5 / 6 | 16 / 0 | 5 / 5 |
+| Trace | Client Initial packets | Legacy DCID-keyed client decrypted / failed | Switched aliases / alias packets | Stateful client decrypted / failed | Stateful server Initials decrypted / failed | Baseline exact ClientHello byte match vs TShark |
+|---|---:|---:|---:|---:|---:|---:|
+| curl | 20 | 10 / 10 | 5 / 10 | 20 / 0 | 5 / 0 | 5/5; 0 misses, 0 extras |
+| Chromium | 16 | 10 / 6 | 5 / 6 | 16 / 0 | 5 / 0 | 5/5; 0 misses, 0 extras |
 
-The reported packet-level improvement is +10 decrypted curl Initial records and +6 Chromium records. Five alias buckets are distinct DCID values; 10/6 are packet records. The supplied summary reports 5/5 complete ClientHellos in both modes but does not state an explicit post-stateful byte-for-byte comparison with TShark 4.6.4. Add that output before making a byte-identity claim. No increased ClientHello extraction recall is claimed.
+The stateful baseline JSON records `multiset_equal=true`; the C++ and TShark SHA256 multisets are equal for each captured-order trace. Each has five UDP associations and zero client/server context misses. The gain is packet-level accounting (+10 curl and +6 Chromium client decrypts), not increased ClientHello recall. Five alias buckets are distinct DCID values; 10/6 are packet records.
+
+The stateful synthetic matrix is order-sensitive: reverse-record-order matches **0/5** per trace; shuffle matches **4/5**; drop-one and truncate match **5/5**; every-third-drop matches **2/2** against TShark on that variant. There are zero extras. The “no recall regression” result therefore applies to the captured-order baseline only. The stateless matrix still reports 27/27 per trace across six cases. These are same-PCAP TShark comparisons, not independent ground truth.
+
+The seven-row JSON reports L1/L2/L3/L4/L5/L7 artifact and live checks PASS. L6's public-egress artifact remains **NOT_MEASURED**; the optional local-loopback live check **FAIL** because tcpdump produced no packet-bearing IPv6 PCAP. The WSL uplink was reported to lack global IPv6 routing; `overall_live_status` is therefore FAIL, not a full seven-row live pass.
 
 ## L3 SYN analysis and capture-vantage boundary
 
@@ -59,6 +63,6 @@ The newer committed L3 batch has three manually correlated container/Wi-Fi pairs
 
 ## Original-contribution status
 
-- Broad QUIC Initial recovery/reassembly: **not a contribution claim** for the measured conditions; no ClientHello recall gap was shown. Stateful Initial context/accounting is the **primary engineering result**, with positive user-reported WSL counters; raw outputs and the explicit post-stateful TShark byte comparison still need to be archived/confirmed.
+- Broad QUIC Initial recovery/reassembly: **not a contribution claim** for the measured conditions; no ClientHello recall gap was shown. Stateful Initial context/accounting is the **primary engineering result**: the captured-order baseline counters and exact TShark byte multiset are archived. The stateful reverse/shuffle misses are a measured limitation; novelty, rubric fit, and team approval remain open.
 - L3 capture-vantage/JA4T attribution: **secondary limitation investigation, not a result**. Three timing-correlated pairs show distinct handshakes, but no termination mechanism or fingerprint misattribution is proven.
 - Final contribution choice, course-rubric interpretation, and team approval remain open. See `DECISIONS.md`, `LEDGER.md`, `docs/landscape.md`, and `docs/l3-contribution-plan.md`.
