@@ -73,7 +73,7 @@ Needs CMake, a C++20 compiler and OpenSSL 3 headers (`libssl-dev`). The C++ test
 ## Folder structure
 
 ```
-report/      formal report (CS331_Phase2_Report_T013.docx) and its markdown source
+report/      formal report (CS331_Phase2_Report_T013.pdf) and its markdown source
 ppt/         presentation (CS331_Phase2_Presentation_T013.pptx) and its slide text (slides_formal.md)
 code/quic/   C++20 QUIC Initial extractor: pcap reader, packet parser, keys, decrypt, CRYPTO reassembly, ClientHello
 code/scripts Python: Track 1 capture/analyze, impairment tests, verifiers

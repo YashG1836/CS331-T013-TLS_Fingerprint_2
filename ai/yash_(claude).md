@@ -178,3 +178,12 @@ let me know the changes , all the files u touched and changed so i can tell them
 ```
 
 ---
+
+## 👤 User Prompt 15
+*`2026-11-06 ~00:33 IST`*  
+
+```text
+save reports as pdf not doc
+```
+
+---
