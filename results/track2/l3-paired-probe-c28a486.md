@@ -10,4 +10,4 @@
 
 ## Interpretation
 
-This negative observation rejects WSL `eth0` as the outer point for this particular reported Docker Desktop probe. It does not by itself prove a proxy or explain where the connection was handled. A Windows-host physical/vEthernet capture, or a native-Linux host capture, is required to observe and correlate the other side. Keep TSO/GSO toggles separate from the vantage experiment. See `docs/l3-contribution-plan.md` for the current plan and evidence gates.
+This negative observation rejects WSL `eth0` as the outer point for this particular reported Docker Desktop probe. It does not by itself prove a proxy or explain where the connection was handled. A Windows-host physical/vEthernet capture, or a native-Linux host capture, is required to observe and correlate the other side. Keep TSO/GSO toggles separate from the vantage experiment. See `docs/planning/l3-contribution-plan.md` for the current plan and evidence gates.
