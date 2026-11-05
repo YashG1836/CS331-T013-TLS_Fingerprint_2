@@ -1,0 +1,2 @@
+python3 code/scripts/evaluate.py --check-only
+manifest valid: 16 capture(s) (15 with packets, 1 empty, 16 provisional)

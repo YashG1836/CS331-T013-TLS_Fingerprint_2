@@ -1,0 +1,9 @@
+source_sha256=21297e764bb3ad2a28553387ff213c677e0f75b483cceb5a6fb11efc357a3c74
+initial_crypto_frame_count=20
+case=baseline status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0
+case=reverse-record-order status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0
+case=shuffle-record-order status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0
+case=drop-one-initial-crypto-record status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0
+case=drop-every-third-initial-crypto-record status=ok reference=2 extracted=2 matched=2 recall=1.0 missed=0 extra=0
+case=truncate-middle-initial-crypto-record status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0
+results_json=/home/miloni/CS331-Phase2/results/track2/verification-batch-20261105-054047/quic-impairment/curl/impairment-results.json
