@@ -14,9 +14,12 @@ This repository is being rebuilt around the Project 2 research question: where d
 - [`docs/verification-batch.md`](docs/verification-batch.md): one-pass WSL verification and evidence-collection procedure.
 - [`DECISIONS.md`](DECISIONS.md): evidence-based working decisions and human approval gates (not a signed team record).
 - [`docs/tests/README.md`](docs/tests/README.md): imported T0–T7 empirical-lab explanations.
-- [`GLOSSARY.md`](GLOSSARY.md), [`PHASES.md`](PHASES.md), [`FILES_GUIDE.md`](FILES_GUIDE.md), [`VIVA_QUESTIONS.md`](VIVA_QUESTIONS.md), [`PRESENTATION_GUIDE.md`](PRESENTATION_GUIDE.md): adopted learning and presentation guides.
+- [`docs/glossary.md`](docs/glossary.md): comprehensive protocol glossary and RFC terminology.
+- [`PROJECT2_PROPOSAL.md`](PROJECT2_PROPOSAL.md): approved initial research and investigation proposal.
 - [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md): architecture, roles, evidence requirements, acceptance gates, and schedule.
-- [`report/report.md`](report/report.md) and [`ppt/slides.md`](ppt/slides.md): evidence-bounded final-submission drafts; quantitative report tables are generated from the committed batch with `python3 report/build_report.py`.
+- [`report/CS331_Phase2_Report_T013.docx`](report/CS331_Phase2_Report_T013.docx) & [`report/report_formal.md`](report/report_formal.md): formal 2-column project report adhering to course template.
+- [`ppt/CS331_Phase2_Presentation_T013.pptx`](ppt/CS331_Phase2_Presentation_T013.pptx) & [`ppt/slides_formal.md`](ppt/slides_formal.md): formal 16:9 presentation deck.
+- [`ai/README.md`](ai/README.md): AI usage disclosures and complete unedited conversation transcripts.
 
 ## Current implementation status
 
