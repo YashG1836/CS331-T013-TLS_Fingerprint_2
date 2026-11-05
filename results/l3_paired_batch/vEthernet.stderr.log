@@ -1,0 +1,4 @@
+Capturing on 'vEthernet (WSL (Hyper-V firewall))'
+File: C:\Temp\l3-paired-20261105-135735\windows-vethernet.pcapng
+Packets: 1 Packets: 23 Packets: 41 Packets: 67 Packets: 75 Packets: 76 Packets: 77 Packets: 78 Packets: 79 Packets: 80 Packets: 109 Packets: 140 Packets: 159 Packets: 160 Packets: 161 Packets: 162 Packets: 175 Packets captured: 175
+Packets received/dropped on interface 'vEthernet (WSL (Hyper-V firewall))': 175/0 (pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)

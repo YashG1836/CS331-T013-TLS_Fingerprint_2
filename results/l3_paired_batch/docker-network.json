@@ -1,0 +1,53 @@
+[
+    {
+        "Name": "l3probe-20261105-135735",
+        "Id": "e423f96213fc1bcdcf13effcdba26e5436f8448699a72eef296f9eefd6edc512",
+        "Created": "2026-11-05T08:27:39.529675124Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.21.0.0/16",
+                    "Gateway": "172.21.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {
+            "com.docker.network.bridge.name": "br-l3p135735",
+            "com.docker.network.enable_ipv4": "true",
+            "com.docker.network.enable_ipv6": "false"
+        },
+        "Labels": {},
+        "Containers": {
+            "b4d315344b33c810f0c6e753a3ad646f8b03f8e905b20ff98587e4af6286b6c9": {
+                "Name": "l3probe-20261105-135735",
+                "EndpointID": "ca6997bbcda5983aba235e2e179f1a667a7a306ddb8fad6b649077f801cd2297",
+                "MacAddress": "d6:1d:3c:01:6e:f2",
+                "IPv4Address": "172.21.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "172.21.0.0/16": {
+                        "IPsInUse": 4,
+                        "DynamicIPsAvailable": 65532
+                    }
+                }
+            }
+        }
+    }
+]
