@@ -4,6 +4,8 @@
 
 The JA4 details are anchored to FoxIO's [JA4 v1.0.1 source release](https://github.com/FoxIO-LLC/ja4/releases/tag/v1.0.1), especially its [README](https://github.com/FoxIO-LLC/ja4/blob/v1.0.1/README.md), [technical details](https://github.com/FoxIO-LLC/ja4/blob/v1.0.1/technical_details/README.md), and the [TLS implementation](https://github.com/FoxIO-LLC/ja4/blob/v1.0.1/python/ja4.py). JA3 formulas are documented by the [Salesforce JA3 repository](https://github.com/salesforce/ja3). These are algorithm sources, not standards-track RFCs.
 
+**Fingerprint field cards:** [JA3](basics/ja3.md) · [JA3S](basics/ja3s.md) · [JA4](basics/ja4.md) · [JA4S](basics/ja4s.md) · [JA4T](basics/ja4t.md) · [JA4X](basics/ja4x.md) · [JA4H](basics/ja4h.md).
+
 ## At-a-glance comparison
 
 | Fingerprint | Direction / layer and input | Construction and ordering / GREASE / hash | TLS-secret visibility | What it describes; limits |
