@@ -8,7 +8,7 @@
 **Team:** T013  
 **Authors:** Miloni Thakkar, Yash Goyal, Suhani, Laxmidhar Panda
 
-**Status:** Draft deck aligned with the project’s agreed engineering/evaluation contribution framing; final course-rubric review and submission sign-off remain open.
+**Status:** Team-approved author list and focused QUIC matrix are recorded. Evidence claims remain bounded; any separate instructor/course-rubric sign-off is not represented as complete here.
 
 > **Persistent evidence labels:** `WSL BATCH — user-run, artifacts committed/inspected; not independently reproduced in Arena` and `TRACK 1 — imported/team-supplied`. TShark 4.6.4 is the same-PCAP comparison reference, not independent ground truth.
 
@@ -23,7 +23,7 @@
 - Result framing: CID/state tracking is established QUIC-stack and analyzer practice, not the novelty claim.
 - Project contribution: the proposal’s “measured map plus one first step”—demonstrate a lightweight extractor’s packet-accounting blindspot, then design, implement, and evaluate `InitialContextAssociator`.
 
-**Speaker notes:** Keep focus on what a sensor can observe. A fingerprint is not an identity guarantee. The contribution is an engineering/evaluation result for lightweight passive extractors, not invention of stateful CID tracking as a QUIC protocol mechanism. Fill in approved team names/course details.
+**Speaker notes:** Keep focus on what a sensor can observe. A fingerprint is not an identity guarantee. The contribution is an engineering/evaluation result for lightweight passive extractors, not invention of stateful CID tracking as a QUIC protocol mechanism. The team-approved author list is shown above.
 
 **Evidence cue:** `report/report.md`, `DECISIONS.md`.
 
@@ -77,15 +77,16 @@ classic PCAP → Ethernet/IP/UDP → QUIC v1 Initial
 
 ## Slide 4 — Evaluation and provenance
 
-- Two committed baseline traces: curl and Chromium.
-- Six deterministic cases per trace: baseline, reverse order, shuffle, drop one selected Initial-CRYPTO record, drop every third selected record, truncate a selected record.
+- Two committed foundational stacks: curl/ngtcp2 and Chromium/QUICHE.
+- Team-approved focused matrix: six cases per stack (baseline, reverse order, shuffle, drop one selected Initial-CRYPTO record, drop every third selected record, truncate a selected record), five flows per case: **60 evaluated flows total**. This replaces the original four-client survey.
 - Byte comparison uses a **multiset of complete ClientHello bytes** from C++ and TShark on the **same PCAP variant**.
+- The C++ engine reassembles/extracts ClientHello bytes; JA4 calculation is intentionally delegated to the official FoxIO reference in Docker `cn-lab`.
 - WSL QUIC batch: TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5, Python 3.14.4. Docker `cn-lab` Track 1: TShark 4.4.19; FoxIO `ja4` tag `v0.18.6` reports 0.18.5, while `ja4-main` reports 0.18.6.
-- Build/tests: CTest **1/1**, pytest **52/52**.
+- Local verification reported on commit `b76fcab`: CTest **1/1**, pytest **52/52**, report generation **0 errors**.
 
 **Evidence label:** `WSL BATCH — user-run; source commit fa9fcdb; batch committed in 7a2584c`.
 
-**Speaker notes:** Batch files, logs, variant PCAPs, raw TShark exports, JSON, and script hashes are in `results/track2/verification-batch-20261105-105416/`. We inspected the artifacts and source hashes in this checkout, but did not rerun the WSL experiment in Arena. Keep WSL and Docker versions/results separate; the FoxIO tag and reported binary version are not interchangeable labels.
+**Speaker notes:** Batch files, logs, variant PCAPs, raw TShark exports, JSON, and script hashes are in `results/track2/verification-batch-20261105-105416/`. The user reports a later local clean build/test and report-generation run on `b76fcab`; it was not independently rerun in Arena. Keep WSL and Docker versions/results separate; the FoxIO tag and reported binary version are not interchangeable labels.
 
 ---
 

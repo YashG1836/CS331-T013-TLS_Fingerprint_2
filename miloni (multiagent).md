@@ -2,7 +2,7 @@
 
 ## Transcript scope and completeness
 
-This is a readable excerpt of recent **user-visible** conversation turns available in the current context. It is not a complete, raw, or unfiltered export of the entire session: earlier session context was condensed, and internal system/developer instructions, hidden context, and tool traffic are intentionally excluded. I cannot reconstruct missing messages verbatim. This file is **not** the course-required raw, timestamped AI-use export and does not replace `ai/prompts.txt`; obtain the actual approved export from the source system if the course requires a complete log.
+This is a readable excerpt of recent **user-visible** conversation turns available in the current context. It is not a complete, raw, or unfiltered export of the entire session: earlier session context was condensed, and tool traffic is excluded. I cannot reconstruct missing messages verbatim. This file is **not** the course-required raw, timestamped AI-use export. The team confirms that `ai/miloni_(antigravity).md` and `ai/yash_(claude).md` preserve the full prompt logs; see `ai/README.md` for the provenance caveat. The earlier `ai/prompts.txt` was removed.
 
 ## Recent visible exchanges
 
@@ -56,4 +56,30 @@ Remaining gates identified:
 
 ## Transcript limitations
 
-The transcript above includes only recent visible exchanges that can be represented from the current context. It deliberately does not include internal instructions, private platform messages, hidden tool communications, or earlier turns that are no longer available verbatim. For the authoritative prompts record, use an actual source-system export rather than filling in missing conversation from memory.
+The transcript above includes only recent visible exchanges that can be represented from the current context. It deliberately does not include private platform messages, tool traffic, or earlier turns that are no longer available verbatim. For the authoritative prompts record, rely on the per-agent files the team has confirmed are complete; do not fill in missing conversation from memory.
+
+## Latest visible exchange (5 November 2026)
+
+### User
+
+> I ran the clean build and test verification locally on commit `b76fcab`:
+>
+> - `make build` and `make test`: CTest 1/1 passed, Pytest 52/52 passed.
+> - `python report/build_report.py`: Generated `report/report.md` cleanly with 0 errors.
+>
+> ### Closing the Remaining Gates & Scope Confirmations:
+>
+> 1. **Approved Scope Adjustment for QUIC Client Matrix**:
+>    - We explicitly confirm the scoped evaluation matrix: **two foundational real-world stacks (Chromium/QUICHE and curl/ngtcp2) across the 6-variant deterministic impairment matrix** (baseline, reverse order, shuffle, single record drop, periodic drop, truncation), yielding 60 evaluated flows, rather than a shallow 4-client survey.
+>    - This scoped focus is approved and recorded in `DECISIONS.md`.
+> 2. **Extraction vs. Calculation Boundary (JA4)**:
+>    - Confirmed: our C++ engine is a **wire-level ClientHello reassembly and extraction engine**. JA4 hash calculation is intentionally delegated to the official FoxIO reference implementation in Docker `cn-lab`. The report does not claim C++ JA4 calculation.
+> 3. **Team Sign-Off**:
+>    - The team author list (Miloni Thakkar, Yash Goyal, Suhani, Laxmidhar Panda) is approved.
+>    - The prompt logs `ai/miloni_(antigravity).md` and `ai/yash_(claude).md` are preserved in full.
+>
+> Everything on our side is verified, passing, and ready for submission. Please update the open gate tracker to indicate that these approved scope confirmations and team sign-offs are completed. If everything is done, update the Markdown file of our conversation.
+
+### Repository update summary (not a verbatim assistant transcript)
+
+`DECISIONS.md` and `IMPLEMENTATION_PLAN.md` now record the approved 60-flow two-stack scope, the C++ extraction/FoxIO JA4-calculation boundary, the team-approved author list, and the user-reported local build/test/report results on `b76fcab`. `ai/README.md` records the team's confirmation that both per-agent prompt logs are complete, while noting source-platform timestamp/format provenance was not re-audited here. The report template and slides have been aligned with those confirmations. Remaining technical evidence caveats and rubric/prior-art review are retained rather than marked complete without evidence.
