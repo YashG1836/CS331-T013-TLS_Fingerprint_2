@@ -61,6 +61,9 @@ sha256sum \
   code/quic/src/CMakeLists.txt \
   code/quic/tests/test_core.cpp \
   code/scripts/tests/test_quic_stateful_accounting.py \
+  code/scripts/verify_all_seven_rows.py \
+  code/scripts/capture_ipv6_egress.sh \
+  code/scripts/tests/test_seven_rows_verification.py \
   > "$run_dir/script-sha256.txt"
 
 python3 code/scripts/preflight.py --output "$run_dir/preflight.json" \
@@ -105,6 +108,26 @@ python3 code/scripts/quic_impairment.py \
   --extractor build/code/quic/src/quic-fingerprint --tshark tshark --seed 331 \
   --stateful-initial-context \
   2>&1 | tee "$run_dir/quic-curl-stateful.log"
+
+# Includes a recordable ::1 TLS control, which is distinct from public IPv6 egress.
+# Exit 2 means an evidence row is incomplete (expected while global IPv6 egress is unavailable);
+# exit 1 means an explicit check failed and should stop the batch.
+set +e
+python3 code/scripts/verify_all_seven_rows.py \
+  --live --ipv6-loopback \
+  --ipv6-loopback-output-dir "$run_dir/ipv6-loopback" \
+  --output "$run_dir/seven-rows-live.json" \
+  2>&1 | tee "$run_dir/seven-rows-live.log"
+audit_status=${PIPESTATUS[0]}
+set -e
+if [[ $audit_status -eq 1 ]]; then
+  echo "seven-row live audit reported FAIL; preserve batch outputs for review" >&2
+  exit 1
+fi
+if [[ $audit_status -eq 2 ]]; then
+  echo "seven-row audit remains INCOMPLETE (for example, public IPv6 egress is not measured)" \
+    | tee "$run_dir/seven-rows-incomplete.txt"
+fi
 
 find "$run_dir" -type f ! -name SHA256SUMS -print0 \
   | sort -z | xargs -0 sha256sum > "$run_dir/SHA256SUMS"

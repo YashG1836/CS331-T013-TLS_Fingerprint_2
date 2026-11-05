@@ -17,6 +17,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import signal
 import socket
 import ssl
 import subprocess
@@ -641,7 +642,20 @@ def verify_l5() -> dict[str, Any]:
     }
 
 
-def live_ipv6_loopback() -> dict[str, Any]:
+def preserve_ipv6_loopback_capture(capture: Path, output_dir: Path, run_id: str | None = None) -> Path:
+    """Copy a reviewed local-loopback PCAP without retaining its temporary key/certificate."""
+    require(capture.is_file() and capture.stat().st_size > 24,
+            "cannot preserve an absent or empty IPv6 loopback capture")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    if run_id is None:
+        run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    destination = output_dir / f"ipv6-loopback-{run_id}.pcap"
+    require(not destination.exists(), f"refusing to overwrite existing IPv6 capture: {destination}")
+    shutil.copy2(capture, destination)
+    return destination
+
+
+def live_ipv6_loopback(output_dir: Path | None = None) -> dict[str, Any]:
     """Capture one real local TLS handshake on ::1; never call this public egress."""
     tcpdump = shutil.which("tcpdump")
     openssl = shutil.which("openssl")
@@ -683,8 +697,9 @@ def live_ipv6_loopback() -> dict[str, Any]:
                 listener.close()
         server = threading.Thread(target=serve, daemon=True)
         server.start()
+        tcpdump_command = [tcpdump, "-i", "lo", "-U", "-w", str(pcap), "ip6 and tcp port", str(port)]
         capture = subprocess.Popen(
-            [tcpdump, "-i", "lo", "-U", "-w", str(pcap), "ip6 and tcp port", str(port)],
+            tcpdump_command,
             cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
         )
         try:
@@ -704,7 +719,8 @@ def live_ipv6_loopback() -> dict[str, Any]:
             raise ToolUnavailable(f"could not perform controlled TLS exchange over ::1: {exc}") from exc
         finally:
             try:
-                capture.terminate()
+                if capture.poll() is None:
+                    capture.send_signal(signal.SIGINT)
                 _, stderr = capture.communicate(timeout=5)
             except (OSError, subprocess.TimeoutExpired):
                 capture.kill()
@@ -713,17 +729,53 @@ def live_ipv6_loopback() -> dict[str, Any]:
         require(not server.is_alive(), "loopback TLS server thread did not stop")
         require(not server_errors, f"loopback TLS server error: {server_errors}")
         require(pcap.is_file() and pcap.stat().st_size > 24, "tcpdump produced no packet-bearing IPv6 PCAP")
-        extraction = tshark_fields(
-            pcap, "ipv6 && tls.handshake.type == 1",
-            ["ipv6.src", "ipv6.dst", "tls.handshake.type", "tls.handshake.ja4"],
-        )
-        require(extraction["rows"] and all(row[3] for row in extraction["rows"] if len(row) > 3),
-                "controlled IPv6 loopback ClientHello JA4 not extracted")
-        return {"scope": "controlled local ::1 TLS only; not public IPv6 egress",
-                "interface": "lo", "server_address": "::1", "server_port": port,
-                "pcap_bytes": pcap.stat().st_size, "client_hello_rows": extraction["rows"],
-                "tshark_version": extraction["tshark_version"], "tshark_command": extraction["argv"],
-                "server_response_received": True}
+        output_dir = output_dir or (RESULTS_DIR / "ipv6-loopback")
+        preserved_pcap = preserve_ipv6_loopback_capture(pcap, output_dir)
+        capture_hash = hashlib.sha256(preserved_pcap.read_bytes()).hexdigest()
+        capture_ref = str(preserved_pcap.relative_to(ROOT)) if preserved_pcap.is_relative_to(ROOT) else str(preserved_pcap)
+        capture_metadata = {
+            "tcpdump_command": tcpdump_command,
+            "tcpdump_returncode": capture.returncode,
+            "tcpdump_stderr": stderr.strip(),
+        }
+        sidecar = preserved_pcap.with_suffix(".json")
+        try:
+            extraction = tshark_fields(
+                preserved_pcap, "ipv6 && tls.handshake.type == 1",
+                ["ipv6.src", "ipv6.dst", "tls.handshake.type", "tls.handshake.ja4"],
+            )
+            require(extraction["rows"] and all(row[3] for row in extraction["rows"] if len(row) > 3),
+                    f"controlled IPv6 loopback ClientHello JA4 not extracted; raw capture retained at {preserved_pcap}")
+        except Exception as exc:
+            failure_evidence = {
+                "scope": "controlled local ::1 TLS only; not public IPv6 egress",
+                "public_ipv6_egress": "NOT_TESTED",
+                "pcap_path": capture_ref,
+                "pcap_sha256": capture_hash,
+                "pcap_bytes": preserved_pcap.stat().st_size,
+                **capture_metadata,
+                "post_capture_validation_error": f"{type(exc).__name__}: {exc}",
+            }
+            sidecar.write_text(json.dumps(failure_evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            raise
+        evidence = {
+            "scope": "controlled local ::1 TLS only; not public IPv6 egress",
+            "public_ipv6_egress": "NOT_TESTED",
+            "interface": "lo",
+            "server_address": "::1",
+            "server_port": port,
+            "pcap_path": capture_ref,
+            "pcap_sha256": capture_hash,
+            "pcap_bytes": preserved_pcap.stat().st_size,
+            **capture_metadata,
+            "client_hello_rows": extraction["rows"],
+            "tshark_version": extraction["tshark_version"],
+            "tshark_command": extraction["argv"],
+            "server_response_received": True,
+        }
+        sidecar.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        evidence["evidence_json_path"] = str(sidecar.relative_to(ROOT)) if sidecar.is_relative_to(ROOT) else str(sidecar)
+        return evidence
 
 
 def verify_l6() -> dict[str, Any]:
@@ -808,7 +860,10 @@ def overall_status(rows: dict[str, dict[str, Any]]) -> str:
     return "INCOMPLETE"
 
 
-def run_all(*, live: bool = False, ipv6_loopback: bool = False) -> dict[str, Any]:
+def run_all(
+    *, live: bool = False, ipv6_loopback: bool = False,
+    ipv6_loopback_output_dir: Path | None = None,
+) -> dict[str, Any]:
     verifiers = {
         "L1_QUIC": verify_l1,
         "L2_TLS_SECRETS": verify_l2,
@@ -831,8 +886,11 @@ def run_all(*, live: bool = False, ipv6_loopback: bool = False) -> dict[str, Any
         "L3_VANTAGE_OFFLOAD": {"status": "NOT_RUN", "reason": "live mode disabled"},
         "L4_PQ_MLKEM": {"status": "NOT_RUN", "reason": "live mode disabled"},
         "L5_GREASE_STABILITY": {"status": "NOT_RUN", "reason": "live mode disabled"},
-        "L6_IPV6": live_result(live_ipv6_loopback, enabled=ipv6_loopback,
-                               not_run_reason="use --ipv6-loopback to attempt a real ::1 capture; public IPv6 egress is not tested"),
+        "L6_IPV6": live_result(
+            lambda: live_ipv6_loopback(ipv6_loopback_output_dir),
+            enabled=ipv6_loopback,
+            not_run_reason="use --ipv6-loopback to attempt a real ::1 capture; public IPv6 egress is not tested",
+        ),
         "L7_ECH": {"status": "NOT_RUN", "reason": "live mode disabled"},
     }
     if live:
@@ -850,7 +908,11 @@ def run_all(*, live: bool = False, ipv6_loopback: bool = False) -> dict[str, Any
         "verification_mode": "offline evidence audit plus optional fresh tool re-dissection and controlled local IPv6 loopback capture",
         "overall_status": status,
         "overall_live_status": live_status,
-        "live_options": {"live_tool_checks_requested": live, "ipv6_loopback_requested": ipv6_loopback},
+        "live_options": {
+            "live_tool_checks_requested": live,
+            "ipv6_loopback_requested": ipv6_loopback,
+            "ipv6_loopback_output_dir": str(ipv6_loopback_output_dir or (RESULTS_DIR / "ipv6-loopback")) if ipv6_loopback else None,
+        },
         "exit_code": 0 if status == "PASS" else (1 if status == "FAIL" else 2),
         "rows": rows,
         "live_checks": live_checks,
@@ -862,19 +924,35 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--live", action="store_true", help="attempt C++ and TShark checks on the committed captures")
     parser.add_argument("--ipv6-loopback", action="store_true", help="attempt a fresh local ::1 TLS capture; this does not test public IPv6 egress")
+    parser.add_argument("--ipv6-loopback-output-dir", type=Path, default=RESULTS_DIR / "ipv6-loopback",
+                        help="directory for the packet-bearing loopback PCAP and metadata JSON")
+    parser.add_argument("--output", type=Path, default=SUMMARY_PATH,
+                        help="write the seven-row summary JSON here (default: results/reproduced/...)")
     args = parser.parse_args()
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    summary = run_all(live=args.live, ipv6_loopback=args.ipv6_loopback)
-    temporary = SUMMARY_PATH.with_suffix(".json.tmp")
+    summary = run_all(
+        live=args.live,
+        ipv6_loopback=args.ipv6_loopback,
+        ipv6_loopback_output_dir=args.ipv6_loopback_output_dir.expanduser().resolve(),
+    )
+    output_path = args.output.expanduser().resolve()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = output_path.with_name(output_path.name + ".tmp")
     temporary.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    os.replace(temporary, SUMMARY_PATH)
+    os.replace(temporary, output_path)
     passed = sum(row.get("status") == "PASS" for row in summary["rows"].values())
     print(f"Seven-row artifact audit: {passed}/7 PASS; overall={summary['overall_status']}; live={summary['overall_live_status']}")
     for name, row in summary["rows"].items():
         live_status = summary["live_checks"][name].get("status")
         print(f"  {name}: artifacts={row.get('status')} live={live_status}")
-    print(f"Summary: {SUMMARY_PATH}")
-    return 0 if summary["overall_status"] == "PASS" else 2
+    print(f"Summary: {output_path}")
+    if summary["overall_status"] == "FAIL" or summary["overall_live_status"] == "FAIL":
+        return 1
+    if summary["overall_status"] != "PASS":
+        return 2
+    if (args.live or args.ipv6_loopback) and summary["overall_live_status"] != "PASS":
+        return 2
+    return 0
 
 
 if __name__ == "__main__":

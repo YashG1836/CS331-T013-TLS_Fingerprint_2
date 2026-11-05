@@ -29,7 +29,18 @@ The batch preserves `cases.json`, per-case variant PCAPs, TShark raw `jsonraw` e
 
 The committed header inventory identifies five UDP flows in each capture. Each flow has an initial client DCID and later client Initial packet(s) whose DCID matches a server Initial SCID. The legacy logs show five extra switched-DCID alias buckets per trace; Chromium has 16 client Initial records with 10 successes/6 failures, and curl has 20 with 10 successes/10 failures. These are later **client-to-server** packets, not server-direction attempts or missed ClientHellos. RFC 9001 §5.2 derives Initial secrets from the original client Initial DCID (with Retry-specific handling), while the legacy CLI derives from each packet's current DCID. See `docs/quic/implementation-status.md` and `results/track2/quic-initial-dcid-inventory.json`.
 
-The broad extraction/reordering/loss/truncation comparison shows no gap relative to TShark in tested conditions, so no recall gain is claimed. A stateful 4-tuple/SCID association and harness mode have now been added to measure packet-level accounting with separate client/server packet-number contexts. Arena syntax checks passed for modified C++ files, but the stateful executable and TShark 4.6.4 before/after comparison are not yet run here; post-change results remain pending WSL.
+The broad extraction/reordering/loss/truncation comparison shows no gap relative to TShark in tested conditions, so no recall gain is claimed. A stateful 4-tuple/SCID association and harness mode have been added with separate client/server packet-number contexts. The user now reports a positive WSL before/after result; details and evidence provenance are recorded below. Do not generalize the legacy prototype's failure to Wireshark/TShark: the existing TShark comparison recovered five complete hellos per trace, and no TShark per-packet failure count was supplied.
+
+## User-reported post-change WSL validation (5 November 2026)
+
+The user reports pulling commit `35a3462` into Ubuntu WSL, completing the live CMake build, passing CTest `quic_core_tests` **1/1** and pytest **51/51**, and running `verify_all_seven_rows.py --live`. Reported row states: L1/L2/L3/L4/L5/L7 **PASS** for artifact plus live checks; L6 **NOT_MEASURED** because this uplink has no global IPv6 route. The command logs, environment snapshot, seven-row JSON, and stateful per-connection output are not yet retained in this checkout; these outcomes are therefore user-reported, not independently inspected here.
+
+| Trace | Client Initial records | Legacy client decrypted / failed | Switched aliases / alias packets | Stateful client decrypted / failed | Complete ClientHellos, legacy / stateful |
+|---|---:|---:|---:|---:|---:|
+| curl | 20 | 10 / 10 | 5 / 10 | 20 / 0 | 5 / 5 |
+| Chromium | 16 | 10 / 6 | 5 / 6 | 16 / 0 | 5 / 5 |
+
+The reported packet-level improvement is +10 decrypted curl Initial records and +6 Chromium records. Five alias buckets are distinct DCID values; 10/6 are packet records. The supplied summary reports 5/5 complete ClientHellos in both modes but does not state an explicit post-stateful byte-for-byte comparison with TShark 4.6.4. Add that output before making a byte-identity claim. No increased ClientHello extraction recall is claimed.
 
 ## L3 SYN analysis and capture-vantage boundary
 
@@ -48,6 +59,6 @@ The newer committed L3 batch has three manually correlated container/Wi-Fi pairs
 
 ## Original-contribution status
 
-- Broad QUIC Initial recovery/reassembly: **not a contribution claim** for the measured conditions; no ClientHello recall gap was shown. Stateful Initial context/accounting is the **primary investigation**, implementation added but WSL before/after and TShark comparison still pending.
+- Broad QUIC Initial recovery/reassembly: **not a contribution claim** for the measured conditions; no ClientHello recall gap was shown. Stateful Initial context/accounting is the **primary engineering result**, with positive user-reported WSL counters; raw outputs and the explicit post-stateful TShark byte comparison still need to be archived/confirmed.
 - L3 capture-vantage/JA4T attribution: **secondary limitation investigation, not a result**. Three timing-correlated pairs show distinct handshakes, but no termination mechanism or fingerprint misattribution is proven.
 - Final contribution choice, course-rubric interpretation, and team approval remain open. See `DECISIONS.md`, `LEDGER.md`, `docs/landscape.md`, and `docs/l3-contribution-plan.md`.

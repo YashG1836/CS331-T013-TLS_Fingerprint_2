@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -10,7 +12,12 @@ SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
-from verify_all_seven_rows import ToolUnavailable, live_result, run_all  # noqa: E402
+from verify_all_seven_rows import (  # noqa: E402
+    ToolUnavailable,
+    live_result,
+    preserve_ipv6_loopback_capture,
+    run_all,
+)
 
 
 class SevenRowsArtifactAuditTests(unittest.TestCase):
@@ -63,6 +70,19 @@ class SevenRowsArtifactAuditTests(unittest.TestCase):
         self.assertEqual(row["distinct_saved_ja4"], 15)
         self.assertEqual(len(row["distinct_first_signature_grease_values"]), 15)
         self.assertTrue(any("not 50 newly generated" in item for item in row["limits"]))
+
+    def test_loopback_capture_preserver_keeps_pcap_and_refuses_overwrite(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "temporary.pcap"
+            payload = bytes(range(40))
+            source.write_bytes(payload)
+            output_dir = root / "evidence"
+            saved = preserve_ipv6_loopback_capture(source, output_dir, run_id="test-run")
+            self.assertEqual(saved.read_bytes(), payload)
+            self.assertEqual(hashlib.sha256(saved.read_bytes()).hexdigest(), hashlib.sha256(payload).hexdigest())
+            with self.assertRaisesRegex(RuntimeError, "refusing to overwrite"):
+                preserve_ipv6_loopback_capture(source, output_dir, run_id="test-run")
 
     def test_l6_empty_pcap_remains_unmeasured(self) -> None:
         row = self.rows["L6_IPV6"]
