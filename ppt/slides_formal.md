@@ -1,150 +1,113 @@
-# Where Protocol Fingerprints Stop
-## Stateful QUIC Initial Accounting and Capture-Vantage Limits
+# Slides: text and speaker notes
 
-**CS331 Computer Networks (Fall 2026) — Final Project Presentation**  
-**Instructor:** Dr. Sameer G. Kulkarni | **Team ID:** T013  
-**Members:** Miloni Thakkar, Yash Goyal, Suhani, Laxmidhar Panda  
-**Repository:** `https://github.com/milonithakkar/CS331-Phase2` (Branch: `arena/0d29f32c-cs331-phase2`)
+Text of `CS331_Phase2_Presentation_T013.pptx` (8 slides), with what to say on each slide.
+Every number here is also in `LEDGER.md`, `docs/tests/` or `results/`.
 
 ---
 
-## Slide 1: Problem & Research Motivation
+## 1. Where do real TLS fingerprinting tools stop working?
+Seven limits of TShark and FoxIO ja4 on real captures, and our own QUIC Initial extractor in C++.
 
-### When does a passive fingerprint describe the observed network leg rather than the true endpoint?
-- **The Core Illusion:** Transport (JA4T) and TLS (JA3/JA4) fingerprinting assume observed wire metadata reflects the end-host application and operating system.
-- **The Reality:** 
-  1. Virtual bridges, hypervisors, and offload engines actively alter transport headers (rewriting MSS, TTL, and Window Scales).
-  2. TLS 1.3 and ECH encrypt certificates, SNIs, and headers, blinding passive sensors.
-  3. **QUIC Connection ID Rotation:** In QUIC v1, server-driven CID changes cause stateless, per-datagram decoders to fail on subsequent Initial packets.
-- **Our Goal:** Deliver a measured, empirical limitation map across 7 protocol dimensions and engineer a stateful C++20 QUIC associator that resolves post-switch decryption failures.
+| Member | Roll No. | Main work |
+|---|---|---|
+| Miloni Thakkar | 24110204 | C++ QUIC extractor, WSL batches, L3 paired capture |
+| Suhani | 24110358 | Design, verification, fingerprint landscape |
+| Yash Goyal | 24110399 | Docker lab, Track 1 captures (L1 to L7) |
+| Laxmidhar Panda | 24110185 | L3 TCP analysis, presentation |
 
----
-
-## Slide 2: Deliverable A — Protocol Landscape (JA3 vs. JA4+)
-
-| Fingerprint | Network Layer | Observable Fields Used | RFC Anchor | Passive Tap Visibility Limit |
-|:---|:---|:---|:---|:---|
-| **JA3 / JA3S** | TLS Handshake | Client/ServerHello Version, Ciphers, Extensions, Elliptic Curves, Formats | RFC 8446 / RFC 5246 | Visible in plaintext TLS 1.2/1.3 ClientHello; blinded by ECH inner hello. |
-| **JA4** | Transport + TLS | Protocol marker (`t`/`q`), TLS ver, SNI flag, Cipher/Ext counts, Sorted hashes | RFC 8446 / RFC 9001 | Requires Initial decryption in QUIC; extensions masked under ECH. |
-| **JA4T / JA4TS** | TCP Transport | SYN Receive Window, Option Kind sequence, MSS, Window Scale | RFC 9293 / RFC 793 | Rewritten by NATs, virtual switches (Hyper-V), and offload hardware (TSO/GSO). |
-| **JA4X** | Certificate | X.509 Certificate Chain: Issuer, Subject DN, Ext OIDs | RFC 5280 | **Completely encrypted in TLS 1.3**; passive wire taps cannot compute without secrets. |
-| **JA4H** | HTTP Layer | Method, HTTP version, Header sequence, Cookie presence | RFC 9110 | Encrypted under TLS; invisible to passive network observers without private keys. |
+**Say:** In Phase 1 we wrote our own fingerprint code. Sir asked us to take the tools people really use, TShark and FoxIO ja4, find where they stop working, and look at QUIC. Track 1 is seven real-capture tests. Track 2 is our own C++ QUIC Initial extractor.
 
 ---
 
-## Slide 3: The QUIC Architecture & Our Original Contribution
+## 2. What a fingerprint is, and what we did
+- JA4 of Chromium from our capture: `t13d1517h2_8daaf6152771_cb7bf5808d99`
+  - `t13d1517h2`: TCP, TLS 1.3, has a site name, 15 ciphers, 17 extensions, HTTP/2
+  - `8daaf6152771`: hash of the cipher list, sorted
+  - `cb7bf5808d99`: hash of the extensions and signature algorithms, sorted
+- Phase 1: our own JA3/JA4 code in Python; some numbers did not come back when re-run.
+- Phase 2: use the real tools, find where they break, do QUIC.
+- Every test: change one thing, capture with tcpdump (Linux in Docker), read with TShark (C) and FoxIO ja4 (Rust), save one number with its pcap.
 
-### The Post-Switch DCID Decryption Blindspot (RFC 9001 §5.2)
-
-```
-[ Client ]                                                              [ Server ]
-    |                                                                       |
-    |---- 1. Client Initial (DCID A, SCID C) ------------------------------>|
-    |     [Keys derived from random DCID A]                                 |
-    |                                                                       |
-    |<--- 2. Server Initial (DCID C, SCID B) -------------------------------|
-    |     [Server chooses and announces SCID B]                             |
-    |                                                                       |
-    |---- 3. Client Subsequent Initial / ACK (DCID B) --------------------->|
-    |     [RFC 9001: Initial secrets STILL anchored to original DCID A!]    |
-    v                                                                       v
-  [ Stateless Extractor ] ---> Tries to derive keys from DCID B ---> DECRYPTION FAILS!
-  [ Our Stateful Associator ] -> Maps SCID B -> DCID A ---------> DECRYPTION SUCCEEDS!
-```
-
-- **Our Solution (`InitialContextAssociator` in C++20):**
-  - Tracks a direction-normalized UDP 4-tuple (`Client Endpoint <-> Server Endpoint`).
-  - Automatically records server SCID announcements as connection aliases.
-  - Transparently resolves subsequent client packets carrying DCID $B$ back to original Initial context $A$.
+**Say:** The ClientHello is the first message and is not encrypted. A fingerprint points to a TLS library and its settings, never to a person. We do not compute fingerprints ourselves.
 
 ---
 
-## Slide 4: Empirical Evaluation — Stateful Decryption Breakthrough
+## 3. Seven limitations at a glance
 
-### Quantitative Before / After Evaluation on Live Network Traces:
+| | What changed | Question | What we saw | Status |
+|---|---|---|---|---|
+| L1 | QUIC | Can the tools read the ClientHello? | Yes: 5/5, even when split into 21 pieces | Guess was wrong |
+| L2 | TLS 1.3 encrypts the certificate | Which fingerprints need the keys? | JA4X + JA4H: 0 without keys, 5 with keys | Confirmed |
+| L3 | Offload, proxies | Does the capture point matter? | 1 frame of 1586 B vs 1514 + 138 B; MSS 65495 from Docker | Confirmed |
+| L4 | Post-quantum key share | Does a bigger hello change JA4? | 508 B to 1511 B; JA4 changes | Confirmed |
+| L5 | GREASE, shuffling | Is one browser one JA4? | 15 JA4s or 1, depending on the tool version | Confirmed |
+| L6 | IPv6 | Does the IP version matter? | No IPv6 route: capture has 0 packets | Not measured |
+| L7 | ECH | Is the site name hidden? | Hidden in TLS, still visible in DNS | Confirmed |
 
-| Evaluation Metric | `quic_curl.pcap` (Baseline Stateless) | `quic_curl.pcap` (Stateful Associator) | `quic_chromium.pcap` (Baseline Stateless) | `quic_chromium.pcap` (Stateful Associator) |
-|:---|:---:|:---:|:---:|:---:|
-| **UDP 4-Tuple Connections** | 5 | 5 | 5 | 5 |
-| **Total Client Initial Packets** | 20 | 20 | 16 | 16 |
-| **Decrypted Client Packets** | 10 (50%) | **20 (100%)** | 10 (62.5%) | **16 (100%)** |
-| **Decryption Failures** | 10 (50%) | **0 (0%)** | 6 (37.5%) | **0 (0%)** |
-| **Packet Accounting Gain** | Baseline | **+10 Decrypted** | Baseline | **+6 Decrypted** |
-| **Complete ClientHellos Extracted** | 5 / 5 | 5 / 5 | 5 / 5 | 5 / 5 |
-| **TShark 4.6.4 Reference Byte Match** | 5 / 5 (100%) | **5 / 5 (100%)** | 5 / 5 (100%) | **5 / 5 (100%)** |
-
-> **Key Finding:** Stateful context association completely eliminates internal decryption failures (16 packets recovered across both traces) while maintaining 100% byte-for-byte parity with reference dissectors.
+**Say:** One row per test; each has its own file in `docs/tests/` with what it does not prove.
 
 ---
 
-## Slide 5: Characterizing the Causal Wire-Order Boundary
+## 4. L5: one Chromium gives 15 JA4s or 1, depending on the tool
+Same pcap, same 50 ClientHellos from Chromium 156.
+- **50** different JA3s: JA3 keeps the extension order, and Chromium shuffles it.
+- **15** different JA4s: TShark 4.4.19 and 4.6.8, FoxIO ja4 v0.18.6.
+- **1** JA4: FoxIO ja4 v1.0.1 (Aug 2026) and FoxIO main.
+- Why: Chromium puts a random GREASE value (RFC 8701) first in its signature algorithms; 15 different values appear. FoxIO fixed this in commit d66336e, first released in v1.0.1. TShark 4.6.8 still counts it.
+- Meaning: a JA4 list made with one tool misses most Chromium connections seen by another. Store the tool and version with every fingerprint. Control: curl and Python gave 1 JA3 and 1 JA4 each.
 
-### What happens when network packets arrive out of order?
-We benchmarked the stateful associator against a 6-condition deterministic impairment matrix across 60 evaluated flows:
-
-| Impairment Condition | Curl Matched / Ref | Chromium Matched / Ref | Algorithmic Root Cause / Causal Analysis |
-|:---|:---:|:---:|:---|
-| **Natural Wire Order** | **5 / 5 (100%)** | **5 / 5 (100%)** | Chronological ordering preserves causal alias learning ($A \to B$). |
-| **Reverse Record Order** | **0 / 5 (0%)** | **0 / 5 (0%)** | Causal breakdown: post-switch client packets arrive *before* the server's SCID announcement. |
-| **Shuffle Record Order** | **4 / 5 (80%)** | **4 / 5 (80%)** | In 1 flow, packet reordering caused post-switch datagram to arrive prior to server reply. |
-| **Drop One Record** | **5 / 5 (100%)** | **5 / 5 (100%)** | Frame reassembly successfully bridges non-essential padding segments. |
-| **Drop Every 3rd Record** | **2 / 2 (100%)** | **2 / 2 (100%)** | 3 handshakes lost required CRYPTO bytes; extracts 100% of surviving TShark hellos. |
-| **Truncate Middle (64 B)** | **5 / 5 (100%)** | **5 / 5 (100%)** | Partial packet truncation did not sever the initial handshake range. |
+**Say:** It is not a new bug; FoxIO already fixed it. What we show is that tools in use today still disagree. Commands: `results/track1/recheck-20261106.md`.
 
 ---
 
-## Slide 6: Deliverable B — The Seven Limitation Rows Audit
+## 5. L3: TCP fingerprints describe the nearest TCP stack
+- Mac lab, offload on vs off (MTU 1500): 1 frame of 1586 B vs 2 frames (1514 + 138 B); JA4 the same.
+- SYN-ACK seen in the container: MSS 65495, TTL 63. Impossible on a 1500-byte path; made by Docker's network proxy.
+- Windows lab, same connection at two capture points:
 
-| Row | Limitation Scenario | Evaluated PCAP Trace | Reference Tool Behavior | Status | Core Empirical Finding |
-|:---:|:---|:---|:---|:---:|:---|
-| **L1** | **QUIC v1 ClientHello** | `quic_curl`, `quic_chromium` | TShark 4.6.4 / FoxIO JA4 | **PASS** | 54/54 exact byte matches across impairment matrix; stateful accounting eliminates blindspot. |
-| **L2** | **TLS Secrets / Keylog** | `tls_keylog_curl.pcap` | TShark / FoxIO JA4X / JA4H | **PASS** | Passive tap extracts **0 JA4X/JA4H** without keys; **5 records** visible with session keylog. |
-| **L3** | **Vantage & Offload** | `tls_offload_on/off.pcap` | TShark / `l3_proxy_sanity.py` | **PASS** | Hardware offload advertises peer MSS `65495`; multi-vantage probe proves separate TCP legs. |
-| **L4** | **Post-Quantum Key Share** | `tls_pq_on/off.pcap` | TShark / FoxIO JA4 | **PASS** | `tls.handshake.length` increases from 508 B (X25519) to **1511 B** (ML-KEM768). |
-| **L5** | **GREASE Stability** | `tls_chromium_repeat.pcap` | TShark / FoxIO JA4 | **PASS** | 50 Chromium handshakes produce **50 distinct JA3** and **15 distinct JA4** hashes. |
-| **L6** | **IPv6 Observation** | `tls_ipv6.pcap` | Host Routing Table | **NOT_MEASURED** | Environment limitation: physical testbed uplink lacks global IPv6 routing. |
-| **L7** | **ECH & Encrypted DNS** | `tls_ech_on/off/doh.pcap` | TShark / FoxIO JA4 | **PASS** | Outer SNI masked (`cloudflare-ech.com`); DoH client directed to `cloudflare-dns.com`. |
+| Client SYN | Inside container | On Wi-Fi card |
+|---|---|---|
+| TTL | 64 | 128 |
+| Window | 64240 | 65535 |
+| Window scale | 10 | 8 |
+| MSS | 1460 | 1460 |
+| TCP timestamps | yes | no |
 
----
+- Different ISN: Windows opened a new TCP connection. A Linux VM behind normal NAT kept its values (only TTL 64 to 63).
+- A NAT keeps the TCP fingerprint; a proxy replaces it. JA4T on the Wi-Fi describes Windows, not the Linux container.
 
-## Slide 7: L3 Multi-Vantage Synchronized Capture Discovery
-
-### What happens to TCP fingerprints across virtual network boundaries?
-We executed a synchronized 4-vantage packet capture during a live controlled HTTPS probe:
-
-```
-[ Container (cn-lab) ]  ---> ISN=3419821880, TTL=64, WScale=10, MSS=1460 (Linux OS Default)
-           |
-           v
-[ WSL2 Linux Bridge ]   ---> Traffic completely bypasses WSL2 eth0 (0 packets observed)
-           |
-           v
-[ Hyper-V Virtual Switch] -> Managed directly by Windows host utility VM
-           |
-           v
-[ Windows Physical Wi-Fi] -> ISN=168828592, TTL=128, WScale=8, MSS=1400 (Windows NT OS Default!)
-```
-
-### The Attribution Vulnerability:
-1. Virtual switches terminate the TCP connection and establish a distinct outer leg.
-2. The initial sequence number (ISN), TTL (64 $\to$ 128), and Window Scale (10 $\to$ 8) are completely replaced by the Windows host networking stack.
-3. **Passive Fingerprint Failure:** A sensor at the perimeter calculating **JA4T** concludes the client is Windows, misattributing the actual containerized Linux workload.
+**Say:** Data in `docs/tests/T3_vantage_offload.md` and `results/l3_paired_batch/`.
 
 ---
 
-## Slide 8: Summary, Limitations & Viva Defense
+## 6. Keys, post-quantum and ECH: what an observer still sees
+- **L2:** JA4X + JA4H 0 without keys, 5 with keys (4 certificates + 1 HTTP request). Everything after the ServerHello is encrypted in TLS 1.3; a real tap only gets JA4 and JA4S.
+- **L4:** ClientHello 508 B (X25519) vs 1511 B (X25519MLKEM768); key share 32 B vs 1216 B. JA4 changes (14 to 12 extensions) through side effects: no `ec_point_formats`, no padding extension.
+- **L7:** ECH on: SNI `cloudflare-ech.com`, but plain DNS still asks for `crypto.cloudflare.com`. DoH did not work on campus, so that case is not measured.
 
-### Project Summary:
-- **Deliverable A:** Field-by-field landscape across 7 fingerprint algorithms anchored in RFC specifications.
-- **Deliverable B:** Audited 7-limitation matrix backed by 16 checksummed PCAP artifacts.
-- **Deliverable C:** Engineered the C++20 `InitialContextAssociator`, eliminating 16 QUIC decryption failures and characterizing the causal ordering limit.
+---
 
-### Known Limitations & Future Work:
-1. **QUIC Retry (RFC 9001 §5.2.2):** Current engine recognizes Retry packets but does not trigger key-rotation transitions for Retry SCIDs.
-2. **Causal Ordering:** Single-pass streaming association fails under reversed wire arrival; requires bounded out-of-order reassembly buffers.
-3. **IPv6 Egress:** Unmeasured due to absence of an ISP-assigned IPv6 global route.
+## 7. Track 2: our own QUIC Initial extractor in C++20
+- Steps: read pcap (Ethernet, IP, UDP) -> QUIC header (RFC 9000 §17.2) -> Initial keys (RFC 9001 §5.2) -> decrypt (AES-128-GCM) -> join CRYPTO by offset -> ClientHello, same bytes as TShark.
+- Connection ID switch: the first Initial uses ID A and keys come from A; the server picks ID B; the client's next Initials carry B but keys still come from A. A stateless extractor fails on every packet with B; our stateful mode remembers A per UDP 4-tuple.
 
-### Reproducibility:
-- **Repository:** `https://github.com/milonithakkar/CS331-Phase2`
-- **Commands:** `make build && make test && python3 code/scripts/verify_all_seven_rows.py --live`
-- **Test Status:** 1/1 CTest passed, 52/52 Pytest passed in 0.58s.
+| | curl | Chromium |
+|---|---|---|
+| Client Initial packets | 20 | 16 |
+| Decrypted, stateless | 10 | 10 |
+| Decrypted, stateful | 20 | 16 |
+| ClientHellos = TShark (both modes) | 5/5 | 5/5 |
+| Reversed order: stateless / stateful | 5/5 / 0/5 | 5/5 / 0/5 |
+
+- TShark already handles the switch; our stateful mode now matches it. In our pcaps the later packets hold only ACK + PADDING, so the JA4 does not change. Reordering is a known weak point.
+
+**Say:** Key derivation is checked against the RFC 9001 Appendix A vector. Data: `results/track2/verification-batch-20261105-105416/`.
+
+---
+
+## 8. What we take away
+- Findings: QUIC does not stop fingerprinting (L1). A fingerprint depends on the tool version and on where you capture, not only on the client (L5, L3). Without keys you lose JA4X and JA4H; ECH without encrypted DNS still leaks the site name (L2, L7).
+- Not covered: IPv6; one network, inside Docker; one site, three clients; QUIC Retry, migration, v2; stateful mode and reordering.
+- Re-run: `make test` (CTest 1/1, pytest 52), `make check` (16 pcaps match SHA-256), `make lab-eval` (TShark + FoxIO on every pcap).
+
+**Demo if asked:** `make test`; `./build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_curl.pcap`; the TShark command in `results/track1/recheck-20261106.md` that counts 15 JA4s.

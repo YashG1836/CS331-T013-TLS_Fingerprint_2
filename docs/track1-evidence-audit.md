@@ -1,5 +1,7 @@
 # Track 1 evidence audit and cross-check
 
+> **Update 6 Nov 2026:** the open points below for L3 (1586 B frame, 1514 + 138 split, SYN-ACK MSS 65495), L5 (`ja4-main` = 1, GREASE cause, now also FoxIO v1.0.1 = 1) and L7 (DNS name, DoH run) were re-checked directly on the committed pcaps. Commands and outputs: [`results/track1/recheck-20261106.md`](../results/track1/recheck-20261106.md).
+
 ## Source and scope
 
 The Track 1 capture set and reports were imported from Yash's repository snapshot, source commit [`b1ffd7c65ae47af1b62184549262ef838c4a234d`](https://github.com/YashG1836/CS331-T013-TLS_Fingerprint_2/commit/b1ffd7c65ae47af1b62184549262ef838c4a234d). The branch ZIP SHA-256 was `044fe1a27924cb63e13a26708f1a8d402454d49e3fa7ca8547f8fac28f2f603e`. The archive contains 15 `.pcap` files, 15 corresponding raw analysis JSON files, and the supplied summary. All PCAP record framing was checked during import: 14 files contain packets; `tls_ipv6.pcap` is only a 24-byte PCAP global header with zero packet records. Checksums are recorded per capture in `captures/metadata/` and validated by `make check`.

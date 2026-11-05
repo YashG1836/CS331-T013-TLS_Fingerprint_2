@@ -45,7 +45,8 @@ At least one tool misses or mis-builds the QUIC ClientHello.
 
 ## What it means
 - **Hypothesis wrong.** Wireshark 4.4 + FoxIO 0.18 handle normal, complete QUIC captures, even Chromium's deliberately fragmented hello. A negative result is still a result.
-- In these team-supplied captures, QUIC v1 Initial protection did not prevent the reference tools from exposing ClientHellos. Separately, the current C++ CLI recovers five complete ClientHellos from each PCAP. A user-run WSL batch is now committed at `results/track2/verification-batch-20261104-201936/`; its hashes and result JSON were inspected in this checkout, and it reports 54/54 exact-byte multiset matches against TShark across two traces and six cases each. This is user-run evidence, not an independent Arena rerun or proof of broad correctness; TShark is the reference on each same PCAP variant. The earlier standalone `tls.handshake_raw` export/script is not retained separately. QUIC Initial keys are derivable from public protocol inputs, while later QUIC Handshake packet protection is a separate boundary.
+- QUIC Initial encryption does not hide the ClientHello: the keys come from the connection ID, which anyone can read (RFC 9001 §5.2).
+- Track 2: our own C++ extractor gets the same 5 ClientHellos, byte for byte equal to TShark, on these two pcaps and on 5 damaged copies of each (54/54 hellos, `results/track2/verification-batch-20261104-201936/`). See `docs/quic/implementation-status.md`.
 
 ## What it does NOT prove (open → Track 2)
 - **Connection migration** (sir's point): after the client changes network, the new path has no ClientHello at all (RFC 9000 §9). Not tested.

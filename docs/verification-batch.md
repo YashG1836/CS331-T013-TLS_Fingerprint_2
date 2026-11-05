@@ -1,6 +1,6 @@
 # One-pass WSL verification batch
 
-The batch runner produces a dated, tracked evidence directory without staging or committing files. The 4 November user-run WSL batch at `results/track2/verification-batch-20261104-201936/` predates the stateful mode. The updated runner was run in Ubuntu WSL on 5 November against source commit `fa9fcdb`; its results, logs, variant PCAPs, per-case JSON, and seven-row JSON are committed at `results/track2/verification-batch-20261105-105416/` (batch commit `7a2584c`). This makes the post-change output inspectable in this checkout, but does not make the WSL execution an independent Arena reproduction.
+The batch runner produces a dated, tracked evidence directory without staging or committing files. The 4 November user-run WSL batch at `results/track2/verification-batch-20261104-201936/` predates the stateful mode. The updated runner was run in Ubuntu WSL on 5 November against source commit `fa9fcdb`; its results, logs, variant PCAPs, per-case JSON, and seven-row JSON are committed at `results/track2/verification-batch-20261105-105416/` (batch commit `03e89b8`). This makes the post-change output inspectable in this checkout, but does not make the WSL execution an independent Arena reproduction.
 
 ## What the batch records
 

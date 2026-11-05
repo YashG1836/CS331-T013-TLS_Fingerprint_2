@@ -1,3 +1,6 @@
 # Presentation
 
-`ppt/slides.md` is the editable slide-draft source. It distinguishes captured-order measured evidence, synthetic order tests, imported Track 1 results, hypotheses, and out-of-scope cases. Fill approved team names and obtain rubric/team review before exporting a final deck.
+- `CS331_Phase2_Presentation_T013.pptx`: the final 8-slide deck (black and white, speaker notes on every slide).
+- `slides_formal.md`: the same slides as text, with what to say on each one.
+
+Every number on the slides is also in `LEDGER.md`, `docs/tests/` or `results/`.

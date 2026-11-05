@@ -40,12 +40,12 @@ cat results/track1/page-observations.md
 | ECH + DoH | - | page didn't load | - | - |
 
 - ECH adds one extension (0xfe0d), so JA4 goes from 16 to 17 extensions.
-- **DoH run:** the imported explanation reports a certificate error while reaching `cloudflare-dns.com`, but the committed page output is empty and the specific certificate details are not preserved. The target page load is therefore unverified. The summary has 12 ClientHello rows for this pcap; these may be Chromium background connections and are not evidence the intended ECH+DoH test succeeded. See `results/track1/page-observations.md`.
+- DNS check, from the pcaps ([`results/track1/recheck-20261106.md`](../../results/track1/recheck-20261106.md)): with ECH on, the SNI is `cloudflare-ech.com` (2 hellos), but plain DNS asks for `crypto.cloudflare.com` (2 queries).
+- **DoH run:** not a result. All 12 ClientHellos go to `cloudflare-dns.com` (the DoH server), that name is itself looked up over plain DNS, and the target page output is empty. On the campus network the DoH connection failed with a certificate error, so the page never loaded.
 
 ## What it means
-- ECH hides the name from TLS, but **plain DNS still gives it away**. You need ECH **and** encrypted DNS.
-- The two saved page outputs support an ECH-off/on SNI difference for this run. They do not validate the ECH+DoH arm. The team's explanation that campus DoH was blocked remains a reported cause, not an independently reproduced result.
-- JA4 fingerprinting and site-name attribution are distinct observations; no broad browser-identity guarantee is inferred from this one capture set.
+- ECH hides the name from TLS, but **plain DNS still gives it away**. You need ECH **and** working encrypted DNS.
+- JA4 changes when ECH is on (one more extension, 0xfe0d), so ECH also changes the browser's fingerprint.
 
 ## What it does NOT prove
 - The full ECH + DoH case (blocked here). Repeat on a network that allows DoH.

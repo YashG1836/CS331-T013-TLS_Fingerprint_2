@@ -6,8 +6,9 @@
 - Chromium 156: 10 page loads, giving **50 ClientHellos** (the page plus Chromium's own background connections).
 - curl: **10** connections. Python `urllib`: **10** connections. Both use the same OpenSSL 3.5.7.
 - We count distinct JA3 and JA4 per client, with:
-  - **released** tools: FoxIO v0.18.6 and tshark 4.4.19
-  - FoxIO's **unreleased** `main` (commit c6469a7), built as `ja4-main`
+  - our lab pin: FoxIO tag v0.18.6 and tshark 4.4.19
+  - FoxIO `main` (commit c6469a7), built as `ja4-main`
+  - later re-check: FoxIO tag v1.0.1 and TShark 4.6.8
 
 ## What is being tested
 1. **Stability:** does the same client always get the same fingerprint?
@@ -38,23 +39,29 @@ tshark -r captures/pcaps/tls_chromium_repeat.pcap -Y "tls.handshake.type==1" -T 
 JA3: many values for Chromium (shuffling). JA4: 1 value per client (it sorts).
 
 ## What we saw
-| client | hellos | distinct JA3 | distinct JA4 (released tools) | distinct JA4 (`ja4-main`) |
+| client | hellos | distinct JA3 | distinct JA4 (TShark 4.4.19, FoxIO v0.18.6) | distinct JA4 (FoxIO main) |
 |---|---|---|---|---|
 | Chromium 156 | 50 | **50** | **15** | **1** |
 | curl | 10 | 1 | 1 | 1 |
 | Python | 10 | 1 | 1 | 1 |
 
-- A separate teammate note says TShark 4.6.8 on macOS also returned **15**; that run is not represented in the committed Docker `results/versions.txt` or raw outputs.
-- **Team's explanation for 15:** Chromium's `signature_algorithms` includes a GREASE value; the imported output reports 15 standard JA4 values versus 1 from FoxIO `ja4-main` commit `c6469a7b0dbf8fe963810162429fbfd9d1acc4d5`.
-  - This is an imported tool-version comparison, not a result of our C++ parser. The supplied per-capture raw JSON does not include the `ja4-main` records, so the reported value of 1 cannot be recomputed from those raw files alone.
-  - The claimed GREASE root cause and exact source behavior still need independent inspection and reproduction against the pinned source/tool builds. See `docs/track1-evidence-audit.md`.
+- Re-checked on 6 Nov with more tool versions on the same pcap ([`results/track1/recheck-20261106.md`](../../results/track1/recheck-20261106.md)):
+
+| tool | distinct JA4 for Chromium's 50 hellos |
+|---|---|
+| TShark 4.4.19 (lab) and TShark 4.6.8 (Mac) | 15 |
+| FoxIO tag v0.18.6 (our lab pin) | 15 |
+| FoxIO tag v1.0.1 (31 Aug 2026) and FoxIO main | **1** |
+
+- **Why 15:** Chromium puts a random GREASE value first in `signature_algorithms`. The 50 hellos use 15 different GREASE values there (`0a0a` ... `fafa`), one per JA4. FoxIO's spec says to ignore GREASE; FoxIO fixed this in commit d66336e ("ignore grease in sigalgs"), first released in v1.0.1. TShark 4.6.8 still counts it.
 - **Collision:** curl and Python share **JA4 part b** (`1d37bd780c83`, the cipher list from OpenSSL), but differ in parts a and c (HTTP/2 vs HTTP/1.1, 13 vs 14 extensions). So they partly collide, not fully.
 
 ## What it means
-- In this 50-ClientHello sample, every reported JA3 differed; do not generalize that to every Chromium release or deployment.
-- The imported released-tool output has 15 distinct JA4 values, versus 1 from the specified `ja4-main` commit. This sample suggests a release-specific stability issue; it does not establish that all JA4 blocklists fail or that 16 identities occurred.
-- Phase 1's documented Chrome JA4 (`…_541cd5a3d78e`) is one of the imported values; this is a consistency clue, not independent confirmation.
+- JA3 is not usable for Chromium: every connection gave a new JA3.
+- The JA4 of one browser depends on **which tool and version computed it**: 15 values with TShark 4.6.8 or FoxIO v0.18.6, 1 value with FoxIO v1.0.1. A JA4 list made with one tool will miss most Chromium connections seen by the other.
+- So a JA4 database must record the tool and version, and fingerprints should be recomputed after a tool update.
+- Phase 1's documented Chrome JA4 (`..._541cd5a3d78e`) is one of these 15.
 
 ## What it does NOT prove
-- One Chromium version, one OS. Firefox not tested.
-- The fix exists upstream, so this is a **deployment gap** (released vs unreleased), not a new discovery.
+- One Chromium version, one OS. Firefox not tested. The 50 hellos include Chromium's background connections.
+- It is not a new bug: FoxIO already fixed it. What we show is that tools in use today (TShark stable, older FoxIO) still give different answers.

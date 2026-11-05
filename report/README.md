@@ -1,3 +1,5 @@
 # Report
 
-`report/report.md` is the editable formal-report draft. Its quantitative Results section is generated from the committed batch by `python3 report/build_report.py`, using the source template `report/report.template.md`. Regenerate after evidence changes; do not hand-edit generated metrics. Team names, rubric requirements, final contribution approval, and any PDF export remain human review items. The draft deliberately preserves provenance and does not certify novelty or course completion.
+- `CS331_Phase2_Report_T013.docx`: the final report (course two-column template, Sections I to IX, Appendices A and B).
+- `report_formal.md`: the same report as Markdown.
+- `report.md`: an older, longer draft. Its QUIC tables are generated from the WSL batch by `python3 report/build_report.py` (template: `report.template.md`).

@@ -30,7 +30,7 @@ RFC 9001 §5.2 derives Initial secrets from the Destination Connection ID in the
 
 The new implementation in `code/quic/src/initial_context.cpp` adds a bounded association on the direction-normalized IPv4/IPv6 UDP 4-tuple. It records the first client Initial's ODCID and client SCID; accepts later client Initial DCIDs only when they equal the ODCID or a server Initial SCID learned on that tuple; and verifies that a server Initial's DCID matches a client SCID before learning its SCID. Unknown CIDs do not replace the stored ODCID. Client and server Initial packet-number reconstruction state are separate. The stateful CLI additionally runs DCID-keyed client accounting on the same input so baseline successes/failures and alias buckets can be compared per connection without conflating packet records with distinct alias values.
 
-This increment deliberately does not associate across tuple migration or implement the Retry ODCID transition. The WSL batch at `results/track2/verification-batch-20261105-105416/` was run against source commit `fa9fcdb` and committed in `7a2584c`. Its stateful captured-order baseline reports:
+This increment deliberately does not associate across tuple migration or implement the Retry ODCID transition. The WSL batch at `results/track2/verification-batch-20261105-105416/` was run against source commit `fa9fcdb` and committed in `03e89b8`. Its stateful captured-order baseline reports:
 
 | Trace | Client Initials | Legacy client decrypt success / failure | Switched aliases / alias packets | Stateful client success / failure | Stateful server Initials success / failure | Baseline C++/TShark complete ClientHello byte matches |
 |---|---:|---:|---:|---:|---:|---:|

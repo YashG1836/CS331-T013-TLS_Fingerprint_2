@@ -33,7 +33,7 @@ The earlier stateless extraction/reordering/loss/truncation comparison shows no 
 
 ## Post-change WSL verification batch (5 November 2026)
 
-The user ran the updated batch in Ubuntu WSL against source commit `fa9fcdb`; artifacts were committed in `7a2584c` at `results/track2/verification-batch-20261105-105416/`. This checkout has inspected the JSON/logs and verified the listed source-script SHA256 values, but has not independently regenerated the WSL run in Arena. The environment records TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5, Python 3.14.4, and WSL Linux 6.18.33.2; `make-test.log` records CTest **1/1** and pytest **52/52**.
+The user ran the updated batch in Ubuntu WSL against source commit `fa9fcdb`; artifacts were committed in `03e89b8` at `results/track2/verification-batch-20261105-105416/`. This checkout has inspected the JSON/logs and verified the listed source-script SHA256 values, but has not independently regenerated the WSL run in Arena. The environment records TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5, Python 3.14.4, and WSL Linux 6.18.33.2; `make-test.log` records CTest **1/1** and pytest **52/52**.
 
 | Trace | Client Initial packets | Legacy DCID-keyed client decrypted / failed | Switched aliases / alias packets | Stateful client decrypted / failed | Stateful server Initials decrypted / failed | Baseline exact ClientHello byte match vs TShark |
 |---|---:|---:|---:|---:|---:|---:|

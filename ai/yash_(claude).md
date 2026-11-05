@@ -113,3 +113,59 @@ add this repo to my github , i hope there is now no connection to previosu clone
 ```
 
 ---
+
+## 👤 User Prompt 9
+*`2026-11-05 ~23:55 IST`*  
+
+```text
+https://github.com/milonithakkar/CS331-Phase2/
+
+this is the link to team members repo, this is the final one, so this one is build on the one we were wokring on , like she cloned our repo and made changes / updates and rectified all the mistakes / changes that were needed, so what i want from u is to do a thourough check of what fianlly we have for the submission , try to check if everything is consitant, we are presenting exactly what we needed to do in phase 2, we are actually contributing in this fingerprinting thing, and like we this time actually have smth to preset / to show our work, nothing is fake , evrything must have a meaning to it, everything is consistant , also if there are any tests and any number / and claims that we are doing, nothing is fake 
+everyhting can be used in real life for fingerprinting and an update to what is actually used in the market , 
+so what i want u is to clone her repo , may be delete/ replace my current files with hers or may be keep then doesnt matter , then cehck everyhting is fine or not acc to what i have told u above,
+also if u make any changes in the end let me know wht was wrong , i hope most things will be proepr only 
+also update my repo also, i hope finally both milonis and my repo are same, im contributer to milonis repo also., so u can make changes there as well, just try that claude isnt visible in contributors
+```
+
+---
+
+## 👤 User Prompt 10 (sent while Claude was working)
+*`2026-11-05 ~23:58 IST`*  
+
+```text
+update the prompts as well, everyhting must be there
+```
+
+---
+
+## 👤 User Prompt 11 (sent while Claude was working)
+*`2026-11-06 ~00:05 IST`*  
+
+```text
+i have added a basic ppt and also there is a ppt in milonis repo, check both , 
+try to be as simple and crisp as possible, also try to make slides that are easy to interpret and also good enough to explain everyhting and also slide should be self explanatory so that presenting it would be easy, 
+take ref from both milonis slide and the one i have put in this folder CN. PRoject 2 - T...... 
+take ref from both and give out a good one 
+also use black and white only, like nothing very fancy yet should look decent
+```
+
+---
+
+## 👤 User Prompt 12 (sent while Claude was working)
+*`2026-11-06 ~00:06 IST`*  
+
+```text
+7-8 slides ig will be enough
+```
+
+---
+
+## 👤 User Prompt 13 (sent while Claude was working)
+*`2026-11-06 ~00:10 IST`*  
+
+```text
+yes the main thing, all the md files, all the reports everyhting should be just precise to what we are actually doing, everything proeprly and simply mentioned 
+no false claims , no fancy words for more marks, be precise, be acurate, just mention what we are actually doing
+```
+
+---

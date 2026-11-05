@@ -7,3 +7,5 @@ captures/reproduced/
 results/reproduced/
 *.keys
 *.keylog
+Phase1/
+.DS_Store
