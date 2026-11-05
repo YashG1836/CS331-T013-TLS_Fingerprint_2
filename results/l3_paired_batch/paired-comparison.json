@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "evidence_class": "derived review of the committed user-run TShark syn-analysis.json; no TShark rerun in this environment",
+  "source_analysis_sha256": "52a35cdb0f91f4a6ad5b808f50bb6be1e34f7ed8455375007515c684fb71e6e3",
+  "pair_manifest_sha256": "d94e1a4b0d74fb24f26b48a48cb9999a13110977fad70d5a4590eea799e84589",
+  "source_captures_sha256": {
+    "container": "593f5e3079874863a8e0335b6ac3760eda3b0eb490c14e8661ad70692f5426df",
+    "wsl_eth0": "41df48eaaaa59acfc31418e230e6b477d08993878785870d37409d2e3dab9250",
+    "win_vethernet": "6d66c34f0da98a47ac5b98e7e72e4e9c38fef2e6da15666fd535f9bc2cecd44b",
+    "wifi": "d4befd9dcc6301e5c30225e857dfa41ee1a2d5d4cafbedfc85efd092e49a21a4"
+  },
+  "paired_comparisons": [
+    {
+      "pair_id": "probe-1",
+      "classification": "separate_tcp_legs_or_sequence_rewrite",
+      "reason": "paired observations have different initial sequence numbers; this is not proxy proof by itself",
+      "client_syn_sequence_equal": false,
+      "peer_synack_sequence_equal": false,
+      "acknowledgment_numbers_equal": false,
+      "client_syn_options_equal": false,
+      "peer_synack_options_equal": false,
+      "four_tuples_equal": false,
+      "proxy_inference": "never_confirm_from_this_comparison_alone"
+    },
+    {
+      "pair_id": "probe-2",
+      "classification": "separate_tcp_legs_or_sequence_rewrite",
+      "reason": "paired observations have different initial sequence numbers; this is not proxy proof by itself",
+      "client_syn_sequence_equal": false,
+      "peer_synack_sequence_equal": false,
+      "acknowledgment_numbers_equal": false,
+      "client_syn_options_equal": false,
+      "peer_synack_options_equal": false,
+      "four_tuples_equal": false,
+      "proxy_inference": "never_confirm_from_this_comparison_alone"
+    },
+    {
+      "pair_id": "probe-3",
+      "classification": "separate_tcp_legs_or_sequence_rewrite",
+      "reason": "paired observations have different initial sequence numbers; this is not proxy proof by itself",
+      "client_syn_sequence_equal": false,
+      "peer_synack_sequence_equal": false,
+      "acknowledgment_numbers_equal": false,
+      "client_syn_options_equal": false,
+      "peer_synack_options_equal": false,
+      "four_tuples_equal": false,
+      "proxy_inference": "never_confirm_from_this_comparison_alone"
+    }
+  ],
+  "interpretation_limit": "These comparisons report different initial sequence numbers on the manually correlated container/Wi-Fi legs. They do not establish proxy identity, an OS misclassification, or a specific rewrite mechanism."
+}

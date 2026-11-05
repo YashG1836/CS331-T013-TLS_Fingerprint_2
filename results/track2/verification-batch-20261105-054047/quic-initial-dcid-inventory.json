@@ -1,0 +1,1039 @@
+{
+  "schema_version": 1,
+  "captures": [
+    {
+      "schema_version": 1,
+      "input_pcap": "captures/pcaps/quic_chromium.pcap",
+      "input_sha256": "090d9c9339132344fb39c4255b49611cb6516fb9f02570a5042239e075151615",
+      "pcap_version": "2.4",
+      "link_type": 1,
+      "packet_record_count": 140,
+      "udp_datagram_count": 140,
+      "quic_v1_initial_packet_count": 26,
+      "flows": [
+        {
+          "client_endpoint": "172.17.0.2:36822",
+          "server_endpoint": "104.18.26.14:443",
+          "client_to_server_initial_count": 4,
+          "server_to_client_initial_count": 2,
+          "first_observed_client_initial_dcid_hex": "97726dafe5a69bee",
+          "first_observed_client_initial_dcid_length": 8,
+          "later_distinct_client_initial_dcids_hex": [
+            "01c803772feafd9e11ca9d7770eddf9e11b1e424"
+          ],
+          "later_client_dcids_matching_server_initial_scid_hex": [
+            "01c803772feafd9e11ca9d7770eddf9e11b1e424"
+          ],
+          "server_initial_dcids_hex": [
+            ""
+          ],
+          "server_initial_scids_hex": [
+            "01c803772feafd9e11ca9d7770eddf9e11b1e424"
+          ],
+          "frame_numbers": [
+            83,
+            84,
+            85,
+            86,
+            87,
+            89
+          ]
+        },
+        {
+          "client_endpoint": "172.17.0.2:42053",
+          "server_endpoint": "104.18.26.14:443",
+          "client_to_server_initial_count": 3,
+          "server_to_client_initial_count": 2,
+          "first_observed_client_initial_dcid_hex": "5692e4397202602d",
+          "first_observed_client_initial_dcid_length": 8,
+          "later_distinct_client_initial_dcids_hex": [
+            "015809caa0146dc5ee5a4acadc13cbc5ee459f91"
+          ],
+          "later_client_dcids_matching_server_initial_scid_hex": [
+            "015809caa0146dc5ee5a4acadc13cbc5ee459f91"
+          ],
+          "server_initial_dcids_hex": [
+            ""
+          ],
+          "server_initial_scids_hex": [
+            "015809caa0146dc5ee5a4acadc13cbc5ee459f91"
+          ],
+          "frame_numbers": [
+            112,
+            113,
+            114,
+            115,
+            116
+          ]
+        },
+        {
+          "client_endpoint": "172.17.0.2:45755",
+          "server_endpoint": "104.18.26.14:443",
+          "client_to_server_initial_count": 3,
+          "server_to_client_initial_count": 2,
+          "first_observed_client_initial_dcid_hex": "896152443dcbf739",
+          "first_observed_client_initial_dcid_length": 8,
+          "later_distinct_client_initial_dcids_hex": [
+            "016691d99cbe416fd06754d97bbba76fd0cac5fd"
+          ],
+          "later_client_dcids_matching_server_initial_scid_hex": [
+            "016691d99cbe416fd06754d97bbba76fd0cac5fd"
+          ],
+          "server_initial_dcids_hex": [
+            ""
+          ],
+          "server_initial_scids_hex": [
+            "016691d99cbe416fd06754d97bbba76fd0cac5fd"
+          ],
+          "frame_numbers": [
+            56,
+            57,
+            58,
+            59,
+            60
+          ]
+        },
+        {
+          "client_endpoint": "172.17.0.2:46404",
+          "server_endpoint": "104.18.26.14:443",
+          "client_to_server_initial_count": 3,
+          "server_to_client_initial_count": 2,
+          "first_observed_client_initial_dcid_hex": "6f0b56a64cfb931b",
+          "first_observed_client_initial_dcid_length": 8,
+          "later_distinct_client_initial_dcids_hex": [
+            "011a1b31a56cfd4e50185931166c1e4e501392ce"
+          ],
+          "later_client_dcids_matching_server_initial_scid_hex": [
+            "011a1b31a56cfd4e50185931166c1e4e501392ce"
+          ],
+          "server_initial_dcids_hex": [
+            ""
+          ],
+          "server_initial_scids_hex": [
+            "011a1b31a56cfd4e50185931166c1e4e501392ce"
+          ],
+          "frame_numbers": [
+            28,
+            29,
+            30,
+            31,
+            32
+          ]
+        },
+        {
+          "client_endpoint": "172.17.0.2:58951",
+          "server_endpoint": "104.18.26.14:443",
+          "client_to_server_initial_count": 3,
+          "server_to_client_initial_count": 2,
+          "first_observed_client_initial_dcid_hex": "79fb2679d821163b",
+          "first_observed_client_initial_dcid_length": 8,
+          "later_distinct_client_initial_dcids_hex": [
+            "01fbc21d021e767589f9801dca1d127589e7ac5f"
+          ],
+          "later_client_dcids_matching_server_initial_scid_hex": [
+            "01fbc21d021e767589f9801dca1d127589e7ac5f"
+          ],
+          "server_initial_dcids_hex": [
+            ""
+          ],
+          "server_initial_scids_hex": [
+            "01fbc21d021e767589f9801dca1d127589e7ac5f"
+          ],
+          "frame_numbers": [
+            1,
+            2,
+            3,
+            4,
+            6
+          ]
+        }
+      ],
+      "initial_packet_headers": [
+        {
+          "frame_number": 1,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 58951,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "79fb2679d821163b",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 2,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 58951,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "79fb2679d821163b",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 3,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 58951,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "01fbc21d021e767589f9801dca1d127589e7ac5f",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 4,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 58951,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "01fbc21d021e767589f9801dca1d127589e7ac5f",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 6,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 58951,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "01fbc21d021e767589f9801dca1d127589e7ac5f",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 28,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 46404,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "6f0b56a64cfb931b",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 29,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 46404,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "6f0b56a64cfb931b",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 30,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 46404,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "011a1b31a56cfd4e50185931166c1e4e501392ce",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 31,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 46404,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "011a1b31a56cfd4e50185931166c1e4e501392ce",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 32,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 46404,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "011a1b31a56cfd4e50185931166c1e4e501392ce",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 56,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 45755,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "896152443dcbf739",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 57,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 45755,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "896152443dcbf739",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 58,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 45755,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "016691d99cbe416fd06754d97bbba76fd0cac5fd",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 59,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 45755,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "016691d99cbe416fd06754d97bbba76fd0cac5fd",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 60,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 45755,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "016691d99cbe416fd06754d97bbba76fd0cac5fd",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 83,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 36822,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "97726dafe5a69bee",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 84,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 36822,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "97726dafe5a69bee",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 85,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 36822,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "01c803772feafd9e11ca9d7770eddf9e11b1e424",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 86,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 36822,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "01c803772feafd9e11ca9d7770eddf9e11b1e424",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 87,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 36822,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "01c803772feafd9e11ca9d7770eddf9e11b1e424",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 89,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 36822,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "01c803772feafd9e11ca9d7770eddf9e11b1e424",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 112,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 42053,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "5692e4397202602d",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 113,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 42053,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "5692e4397202602d",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 114,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 42053,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "015809caa0146dc5ee5a4acadc13cbc5ee459f91",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 115,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 42053,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "015809caa0146dc5ee5a4acadc13cbc5ee459f91",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 116,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 42053,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "015809caa0146dc5ee5a4acadc13cbc5ee459f91",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        }
+      ],
+      "scope_limit": "Classic Ethernet PCAP; UDP; QUIC v1 long-header Initials only. Direction labels use UDP port 443 as a heuristic, not authenticated endpoint roles. No payload decryption."
+    },
+    {
+      "schema_version": 1,
+      "input_pcap": "captures/pcaps/quic_curl.pcap",
+      "input_sha256": "21297e764bb3ad2a28553387ff213c677e0f75b483cceb5a6fb11efc357a3c74",
+      "pcap_version": "2.4",
+      "link_type": 1,
+      "packet_record_count": 148,
+      "udp_datagram_count": 148,
+      "quic_v1_initial_packet_count": 30,
+      "flows": [
+        {
+          "client_endpoint": "172.17.0.2:33395",
+          "server_endpoint": "104.18.26.14:443",
+          "client_to_server_initial_count": 4,
+          "server_to_client_initial_count": 2,
+          "first_observed_client_initial_dcid_hex": "bb8447e8a527057e",
+          "first_observed_client_initial_dcid_length": 8,
+          "later_distinct_client_initial_dcids_hex": [
+            "017bc2c72c094334447bf9c7ae0ce73444b2f584"
+          ],
+          "later_client_dcids_matching_server_initial_scid_hex": [
+            "017bc2c72c094334447bf9c7ae0ce73444b2f584"
+          ],
+          "server_initial_dcids_hex": [
+            ""
+          ],
+          "server_initial_scids_hex": [
+            "017bc2c72c094334447bf9c7ae0ce73444b2f584"
+          ],
+          "frame_numbers": [
+            119,
+            120,
+            122,
+            123,
+            124,
+            125
+          ]
+        },
+        {
+          "client_endpoint": "172.17.0.2:42675",
+          "server_endpoint": "104.18.26.14:443",
+          "client_to_server_initial_count": 4,
+          "server_to_client_initial_count": 2,
+          "first_observed_client_initial_dcid_hex": "6381cce0dd5b61d3",
+          "first_observed_client_initial_dcid_length": 8,
+          "later_distinct_client_initial_dcids_hex": [
+            "010d44b2fc698a77080f06b2936fa97708b58b3a"
+          ],
+          "later_client_dcids_matching_server_initial_scid_hex": [
+            "010d44b2fc698a77080f06b2936fa97708b58b3a"
+          ],
+          "server_initial_dcids_hex": [
+            ""
+          ],
+          "server_initial_scids_hex": [
+            "010d44b2fc698a77080f06b2936fa97708b58b3a"
+          ],
+          "frame_numbers": [
+            91,
+            92,
+            94,
+            95,
+            96,
+            97
+          ]
+        },
+        {
+          "client_endpoint": "172.17.0.2:47638",
+          "server_endpoint": "104.18.26.14:443",
+          "client_to_server_initial_count": 4,
+          "server_to_client_initial_count": 2,
+          "first_observed_client_initial_dcid_hex": "d66102b4d71ac501",
+          "first_observed_client_initial_dcid_length": 8,
+          "later_distinct_client_initial_dcids_hex": [
+            "01c467356a9fd27503c625351c987475035fb54a"
+          ],
+          "later_client_dcids_matching_server_initial_scid_hex": [
+            "01c467356a9fd27503c625351c987475035fb54a"
+          ],
+          "server_initial_dcids_hex": [
+            ""
+          ],
+          "server_initial_scids_hex": [
+            "01c467356a9fd27503c625351c987475035fb54a"
+          ],
+          "frame_numbers": [
+            60,
+            61,
+            63,
+            64,
+            65,
+            66
+          ]
+        },
+        {
+          "client_endpoint": "172.17.0.2:53542",
+          "server_endpoint": "104.18.26.14:443",
+          "client_to_server_initial_count": 4,
+          "server_to_client_initial_count": 2,
+          "first_observed_client_initial_dcid_hex": "44e02f16201e4970",
+          "first_observed_client_initial_dcid_length": 8,
+          "later_distinct_client_initial_dcids_hex": [
+            "01af2c19040caa4dd5add1192f0fad4dd5cac347"
+          ],
+          "later_client_dcids_matching_server_initial_scid_hex": [
+            "01af2c19040caa4dd5add1192f0fad4dd5cac347"
+          ],
+          "server_initial_dcids_hex": [
+            ""
+          ],
+          "server_initial_scids_hex": [
+            "01af2c19040caa4dd5add1192f0fad4dd5cac347"
+          ],
+          "frame_numbers": [
+            30,
+            31,
+            32,
+            33,
+            34,
+            35
+          ]
+        },
+        {
+          "client_endpoint": "172.17.0.2:55844",
+          "server_endpoint": "104.18.26.14:443",
+          "client_to_server_initial_count": 4,
+          "server_to_client_initial_count": 2,
+          "first_observed_client_initial_dcid_hex": "2741b0eb8d7ff0c7",
+          "first_observed_client_initial_dcid_length": 8,
+          "later_distinct_client_initial_dcids_hex": [
+            "01231b0d012fc6744621bc0d6d2f677446526f93"
+          ],
+          "later_client_dcids_matching_server_initial_scid_hex": [
+            "01231b0d012fc6744621bc0d6d2f677446526f93"
+          ],
+          "server_initial_dcids_hex": [
+            ""
+          ],
+          "server_initial_scids_hex": [
+            "01231b0d012fc6744621bc0d6d2f677446526f93"
+          ],
+          "frame_numbers": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        }
+      ],
+      "initial_packet_headers": [
+        {
+          "frame_number": 1,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 55844,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "2741b0eb8d7ff0c7",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 2,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 55844,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "2741b0eb8d7ff0c7",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 3,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 55844,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "01231b0d012fc6744621bc0d6d2f677446526f93",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 4,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 55844,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "01231b0d012fc6744621bc0d6d2f677446526f93",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 5,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 55844,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "01231b0d012fc6744621bc0d6d2f677446526f93",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 6,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 55844,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "01231b0d012fc6744621bc0d6d2f677446526f93",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 30,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 53542,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "44e02f16201e4970",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 31,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 53542,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "44e02f16201e4970",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 32,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 53542,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "01af2c19040caa4dd5add1192f0fad4dd5cac347",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 33,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 53542,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "01af2c19040caa4dd5add1192f0fad4dd5cac347",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 34,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 53542,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "01af2c19040caa4dd5add1192f0fad4dd5cac347",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 35,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 53542,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "01af2c19040caa4dd5add1192f0fad4dd5cac347",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 60,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 47638,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "d66102b4d71ac501",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 61,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 47638,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "d66102b4d71ac501",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 63,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 47638,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "01c467356a9fd27503c625351c987475035fb54a",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 64,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 47638,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "01c467356a9fd27503c625351c987475035fb54a",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 65,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 47638,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "01c467356a9fd27503c625351c987475035fb54a",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 66,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 47638,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "01c467356a9fd27503c625351c987475035fb54a",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 91,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 42675,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "6381cce0dd5b61d3",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 92,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 42675,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "6381cce0dd5b61d3",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 94,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 42675,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "010d44b2fc698a77080f06b2936fa97708b58b3a",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 95,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 42675,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "010d44b2fc698a77080f06b2936fa97708b58b3a",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 96,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 42675,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "010d44b2fc698a77080f06b2936fa97708b58b3a",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 97,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 42675,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "010d44b2fc698a77080f06b2936fa97708b58b3a",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 119,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 33395,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "bb8447e8a527057e",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 120,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 33395,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "bb8447e8a527057e",
+          "dcid_length": 8,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 122,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 33395,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "017bc2c72c094334447bf9c7ae0ce73444b2f584",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 123,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 33395,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "017bc2c72c094334447bf9c7ae0ce73444b2f584",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        },
+        {
+          "frame_number": 124,
+          "udp_source": "104.18.26.14",
+          "udp_source_port": 443,
+          "udp_destination": "172.17.0.2",
+          "udp_destination_port": 33395,
+          "direction_candidate": "server_to_client_candidate",
+          "version": 1,
+          "dcid_hex": "",
+          "dcid_length": 0,
+          "scid_hex": "017bc2c72c094334447bf9c7ae0ce73444b2f584",
+          "scid_length": 20
+        },
+        {
+          "frame_number": 125,
+          "udp_source": "172.17.0.2",
+          "udp_source_port": 33395,
+          "udp_destination": "104.18.26.14",
+          "udp_destination_port": 443,
+          "direction_candidate": "client_to_server_candidate",
+          "version": 1,
+          "dcid_hex": "017bc2c72c094334447bf9c7ae0ce73444b2f584",
+          "dcid_length": 20,
+          "scid_hex": "",
+          "scid_length": 0
+        }
+      ],
+      "scope_limit": "Classic Ethernet PCAP; UDP; QUIC v1 long-header Initials only. Direction labels use UDP port 443 as a heuristic, not authenticated endpoint roles. No payload decryption."
+    }
+  ]
+}

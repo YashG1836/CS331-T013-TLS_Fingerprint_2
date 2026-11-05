@@ -1,0 +1,12 @@
+[project]
+name = "cn-project-2-harness"
+version = "0.1.0"
+description = "Reproducible experiment harness for QUIC fingerprinting research"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest==9.1.1"]
+
+[tool.pytest.ini_options]
+testpaths = ["code/scripts/tests"]

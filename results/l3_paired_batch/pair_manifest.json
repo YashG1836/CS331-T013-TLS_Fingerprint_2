@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "run_id": "20261105-135735",
+  "source_analysis": "results/l3_paired_batch/syn-analysis.json",
+  "source_capture_sha256": {
+    "container": "593f5e3079874863a8e0335b6ac3760eda3b0eb490c14e8661ad70692f5426df",
+    "wsl_eth0": "41df48eaaaa59acfc31418e230e6b477d08993878785870d37409d2e3dab9250",
+    "win_vethernet": "6d66c34f0da98a47ac5b98e7e72e4e9c38fef2e6da15666fd535f9bc2cecd44b",
+    "wifi": "d4befd9dcc6301e5c30225e857dfa41ee1a2d5d4cafbedfc85efd092e49a21a4"
+  },
+  "pairing_notes": {
+    "correlation_basis": "Three sequential controlled curl trials are recorded in probes.txt. Each container and Wi-Fi SYN targets 104.16.124.96:443, with corresponding SYN timestamps within approximately 3-10 ms and SYN-ACK timestamps within 0.5 ms. Pairings are manual and based on trial order and timing; they are not inferred from TCP sequence numbers. The SYN-only evidence has no application-level transaction identifier, so this is a controlled temporal correlation rather than cryptographic transaction identity.",
+    "capture_points": "container network namespace and Windows Wi-Fi adapter, manually paired as observations of the controlled request's intended egress route. This spans two capture points but does not identify the exact internal route or an intermediate termination/NAT point. The bridge capture failed (no such device), and no target-flow SYN was present in the vEthernet capture.",
+    "interpretation_limit": "A separate_tcp_legs_or_sequence_rewrite result is not proof of a proxy, TCP termination, or OS misattribution. Wi-Fi is a host adapter capture, not a physical-wire tap."
+  },
+  "pairs": [
+    {
+      "pair_id": "probe-1",
+      "same_transaction_confirmed": true,
+      "capture_points_bracket_boundary": true,
+      "client_syn_delta_ms_wifi_minus_container": 9.0258,
+      "peer_synack_delta_us_wifi_minus_container": 38.5,
+      "left_tuple": "172.21.0.2:50190 -> 104.16.124.96:443",
+      "right_tuple": "10.7.5.195:49155 -> 104.16.124.96:443",
+      "left": {"capture": "container", "stream": "0"},
+      "right": {"capture": "wifi", "stream": "17"}
+    },
+    {
+      "pair_id": "probe-2",
+      "same_transaction_confirmed": true,
+      "capture_points_bracket_boundary": true,
+      "client_syn_delta_ms_wifi_minus_container": 2.4835,
+      "peer_synack_delta_us_wifi_minus_container": -297.0,
+      "left_tuple": "172.21.0.2:50194 -> 104.16.124.96:443",
+      "right_tuple": "10.7.5.195:49157 -> 104.16.124.96:443",
+      "left": {"capture": "container", "stream": "1"},
+      "right": {"capture": "wifi", "stream": "18"}
+    },
+    {
+      "pair_id": "probe-3",
+      "same_transaction_confirmed": true,
+      "capture_points_bracket_boundary": true,
+      "client_syn_delta_ms_wifi_minus_container": 2.8898,
+      "peer_synack_delta_us_wifi_minus_container": -455.0,
+      "left_tuple": "172.21.0.2:50200 -> 104.16.124.96:443",
+      "right_tuple": "10.7.5.195:49158 -> 104.16.124.96:443",
+      "left": {"capture": "container", "stream": "2"},
+      "right": {"capture": "wifi", "stream": "19"}
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "validation_date": "2026-11-03",
+  "validation_type": "C++ QUIC Initial extraction; length/framing checked locally, with a subsequent user-reported Ubuntu/WSL TShark raw-byte set comparison",
+  "exact_client_hello_byte_comparison": {
+    "status": "reported_pass",
+    "matched": 10,
+    "tested": 10,
+    "comparison_mode": "unordered byte-string set equality; TShark arrival order differs from DCID-keyed CLI output",
+    "limitation": "The user's raw exports and comparison command/script have not yet been added to the repository. Treat this as reported WSL verification until those artifacts are retained."
+  },
+  "captures": [
+    {
+      "capture_id": "quic_chromium",
+      "capture_sha256": "090d9c9339132344fb39c4255b49611cb6516fb9f02570a5042239e075151615",
+      "manifest_capture_sha256": "090d9c9339132344fb39c4255b49611cb6516fb9f02570a5042239e075151615",
+      "packet_records": 140,
+      "udp_datagrams": 140,
+      "candidate_initial_flows": 10,
+      "complete_client_hellos": 5,
+      "other_candidate_dcids": 5,
+      "recovered_total_lengths_bytes": [
+        1880,
+        1884,
+        1885,
+        1891,
+        1891
+      ],
+      "imported_tshark_body_lengths_bytes": [
+        1876,
+        1880,
+        1881,
+        1887,
+        1887
+      ],
+      "reference_body_lengths_plus_tls_header_bytes": [
+        1880,
+        1884,
+        1885,
+        1891,
+        1891
+      ],
+      "length_multisets_match": true,
+      "all_extracted_tls_client_hello_framing_valid": true,
+      "reported_exact_byte_matches": 5,
+      "reported_exact_byte_comparison": true,
+      "comparison_provenance": "user-reported Ubuntu WSL run; byte arrays not attached in this workspace"
+    },
+    {
+      "capture_id": "quic_curl",
+      "capture_sha256": "21297e764bb3ad2a28553387ff213c677e0f75b483cceb5a6fb11efc357a3c74",
+      "manifest_capture_sha256": "21297e764bb3ad2a28553387ff213c677e0f75b483cceb5a6fb11efc357a3c74",
+      "packet_records": 148,
+      "udp_datagrams": 148,
+      "candidate_initial_flows": 10,
+      "complete_client_hellos": 5,
+      "other_candidate_dcids": 5,
+      "recovered_total_lengths_bytes": [
+        1509,
+        1509,
+        1509,
+        1509,
+        1509
+      ],
+      "imported_tshark_body_lengths_bytes": [
+        1505,
+        1505,
+        1505,
+        1505,
+        1505
+      ],
+      "reference_body_lengths_plus_tls_header_bytes": [
+        1509,
+        1509,
+        1509,
+        1509,
+        1509
+      ],
+      "length_multisets_match": true,
+      "all_extracted_tls_client_hello_framing_valid": true,
+      "reported_exact_byte_matches": 5,
+      "reported_exact_byte_comparison": true,
+      "comparison_provenance": "user-reported Ubuntu WSL run; byte arrays not attached in this workspace"
+    }
+  ],
+  "verification_source": {
+    "source": "User-reported direct Ubuntu WSL run",
+    "tshark_version": "4.6.4",
+    "gcc_version": "15.2.0",
+    "openssl_version": "3.5.5",
+    "tshark_raw_field": "tls.handshake_raw",
+    "raw_exports_and_comparison_script_committed": false,
+    "independently_reproduced_in_arena": false
+  }
+}

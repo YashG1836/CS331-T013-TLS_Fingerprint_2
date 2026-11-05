@@ -1,0 +1,13 @@
+[ 60%] Built target quic_core
+[ 90%] Built target quic-fingerprint
+[100%] Built target quic_core_tests
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.00 sec
+.........                                                                [100%]
+9 passed in 0.05s
+--- sanitizers:
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.01 sec

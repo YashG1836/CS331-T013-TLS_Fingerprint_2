@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-11-04T20:19:40.915628+00:00",
+  "host": {
+    "system": "Linux",
+    "release": "6.18.33.2-microsoft-standard-WSL2",
+    "machine": "x86_64",
+    "python": "3.14.4"
+  },
+  "tools": {
+    "cmake": {
+      "available": true,
+      "argv": [
+        "cmake",
+        "--version"
+      ],
+      "path": "/usr/bin/cmake",
+      "exit_code": 0,
+      "version": [
+        "cmake version 4.2.3",
+        "",
+        "CMake suite maintained and supported by Kitware (kitware.com/cmake)."
+      ]
+    },
+    "compiler": {
+      "available": true,
+      "argv": [
+        "g++",
+        "--version"
+      ],
+      "path": "/usr/bin/g++",
+      "exit_code": 0,
+      "version": [
+        "g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+        "Copyright (C) 2025 Free Software Foundation, Inc.",
+        "This is free software; see the source for copying conditions.  There is NO",
+        "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+      ]
+    },
+    "openssl": {
+      "available": true,
+      "argv": [
+        "openssl",
+        "version"
+      ],
+      "path": "/usr/bin/openssl",
+      "exit_code": 0,
+      "version": [
+        "OpenSSL 3.5.5 27 Jan 2026 (Library: OpenSSL 3.5.5 27 Jan 2026)"
+      ]
+    },
+    "tshark": {
+      "available": true,
+      "argv": [
+        "tshark",
+        "--version"
+      ],
+      "path": "/usr/bin/tshark",
+      "exit_code": 0,
+      "version": [
+        "TShark (Wireshark) 4.6.4.",
+        "",
+        "Copyright 1998-2026 Gerald Combs <gerald@wireshark.org> and contributors.",
+        "Licensed under the terms of the GNU General Public License (version 2 or later)."
+      ]
+    },
+    "ja4": {
+      "available": false,
+      "argv": [
+        "ja4",
+        "--version"
+      ],
+      "error": "ja4 not found on PATH"
+    },
+    "tcpdump": {
+      "available": true,
+      "argv": [
+        "tcpdump",
+        "--version"
+      ],
+      "path": "/usr/bin/tcpdump",
+      "exit_code": 0,
+      "version": [
+        "tcpdump version 4.99.6",
+        "libpcap version 1.10.6 (64-bit time_t, with TPACKET_V3)",
+        "OpenSSL 3.5.5 27 Jan 2026",
+        "64-bit build, 64-bit time_t"
+      ]
+    },
+    "dumpcap": {
+      "available": true,
+      "argv": [
+        "dumpcap",
+        "--version"
+      ],
+      "path": "/usr/bin/dumpcap",
+      "exit_code": 0,
+      "version": [
+        "Dumpcap (Wireshark) 4.6.4.",
+        "",
+        "Copyright 1998-2026 Gerald Combs <gerald@wireshark.org> and contributors.",
+        "Licensed under the terms of the GNU General Public License (version 2 or later)."
+      ]
+    },
+    "curl": {
+      "available": true,
+      "argv": [
+        "curl",
+        "--version"
+      ],
+      "path": "/usr/bin/curl",
+      "exit_code": 0,
+      "version": [
+        "curl 8.18.0 (x86_64-pc-linux-gnu) libcurl/8.18.0 OpenSSL/3.5.5 zlib/1.3.1 brotli/1.2.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.2 libssh2/1.11.1 nghttp2/1.68.0 librtmp/2.3 mit-krb5/1.22.1 OpenLDAP/2.6.10",
+        "Release-Date: 2026-01-07, security patched: 8.18.0-1ubuntu2.8",
+        "Protocols: dict file ftp ftps gopher gophers http https imap imaps ipfs ipns ldap ldaps mqtt pop3 pop3s rtmp rtsp scp sftp smb smbs smtp smtps telnet tftp ws wss",
+        "Features: alt-svc AsynchDNS brotli GSS-API HSTS HTTP2 HTTPS-proxy IDN IPv6 Kerberos Largefile libz NTLM PSL SPNEGO SSL threadsafe TLS-SRP UnixSockets zstd"
+      ]
+    },
+    "caddy": {
+      "available": false,
+      "argv": [
+        "caddy",
+        "version"
+      ],
+      "error": "caddy not found on PATH"
+    },
+    "ethtool": {
+      "available": true,
+      "argv": [
+        "ethtool",
+        "--version"
+      ],
+      "path": "/usr/sbin/ethtool",
+      "exit_code": 0,
+      "version": [
+        "ethtool version 6.19"
+      ]
+    }
+  },
+  "tshark_capabilities": {
+    "available": true,
+    "exit_code": 0,
+    "has_quic_fields": true,
+    "quic_field_count": 133,
+    "sample_quic_fields": [
+      "quic.ack.ack_delay",
+      "quic.ack.ack_range",
+      "quic.ack.ack_range_count",
+      "quic.ack.ecn_ce_count",
+      "quic.ack.ect0_count",
+      "quic.ack.ect1_count",
+      "quic.ack.first_ack_range",
+      "quic.ack.gap",
+      "quic.ack.largest_acknowledged",
+      "quic.af.ack_eliciting_threshold",
+      "quic.af.reordering_threshold",
+      "quic.af.request_max_ack_delay",
+      "quic.af.sequence_number",
+      "quic.bad_retry",
+      "quic.cc.error_code",
+      "quic.cc.error_code.app",
+      "quic.cc.error_code.tls_alert",
+      "quic.cc.frame_type",
+      "quic.cc.reason_phrase",
+      "quic.cc.reason_phrase.length"
+    ],
+    "fingerprint_fields": {
+      "tls.handshake.ja3": true,
+      "tls.handshake.ja3s": true,
+      "tls.handshake.ja4": true,
+      "tls.handshake.ja4_r": true
+    },
+    "note": "Field availability is not proof that a capture is dissected or fingerprinted correctly."
+  },
+  "capture_interfaces": {
+    "source": "dumpcap -D",
+    "available": true,
+    "interfaces": [
+      "1. eth0",
+      "2. br-0670013d5ec3",
+      "3. br-3cd2d23489f7",
+      "4. vethfdb4009",
+      "5. veth11973e5",
+      "6. any",
+      "7. lo (Loopback)",
+      "8. docker0",
+      "9. bluetooth-monitor",
+      "10. nflog",
+      "11. nfqueue",
+      "12. dbus-system",
+      "13. dbus-session"
+    ]
+  },
+  "curl_http3_feature_advertised": false,
+  "baseline_capture_ready": false,
+  "interpretation": "Preflight only: no packet was captured and no fingerprint result was measured."
+}

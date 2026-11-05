@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "source_pcap": "/home/miloni/CS331-Phase2/captures/pcaps/quic_curl.pcap",
+  "source_sha256": "21297e764bb3ad2a28553387ff213c677e0f75b483cceb5a6fb11efc357a3c74",
+  "source_packet_records": 148,
+  "link_type": 1,
+  "seed": 331,
+  "tshark_crypto_frame_numbers": [
+    1,
+    2,
+    3,
+    5,
+    30,
+    31,
+    32,
+    34,
+    60,
+    61,
+    63,
+    65,
+    91,
+    92,
+    94,
+    96,
+    119,
+    120,
+    122,
+    124
+  ],
+  "tshark_initial_crypto_selector_argv": [
+    "tshark",
+    "-r",
+    "/home/miloni/CS331-Phase2/captures/pcaps/quic_curl.pcap",
+    "-Y",
+    "quic.crypto.length > 0",
+    "-T",
+    "fields",
+    "-E",
+    "occurrence=a",
+    "-E",
+    "aggregator=,",
+    "-e",
+    "frame.number",
+    "-e",
+    "quic.long.packet_type"
+  ],
+  "cases": [
+    {
+      "case_id": "baseline",
+      "path": "/home/miloni/CS331-Phase2/results/track2/verification-batch-20261105-105416/quic-stateful/curl/variants/baseline.pcap",
+      "sha256": "21297e764bb3ad2a28553387ff213c677e0f75b483cceb5a6fb11efc357a3c74",
+      "packet_records": 148,
+      "mutation": {
+        "type": "none"
+      }
+    },
+    {
+      "case_id": "reverse-record-order",
+      "path": "/home/miloni/CS331-Phase2/results/track2/verification-batch-20261105-105416/quic-stateful/curl/variants/reverse-record-order.pcap",
+      "sha256": "bb72a8718c367ff2744fe0bcd68e2176b743dd1fea493a098678b6aa5ddba8df",
+      "packet_records": 148,
+      "mutation": {
+        "type": "reverse-record-order"
+      }
+    },
+    {
+      "case_id": "shuffle-record-order",
+      "path": "/home/miloni/CS331-Phase2/results/track2/verification-batch-20261105-105416/quic-stateful/curl/variants/shuffle-record-order.pcap",
+      "sha256": "e9ad1fa96fc280469d1b87ae6d4105fd5f936aa9d319e90ca8ca87ebfb66dd42",
+      "packet_records": 148,
+      "mutation": {
+        "type": "shuffle-record-order",
+        "seed": 331
+      }
+    },
+    {
+      "case_id": "drop-one-initial-crypto-record",
+      "path": "/home/miloni/CS331-Phase2/results/track2/verification-batch-20261105-105416/quic-stateful/curl/variants/drop-one-initial-crypto-record.pcap",
+      "sha256": "06e25311180736fd03f7d7ef3fd0835d399e16accdf7392777ac4fa41ba7cc6e",
+      "packet_records": 147,
+      "mutation": {
+        "type": "drop-initial-crypto-records",
+        "frame_numbers": [
+          63
+        ]
+      }
+    },
+    {
+      "case_id": "drop-every-third-initial-crypto-record",
+      "path": "/home/miloni/CS331-Phase2/results/track2/verification-batch-20261105-105416/quic-stateful/curl/variants/drop-every-third-initial-crypto-record.pcap",
+      "sha256": "9e88fc662dd5ded87800a573324adb55b2c128e82155741d4d959056b0f5a496",
+      "packet_records": 142,
+      "mutation": {
+        "type": "drop-initial-crypto-records",
+        "selection": "every third TShark-identified Initial CRYPTO frame",
+        "frame_numbers": [
+          3,
+          31,
+          60,
+          65,
+          94,
+          120
+        ]
+      }
+    },
+    {
+      "case_id": "truncate-middle-initial-crypto-record",
+      "path": "/home/miloni/CS331-Phase2/results/track2/verification-batch-20261105-105416/quic-stateful/curl/variants/truncate-middle-initial-crypto-record.pcap",
+      "sha256": "322a5b83e3fa32c080c7477651af5bdb475153239addf6246fdb743f3f035295",
+      "packet_records": 148,
+      "mutation": {
+        "type": "truncate-captured-record-tail",
+        "frame_numbers": [
+          63
+        ],
+        "truncated_bytes": 64,
+        "original_length_preserved": true
+      }
+    }
+  ]
+}
