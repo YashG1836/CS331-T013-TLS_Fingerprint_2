@@ -3,7 +3,10 @@
 
 **CS331 Phase 2 — presentation draft**
 
-**Authors:** [insert approved team member names]
+**Course:** CS331 Computer Networks (Fall 2026)  
+**Instructor:** Dr. Sameer G. Kulkarni  
+**Team:** T013  
+**Authors:** Miloni Thakkar, Yash Goyal, Suhani, Laxmidhar Panda
 
 **Status:** Draft deck aligned with the project’s agreed engineering/evaluation contribution framing; final course-rubric review and submission sign-off remain open.
 
