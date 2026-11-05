@@ -83,7 +83,7 @@ docs/        tests T0-T7, fingerprint landscape, glossary, reading guide
 ai/          our AI prompts and transcripts, unedited
 ```
 
-Other documents: [`DECISIONS.md`](DECISIONS.md) (why C++ and Python), [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md), [`PROJECT2_PROPOSAL.md`](PROJECT2_PROPOSAL.md), [`docs/landscape.md`](docs/landscape.md) (JA3 vs JA4+ fields), [`docs/glossary.md`](docs/glossary.md).
+Other documents: [`docs/planning/DECISIONS.md`](docs/planning/DECISIONS.md) (why C++ and Python), [`docs/planning/IMPLEMENTATION_PLAN.md`](docs/planning/IMPLEMENTATION_PLAN.md), [`docs/planning/PROJECT2_PROPOSAL.md`](docs/planning/PROJECT2_PROPOSAL.md), [`docs/landscape.md`](docs/landscape.md) (JA3 vs JA4+ fields), [`docs/glossary.md`](docs/glossary.md).
 
 ## What we did not cover
 - Track 1 was captured inside Docker on a Mac, behind Docker's proxy; one network (campus) with no IPv6 and DoH blocked.

@@ -27,7 +27,7 @@ The stateful matrix is order-sensitive: reverse-record-order matches **0/5** in 
 
 The seven-row artifact audit reports L1/L2/L3/L4/L5/L7 PASS and L6 public egress NOT_MEASURED. The optional `::1` live check failed because tcpdump produced no packet-bearing IPv6 PCAP; the JSON therefore has overall live status FAIL. The WSL uplink was reported to lack global IPv6 routing. Do not summarize this as a clean overall live pass or as an IPv6 egress measurement.
 
-See `results/verification-status.md`, `DECISIONS.md`, and `LEDGER.md` for evidence provenance, comparisons, and caveats. Keep the raw output directory immutable after review; run a fresh batch into a new timestamped directory rather than overwrite it.
+See `results/verification-status.md`, `docs/planning/DECISIONS.md`, and `LEDGER.md` for evidence provenance, comparisons, and caveats. Keep the raw output directory immutable after review; run a fresh batch into a new timestamped directory rather than overwrite it.
 
 ## Re-run command
 
@@ -65,7 +65,7 @@ The 5 November batch now preserves tool versions, build/CTest/pytest logs, sourc
 
 ## Human-required items
 
-- Team review/approval of `DECISIONS.md`, the contribution choice, and final wording remains open.
+- Team review/approval of `docs/planning/DECISIONS.md`, the contribution choice, and final wording remains open.
 - `docs/landscape.md` is a sourced comparative survey, not a completed comprehensive prior-art search.
 - `ai/prompts.txt` remains partial because the full approved timestamped AI-use export was not supplied; do not reconstruct it.
 - The L3 run now has a Wi-Fi adapter capture, a vEthernet capture, container `eth0`, and WSL `eth0`; the bridge attempt failed and there is no physical-wire tap. Keep the intermediate mechanism unresolved; a native-Linux or successfully captured bridge-vantage control may be needed for attribution.

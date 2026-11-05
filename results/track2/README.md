@@ -4,7 +4,7 @@
 
 The user-run batch at `verification-batch-20261104-201936/` was generated on Ubuntu WSL at source commit `619a694a9fe449d97b4a54e487f0db7254b1fc08` and added to this branch in `00f34e4`. It contains environment/preflight, manifest and test logs, source/script hashes, QUIC Initial DCID inventory, SYN analysis, and six deterministic impairment cases for each of the Chromium and curl traces, including variants, TShark raw exports, logs, and result JSON. Its SHA256 manifest passed from the repository root; the relevant JSON parsed successfully in this checkout.
 
-The WSL execution is user-run evidence, not a run independently reproduced in Arena. For each client, the six case comparisons report 27/27 exact-byte matches with TShark output on the same PCAP variant, no misses/extras; the every-third-drop arm is 2/2 in both tools. This is comparator agreement for bounded cases, not external ground truth. See `../../results/verification-status.md`, `../../DECISIONS.md`, and `../../LEDGER.md` for interpretation.
+The WSL execution is user-run evidence, not a run independently reproduced in Arena. For each client, the six case comparisons report 27/27 exact-byte matches with TShark output on the same PCAP variant, no misses/extras; the every-third-drop arm is 2/2 in both tools. This is comparator agreement for bounded cases, not external ground truth. See `../../results/verification-status.md`, `../../docs/planning/DECISIONS.md`, and `../../LEDGER.md` for interpretation.
 
 Do not edit or overwrite the committed batch. New runs should use a new timestamped directory from `code/scripts/verify_submission_batch.sh`, reviewed for provenance and privacy first.
 
