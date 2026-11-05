@@ -1,0 +1,9 @@
+Seven-row artifact audit: 6/7 PASS; overall=INCOMPLETE; live=FAIL
+  L1_QUIC: artifacts=PASS live=PASS
+  L2_TLS_SECRETS: artifacts=PASS live=PASS
+  L3_VANTAGE_OFFLOAD: artifacts=PASS live=PASS
+  L4_PQ_MLKEM: artifacts=PASS live=PASS
+  L5_GREASE_STABILITY: artifacts=PASS live=PASS
+  L6_IPV6: artifacts=NOT_MEASURED live=FAIL
+  L7_ECH: artifacts=PASS live=PASS
+Summary: /home/miloni/CS331-Phase2/results/track2/verification-batch-20261105-105416/seven-rows-live.json

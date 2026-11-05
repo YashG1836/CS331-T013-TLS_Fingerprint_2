@@ -1,0 +1,1233 @@
+{
+  "course_rubric_note": "The repository contains project plans/proposal requirements but no standalone grading rubric; this output cannot certify rubric compliance or novelty.",
+  "exit_code": 2,
+  "live_checks": {
+    "L1_QUIC": {
+      "executable": "/home/miloni/CS331-Phase2/build/code/quic/src/quic-fingerprint",
+      "status": "PASS",
+      "traces": {
+        "chromium": {
+          "command": [
+            "/home/miloni/CS331-Phase2/build/code/quic/src/quic-fingerprint",
+            "--pcap",
+            "/home/miloni/CS331-Phase2/captures/pcaps/quic_chromium.pcap"
+          ],
+          "complete_client_hellos": 5,
+          "dcid_failure_counts": {
+            "011a1b31a56cfd4e50185931166c1e4e501392ce": 1,
+            "015809caa0146dc5ee5a4acadc13cbc5ee459f91": 1,
+            "016691d99cbe416fd06754d97bbba76fd0cac5fd": 1,
+            "01c803772feafd9e11ca9d7770eddf9e11b1e424": 2,
+            "01fbc21d021e767589f9801dca1d127589e7ac5f": 1
+          },
+          "direction": "client-to-server; keyed to header inventory, not server-direction failures",
+          "post_switch_client_dcids_with_decrypt_failures": 5
+        },
+        "curl": {
+          "command": [
+            "/home/miloni/CS331-Phase2/build/code/quic/src/quic-fingerprint",
+            "--pcap",
+            "/home/miloni/CS331-Phase2/captures/pcaps/quic_curl.pcap"
+          ],
+          "complete_client_hellos": 5,
+          "dcid_failure_counts": {
+            "010d44b2fc698a77080f06b2936fa97708b58b3a": 2,
+            "01231b0d012fc6744621bc0d6d2f677446526f93": 2,
+            "017bc2c72c094334447bf9c7ae0ce73444b2f584": 2,
+            "01af2c19040caa4dd5add1192f0fad4dd5cac347": 2,
+            "01c467356a9fd27503c625351c987475035fb54a": 2
+          },
+          "direction": "client-to-server; keyed to header inventory, not server-direction failures",
+          "post_switch_client_dcids_with_decrypt_failures": 5
+        }
+      }
+    },
+    "L2_TLS_SECRETS": {
+      "certificate_rows": 0,
+      "client_hellos_with_ja4": 1,
+      "command": [
+        "/usr/bin/tshark",
+        "-n",
+        "-r",
+        "/home/miloni/CS331-Phase2/captures/pcaps/tls_keylog_curl.pcap",
+        "-Y",
+        "tls.handshake.type == 1 || tls.handshake.certificate || http.request",
+        "-T",
+        "fields",
+        "-E",
+        "separator=/t",
+        "-E",
+        "occurrence=f",
+        "-o",
+        "tls.keylog_file:/tmp/seven-rows-keyless-p9yv0ert/empty.keys",
+        "-e",
+        "tls.handshake.type",
+        "-e",
+        "tls.handshake.ja4",
+        "-e",
+        "tls.handshake.certificate",
+        "-e",
+        "http.request.method"
+      ],
+      "http_rows": 0,
+      "scope": "fresh re-dissection with an explicitly empty TLS key log; not fresh network traffic",
+      "status": "PASS",
+      "tshark": "TShark (Wireshark) 4.6.4."
+    },
+    "L3_VANTAGE_OFFLOAD": {
+      "profiles": {
+        "offload_off": {
+          "command": [
+            "/usr/bin/tshark",
+            "-n",
+            "-r",
+            "/home/miloni/CS331-Phase2/captures/pcaps/tls_offload_off.pcap",
+            "-Y",
+            "tcp.flags.syn == 1",
+            "-T",
+            "fields",
+            "-E",
+            "separator=/t",
+            "-E",
+            "occurrence=f",
+            "-e",
+            "tcp.flags.ack",
+            "-e",
+            "tcp.options.mss_val",
+            "-e",
+            "tcp.options.wscale.shift",
+            "-e",
+            "tcp.window_size_value",
+            "-e",
+            "ip.ttl",
+            "-e",
+            "frame.len"
+          ],
+          "syn_rows": [
+            [
+              "False",
+              "1460",
+              "10",
+              "64240",
+              "64",
+              "74"
+            ],
+            [
+              "True",
+              "65495",
+              "7",
+              "65408",
+              "63",
+              "74"
+            ],
+            [
+              "False",
+              "1460",
+              "10",
+              "64240",
+              "64",
+              "74"
+            ],
+            [
+              "True",
+              "65495",
+              "7",
+              "65408",
+              "63",
+              "74"
+            ],
+            [
+              "False",
+              "1460",
+              "10",
+              "64240",
+              "64",
+              "74"
+            ],
+            [
+              "True",
+              "65495",
+              "7",
+              "65408",
+              "63",
+              "74"
+            ]
+          ],
+          "tshark": "TShark (Wireshark) 4.6.4."
+        },
+        "offload_on": {
+          "command": [
+            "/usr/bin/tshark",
+            "-n",
+            "-r",
+            "/home/miloni/CS331-Phase2/captures/pcaps/tls_offload_on.pcap",
+            "-Y",
+            "tcp.flags.syn == 1",
+            "-T",
+            "fields",
+            "-E",
+            "separator=/t",
+            "-E",
+            "occurrence=f",
+            "-e",
+            "tcp.flags.ack",
+            "-e",
+            "tcp.options.mss_val",
+            "-e",
+            "tcp.options.wscale.shift",
+            "-e",
+            "tcp.window_size_value",
+            "-e",
+            "ip.ttl",
+            "-e",
+            "frame.len"
+          ],
+          "syn_rows": [
+            [
+              "False",
+              "1460",
+              "10",
+              "64240",
+              "64",
+              "74"
+            ],
+            [
+              "True",
+              "65495",
+              "7",
+              "65408",
+              "63",
+              "74"
+            ],
+            [
+              "False",
+              "1460",
+              "10",
+              "64240",
+              "64",
+              "74"
+            ],
+            [
+              "True",
+              "65495",
+              "7",
+              "65408",
+              "63",
+              "74"
+            ],
+            [
+              "False",
+              "1460",
+              "10",
+              "64240",
+              "64",
+              "74"
+            ],
+            [
+              "True",
+              "65495",
+              "7",
+              "65408",
+              "63",
+              "74"
+            ]
+          ],
+          "tshark": "TShark (Wireshark) 4.6.4."
+        }
+      },
+      "same_profile": true,
+      "scope": "fresh parse of imported captures; does not toggle offload or establish a proxy boundary",
+      "status": "PASS"
+    },
+    "L4_PQ_MLKEM": {
+      "classic": {
+        "client_hellos": [
+          [
+            "1",
+            "508",
+            "t13d3014h2_1d37bd780c83_3eb322dd144c",
+            "29"
+          ],
+          [
+            "1",
+            "508",
+            "t13d3014h2_1d37bd780c83_3eb322dd144c",
+            "29"
+          ],
+          [
+            "1",
+            "508",
+            "t13d3014h2_1d37bd780c83_3eb322dd144c",
+            "29"
+          ],
+          [
+            "1",
+            "508",
+            "t13d3014h2_1d37bd780c83_3eb322dd144c",
+            "29"
+          ],
+          [
+            "1",
+            "508",
+            "t13d3014h2_1d37bd780c83_3eb322dd144c",
+            "29"
+          ]
+        ],
+        "command": [
+          "/usr/bin/tshark",
+          "-n",
+          "-r",
+          "/home/miloni/CS331-Phase2/captures/pcaps/tls_pq_off.pcap",
+          "-Y",
+          "tls.handshake.type == 1 || tls.handshake.type == 2",
+          "-T",
+          "fields",
+          "-E",
+          "separator=/t",
+          "-E",
+          "occurrence=f",
+          "-e",
+          "tls.handshake.type",
+          "-e",
+          "tls.handshake.length",
+          "-e",
+          "tls.handshake.ja4",
+          "-e",
+          "tls.handshake.extensions_key_share_group"
+        ],
+        "server_hellos": [
+          [
+            "2",
+            "118",
+            "",
+            "29"
+          ],
+          [
+            "2",
+            "118",
+            "",
+            "29"
+          ],
+          [
+            "2",
+            "118",
+            "",
+            "29"
+          ],
+          [
+            "2",
+            "118",
+            "",
+            "29"
+          ],
+          [
+            "2",
+            "118",
+            "",
+            "29"
+          ]
+        ],
+        "tshark": "TShark (Wireshark) 4.6.4."
+      },
+      "ja4_diverges": true,
+      "pq": {
+        "client_hellos": [
+          [
+            "1",
+            "1511",
+            "t13d3012h2_1d37bd780c83_7f037f8d6676",
+            "4588"
+          ],
+          [
+            "1",
+            "1511",
+            "t13d3012h2_1d37bd780c83_7f037f8d6676",
+            "4588"
+          ],
+          [
+            "1",
+            "1511",
+            "t13d3012h2_1d37bd780c83_7f037f8d6676",
+            "4588"
+          ],
+          [
+            "1",
+            "1511",
+            "t13d3012h2_1d37bd780c83_7f037f8d6676",
+            "4588"
+          ],
+          [
+            "1",
+            "1511",
+            "t13d3012h2_1d37bd780c83_7f037f8d6676",
+            "4588"
+          ]
+        ],
+        "command": [
+          "/usr/bin/tshark",
+          "-n",
+          "-r",
+          "/home/miloni/CS331-Phase2/captures/pcaps/tls_pq_on.pcap",
+          "-Y",
+          "tls.handshake.type == 1 || tls.handshake.type == 2",
+          "-T",
+          "fields",
+          "-E",
+          "separator=/t",
+          "-E",
+          "occurrence=f",
+          "-e",
+          "tls.handshake.type",
+          "-e",
+          "tls.handshake.length",
+          "-e",
+          "tls.handshake.ja4",
+          "-e",
+          "tls.handshake.extensions_key_share_group"
+        ],
+        "server_hellos": [
+          [
+            "2",
+            "1206",
+            "",
+            "4588"
+          ],
+          [
+            "2",
+            "1206",
+            "",
+            "4588"
+          ],
+          [
+            "2",
+            "1206",
+            "",
+            "4588"
+          ],
+          [
+            "2",
+            "1206",
+            "",
+            "4588"
+          ],
+          [
+            "2",
+            "1206",
+            "",
+            "4588"
+          ]
+        ],
+        "tshark": "TShark (Wireshark) 4.6.4."
+      },
+      "scope": "fresh dissection of imported PQ/classic captures; field length is not on-wire segment size",
+      "status": "PASS"
+    },
+    "L5_GREASE_STABILITY": {
+      "command": [
+        "/usr/bin/tshark",
+        "-n",
+        "-r",
+        "/home/miloni/CS331-Phase2/captures/pcaps/tls_chromium_repeat.pcap",
+        "-Y",
+        "tls.handshake.type == 1",
+        "-T",
+        "fields",
+        "-E",
+        "separator=/t",
+        "-E",
+        "occurrence=f",
+        "-e",
+        "tls.handshake.ja3",
+        "-e",
+        "tls.handshake.ja4",
+        "-e",
+        "tls.handshake.sig_hash_alg"
+      ],
+      "distinct_first_signature_grease_values": [
+        "0a0a",
+        "1a1a",
+        "2a2a",
+        "3a3a",
+        "4a4a",
+        "5a5a",
+        "6a6a",
+        "7a7a",
+        "8a8a",
+        "9a9a",
+        "baba",
+        "caca",
+        "dada",
+        "eaea",
+        "fafa"
+      ],
+      "distinct_ja3": 50,
+      "distinct_ja4": 15,
+      "observations": 50,
+      "rows": [
+        [
+          "a582b75805ec3e410f2acf23f38fb10d",
+          "t13d1517h2_8daaf6152771_ff1e8fc497ec",
+          "0x6a6a"
+        ],
+        [
+          "526e66bfa544e44c20864cd0949d5312",
+          "t13d1517h2_8daaf6152771_33f857a189cb",
+          "0x5a5a"
+        ],
+        [
+          "c4ae55ed81cd98c3671e2ddef82c7e34",
+          "t13d1517h2_8daaf6152771_63ff51340b64",
+          "0x9a9a"
+        ],
+        [
+          "487d8dab28dfcce3b62d9ceb43c8435a",
+          "t13d1517h2_8daaf6152771_61307d0e143d",
+          "0x7a7a"
+        ],
+        [
+          "9cd3715df7df3b197aa75fa7de15834d",
+          "t13d1517h2_8daaf6152771_5cd47779f5c5",
+          "0x2a2a"
+        ],
+        [
+          "511109f92f10deb870ff3a4146552fe0",
+          "t13d1517h2_8daaf6152771_937be626dbce",
+          "0xeaea"
+        ],
+        [
+          "6bfd3013cb058cef67076030bd5de8b3",
+          "t13d1517h2_8daaf6152771_61307d0e143d",
+          "0x7a7a"
+        ],
+        [
+          "f445a604b47790671ebfc5d8b343a550",
+          "t13d1517h2_8daaf6152771_541cd5a3d78e",
+          "0x4a4a"
+        ],
+        [
+          "f6b4dd35800c1e605a28ca24a6fb4585",
+          "t13d1517h2_8daaf6152771_234dc10236f4",
+          "0xdada"
+        ],
+        [
+          "093a6a13cfdd1169c344a5c40019c558",
+          "t13d1517h2_8daaf6152771_92a4fdd66f79",
+          "0x1a1a"
+        ],
+        [
+          "7f103ea93724ee040cb15c22b059eaae",
+          "t13d1517h2_8daaf6152771_541cd5a3d78e",
+          "0x4a4a"
+        ],
+        [
+          "095d190549a7f610b94fc3b49ddb6021",
+          "t13d1517h2_8daaf6152771_f4f7aae15fbc",
+          "0x8a8a"
+        ],
+        [
+          "edf0efb017937dd8af1ed905103424fb",
+          "t13d1517h2_8daaf6152771_a323666e1952",
+          "0xbaba"
+        ],
+        [
+          "97ac9013c64b29ea636bcd4bef160c49",
+          "t13d1517h2_8daaf6152771_33f857a189cb",
+          "0x5a5a"
+        ],
+        [
+          "b5e2091051acf9a6fc45d57c4220087a",
+          "t13d1517h2_8daaf6152771_937be626dbce",
+          "0xeaea"
+        ],
+        [
+          "649d4ed89cc2c2a04f5fa3dbbd697ff9",
+          "t13d1517h2_8daaf6152771_541cd5a3d78e",
+          "0x4a4a"
+        ],
+        [
+          "c6321d7fad73e598e4e930c1ed3cede2",
+          "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+          "0x0a0a"
+        ],
+        [
+          "5415404af3dfe44e43b0a3a6498f7adc",
+          "t13d1517h2_8daaf6152771_541cd5a3d78e",
+          "0x4a4a"
+        ],
+        [
+          "4a37e3632c6eab70259d96a00803308c",
+          "t13d1517h2_8daaf6152771_541cd5a3d78e",
+          "0x4a4a"
+        ],
+        [
+          "1483c033b8387c9c6ee64212a850a3aa",
+          "t13d1517h2_8daaf6152771_63ff51340b64",
+          "0x9a9a"
+        ],
+        [
+          "9d7ae408b907a441fd2feee33d52ca3e",
+          "t13d1517h2_8daaf6152771_f4f7aae15fbc",
+          "0x8a8a"
+        ],
+        [
+          "92034560f4e000335dcb66ea9ee7f8d4",
+          "t13d1517h2_8daaf6152771_61307d0e143d",
+          "0x7a7a"
+        ],
+        [
+          "23ebe3f7c6ac2845d1c60423d38dcdc6",
+          "t13d1517h2_8daaf6152771_63ff51340b64",
+          "0x9a9a"
+        ],
+        [
+          "428cbf4280453de7ca4fa025044eb152",
+          "t13d1517h2_8daaf6152771_e1144aa4d245",
+          "0xfafa"
+        ],
+        [
+          "4b1066b8d5d3a7b9b0fa49a5bcee793c",
+          "t13d1517h2_8daaf6152771_234dc10236f4",
+          "0xdada"
+        ],
+        [
+          "fcf9bc57c0b65b0f858b2f449117f3f4",
+          "t13d1517h2_8daaf6152771_a323666e1952",
+          "0xbaba"
+        ],
+        [
+          "5768e91e2dc22c1c91a6fa9a73b2d337",
+          "t13d1517h2_8daaf6152771_541cd5a3d78e",
+          "0x4a4a"
+        ],
+        [
+          "0e35ce4d811d6c1541af39028c66bf57",
+          "t13d1517h2_8daaf6152771_e1144aa4d245",
+          "0xfafa"
+        ],
+        [
+          "b64a6ea1733443c4f7cc6f79ee8368b6",
+          "t13d1517h2_8daaf6152771_92a4fdd66f79",
+          "0x1a1a"
+        ],
+        [
+          "11ee065abe31d110b8c6c13e3a99cc47",
+          "t13d1517h2_8daaf6152771_43736b97bd57",
+          "0xcaca"
+        ],
+        [
+          "a1bb29262ebec939e4d0a026966c3fcb",
+          "t13d1517h2_8daaf6152771_541cd5a3d78e",
+          "0x4a4a"
+        ],
+        [
+          "8660b7392f7d2adc357ef48d580c36d6",
+          "t13d1517h2_8daaf6152771_a323378790d4",
+          "0x3a3a"
+        ],
+        [
+          "ad3979b681b1cff2a9e0aea570e2e5f3",
+          "t13d1517h2_8daaf6152771_234dc10236f4",
+          "0xdada"
+        ],
+        [
+          "f9283740db131249cd04a6d62c500ffd",
+          "t13d1517h2_8daaf6152771_a323378790d4",
+          "0x3a3a"
+        ],
+        [
+          "853959f46b6c12759440648c5c75ec80",
+          "t13d1517h2_8daaf6152771_a323378790d4",
+          "0x3a3a"
+        ],
+        [
+          "175b4d5783d4cd89f5d8fc620fd16851",
+          "t13d1517h2_8daaf6152771_a323666e1952",
+          "0xbaba"
+        ],
+        [
+          "98242a937cc7d6d6f9984dfed0fa82bf",
+          "t13d1517h2_8daaf6152771_541cd5a3d78e",
+          "0x4a4a"
+        ],
+        [
+          "5cfd37082f97261eca761120068d901e",
+          "t13d1517h2_8daaf6152771_63ff51340b64",
+          "0x9a9a"
+        ],
+        [
+          "c4eabd6a6802abd112a3f496061b187b",
+          "t13d1517h2_8daaf6152771_43736b97bd57",
+          "0xcaca"
+        ],
+        [
+          "aa7b2940f8a453b54ad727938137f6a5",
+          "t13d1517h2_8daaf6152771_5cd47779f5c5",
+          "0x2a2a"
+        ],
+        [
+          "30f3b4a3400612cbfa5ebc7982f17e98",
+          "t13d1517h2_8daaf6152771_ff1e8fc497ec",
+          "0x6a6a"
+        ],
+        [
+          "4fb470b9c95505d2ec67436bcf41c70a",
+          "t13d1517h2_8daaf6152771_a323378790d4",
+          "0x3a3a"
+        ],
+        [
+          "ce88c623fde949cd33d5ec4f0f50de43",
+          "t13d1517h2_8daaf6152771_33f857a189cb",
+          "0x5a5a"
+        ],
+        [
+          "99ca96390375e2cd5bfa323076a526ed",
+          "t13d1517h2_8daaf6152771_937be626dbce",
+          "0xeaea"
+        ],
+        [
+          "40d6795586896b8f6e31af13c67e735d",
+          "t13d1517h2_8daaf6152771_5cd47779f5c5",
+          "0x2a2a"
+        ],
+        [
+          "80569f4dd0f3135b969d5bcf1c7feb00",
+          "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+          "0x0a0a"
+        ],
+        [
+          "c9354ecbbb84e238b9877db99ef0295e",
+          "t13d1517h2_8daaf6152771_a323378790d4",
+          "0x3a3a"
+        ],
+        [
+          "8601a2816b81261c42cacfdc477d3748",
+          "t13d1517h2_8daaf6152771_5cd47779f5c5",
+          "0x2a2a"
+        ],
+        [
+          "231fff16736652e633ddae59484495a6",
+          "t13d1517h2_8daaf6152771_234dc10236f4",
+          "0xdada"
+        ],
+        [
+          "e82e886fbde03c4bdfdd69f56e591fbb",
+          "t13d1517h2_8daaf6152771_234dc10236f4",
+          "0xdada"
+        ]
+      ],
+      "scope": "fresh re-dissection of the imported 50-hello capture; not 50 new connections",
+      "status": "PASS",
+      "tshark": "TShark (Wireshark) 4.6.4."
+    },
+    "L6_IPV6": {
+      "error": "EvidenceError: tcpdump produced no packet-bearing IPv6 PCAP",
+      "status": "FAIL"
+    },
+    "L7_ECH": {
+      "arms": {
+        "off": {
+          "command": [
+            "/usr/bin/tshark",
+            "-n",
+            "-r",
+            "/home/miloni/CS331-Phase2/captures/pcaps/tls_ech_off.pcap",
+            "-Y",
+            "tls.handshake.type == 1",
+            "-T",
+            "fields",
+            "-E",
+            "separator=/t",
+            "-E",
+            "occurrence=a",
+            "-e",
+            "tls.handshake.extensions_server_name",
+            "-e",
+            "tls.handshake.ja4",
+            "-e",
+            "tls.handshake.extension.type"
+          ],
+          "ech_extension_rows": 0,
+          "public_name_count": 0,
+          "rows": [
+            [
+              "redirector.gvt1.com",
+              "t13d1516h2_8daaf6152771_9654de2595cf",
+              "27242,16,10,35,23,11,51764,13,5,51,0,18,43,45,65281,27,17613,51914"
+            ],
+            [
+              "update.googleapis.com",
+              "t13d1516h2_8daaf6152771_4c57c08d3a5a",
+              "51914,45,0,16,18,5,51764,17613,11,10,65281,27,23,13,35,51,43,6682"
+            ],
+            [
+              "accounts.google.com",
+              "t13d1516h2_8daaf6152771_3557bd83d7c8",
+              "35466,5,17613,35,10,45,11,43,27,65281,51,23,51764,13,0,18,16,60138"
+            ],
+            [
+              "crypto.cloudflare.com",
+              "t13d1516h2_8daaf6152771_c95be0ae8015",
+              "27242,23,5,10,17613,35,18,16,51,13,0,27,11,45,65281,51764,43,56026"
+            ],
+            [
+              "crypto.cloudflare.com",
+              "t13d1516h2_8daaf6152771_9654de2595cf",
+              "23130,0,16,35,5,17613,11,23,65281,43,13,51764,45,27,51,10,18,27242"
+            ]
+          ],
+          "target_name_count": 2,
+          "tshark": "TShark (Wireshark) 4.6.4."
+        },
+        "on": {
+          "command": [
+            "/usr/bin/tshark",
+            "-n",
+            "-r",
+            "/home/miloni/CS331-Phase2/captures/pcaps/tls_ech_on.pcap",
+            "-Y",
+            "tls.handshake.type == 1",
+            "-T",
+            "fields",
+            "-E",
+            "separator=/t",
+            "-E",
+            "occurrence=a",
+            "-e",
+            "tls.handshake.extensions_server_name",
+            "-e",
+            "tls.handshake.ja4",
+            "-e",
+            "tls.handshake.extension.type"
+          ],
+          "ech_extension_rows": 5,
+          "public_name_count": 2,
+          "rows": [
+            [
+              "redirector.gvt1.com",
+              "t13d1517h2_8daaf6152771_92a4fdd66f79",
+              "43690,17613,18,65281,27,35,43,16,65037,51,11,0,51764,5,10,45,23,13,6682"
+            ],
+            [
+              "accounts.google.com",
+              "t13d1517h2_8daaf6152771_a323378790d4",
+              "23130,11,65281,43,51764,18,16,5,13,45,0,51,27,17613,65037,35,23,10,51914"
+            ],
+            [
+              "update.googleapis.com",
+              "t13d1517h2_8daaf6152771_63ff51340b64",
+              "2570,23,65281,51764,5,45,16,0,27,65037,18,51,10,13,17613,11,35,43,39578"
+            ],
+            [
+              "cloudflare-ech.com",
+              "t13d1517h2_8daaf6152771_f10ceb9fcfd7",
+              "51914,43,51,5,10,0,45,35,11,23,13,16,18,51764,17613,65281,27,65037,35466"
+            ],
+            [
+              "cloudflare-ech.com",
+              "t13d1517h2_8daaf6152771_92a4fdd66f79",
+              "35466,11,5,13,27,35,17613,16,45,65281,65037,23,51,18,0,10,51764,43,39578"
+            ]
+          ],
+          "target_name_count": 0,
+          "tshark": "TShark (Wireshark) 4.6.4."
+        }
+      },
+      "scope": "fresh dissection of imported captures; target flow/page correlation is not proved",
+      "status": "PASS"
+    }
+  },
+  "live_options": {
+    "ipv6_loopback_output_dir": "/home/miloni/CS331-Phase2/results/track2/verification-batch-20261105-105416/ipv6-loopback",
+    "ipv6_loopback_requested": true,
+    "live_tool_checks_requested": true
+  },
+  "overall_live_status": "FAIL",
+  "overall_status": "INCOMPLETE",
+  "rows": {
+    "L1_QUIC": {
+      "batch_run": {
+        "branch": "arena/0d29f32c-cs331-phase2",
+        "commit": "619a694a9fe449d97b4a54e487f0db7254b1fc08",
+        "timestamp": "2026-11-04T20:19:36+00:00"
+      },
+      "direction_interpretation": "client-to-server Initials; not server-direction decrypt attempts",
+      "evidence_class": "user-run WSL batch and committed header inventory; artifact audit only",
+      "limits": [
+        "No fresh TShark/C++ execution is performed by this offline audit.",
+        "Byte comparison is against TShark on each same case-specific PCAP, not independent ground truth.",
+        "Five switched-DCID buckets explain the inventory; they do not imply a missed ClientHello in these traces."
+      ],
+      "manifest": {
+        "files_verified": 52,
+        "manifest": "results/track2/verification-batch-20261104-201936/SHA256SUMS",
+        "manifest_sha256": "969940647dc657b295877673b58cbc9d13d55d092d48a15b3247d5ceea050030",
+        "verification_method": "Python hashlib; paths constrained to repository"
+      },
+      "per_trace": {
+        "chromium": {
+          "baseline_reference_and_matches": 5,
+          "cases": 6,
+          "comparison_scope": "TShark output from the same PCAP variant; user-run WSL batch",
+          "extras": 0,
+          "matched_reference_outputs_across_cases": 27,
+          "misses": 0,
+          "tshark_version": "TShark (Wireshark) 4.6.4."
+        },
+        "curl": {
+          "baseline_reference_and_matches": 5,
+          "cases": 6,
+          "comparison_scope": "TShark output from the same PCAP variant; user-run WSL batch",
+          "extras": 0,
+          "matched_reference_outputs_across_cases": 27,
+          "misses": 0,
+          "tshark_version": "TShark (Wireshark) 4.6.4."
+        }
+      },
+      "post_switch_client_dcid_matches": {
+        "quic_chromium": 5,
+        "quic_curl": 5
+      },
+      "status": "PASS"
+    },
+    "L2_TLS_SECRETS": {
+      "evidence_class": "imported Track 1 JSON comparison",
+      "limits": [
+        "The TLS key log is intentionally not present; this verifier audits saved outputs, not a fresh re-dissection.",
+        "The protocol encryption claim is scoped to this TLS 1.3 sample and the recorded keyless/keyed tool outputs."
+      ],
+      "reported_tool_versions": {
+        "chromium": "Chromium 156.0.8078.79 built on Debian GNU/Linux 13 (trixie)",
+        "curl": "curl 8.14.1 (aarch64-unknown-linux-gnu) libcurl/8.14.1 OpenSSL/3.5.7 zlib/1.3.1 brotli/1.1.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.2 libssh2/1.11.1 nghttp2/1.64.0 nghttp3/1.8.0 librtmp/2.3 OpenLDAP/2.6.10",
+        "date": "Tue Nov  3 13:37:02 UTC 2026",
+        "ja4 (FoxIO, built from tag v0.18.6)": "ja4 0.18.5",
+        "ja4-main (FoxIO, unreleased commit c6469a7)": "ja4 0.18.6",
+        "kernel": "Linux 7.0.12-linuxkit aarch64",
+        "openssl": "OpenSSL 3.5.7 9 Jun 2026 (Library: OpenSSL 3.5.7 9 Jun 2026)",
+        "python": "Python 3.13.5",
+        "tcpdump": "tcpdump version 4.99.5",
+        "tshark": "TShark (Wireshark) 4.4.19."
+      },
+      "status": "PASS",
+      "tls13_indicator": "JA4/JA4S version prefix t13 in imported output",
+      "with_keys": {
+        "certificate_records": 4,
+        "http_records": 1
+      },
+      "without_keys": {
+        "certificate_details": 0,
+        "http_details": 0,
+        "ja4_present": true
+      }
+    },
+    "L3_VANTAGE_OFFLOAD": {
+      "evidence_class": "user-run WSL TShark analysis of two imported single-vantage PCAPs",
+      "limits": [
+        "The two PCAPs are not synchronized captures across a known boundary.",
+        "MSS 65495 is an advertised receive MSS; this evidence does not identify the peer or prove proxying.",
+        "The identical SYN profiles do not demonstrate a TSO/GSO-induced MSS change; segment-size effects are a separate question."
+      ],
+      "offload_toggle_changed_syn_profile": false,
+      "profiles": {
+        "offload_off": {
+          "streams": 3,
+          "tshark_version": "TShark (Wireshark) 4.6.4.",
+          "unique_profiles": [
+            {
+              "asymmetry": [
+                "mss",
+                "window",
+                "window_scale"
+              ],
+              "client": [
+                1460,
+                10,
+                64240,
+                64
+              ],
+              "frame_lengths": [
+                74,
+                74
+              ],
+              "peer": [
+                65495,
+                7,
+                65408,
+                63
+              ]
+            },
+            {
+              "asymmetry": [
+                "mss",
+                "window",
+                "window_scale"
+              ],
+              "client": [
+                1460,
+                10,
+                64240,
+                64
+              ],
+              "frame_lengths": [
+                74,
+                74
+              ],
+              "peer": [
+                65495,
+                7,
+                65408,
+                63
+              ]
+            },
+            {
+              "asymmetry": [
+                "mss",
+                "window",
+                "window_scale"
+              ],
+              "client": [
+                1460,
+                10,
+                64240,
+                64
+              ],
+              "frame_lengths": [
+                74,
+                74
+              ],
+              "peer": [
+                65495,
+                7,
+                65408,
+                63
+              ]
+            }
+          ]
+        },
+        "offload_on": {
+          "streams": 3,
+          "tshark_version": "TShark (Wireshark) 4.6.4.",
+          "unique_profiles": [
+            {
+              "asymmetry": [
+                "mss",
+                "window",
+                "window_scale"
+              ],
+              "client": [
+                1460,
+                10,
+                64240,
+                64
+              ],
+              "frame_lengths": [
+                74,
+                74
+              ],
+              "peer": [
+                65495,
+                7,
+                65408,
+                63
+              ]
+            },
+            {
+              "asymmetry": [
+                "mss",
+                "window",
+                "window_scale"
+              ],
+              "client": [
+                1460,
+                10,
+                64240,
+                64
+              ],
+              "frame_lengths": [
+                74,
+                74
+              ],
+              "peer": [
+                65495,
+                7,
+                65408,
+                63
+              ]
+            },
+            {
+              "asymmetry": [
+                "mss",
+                "window",
+                "window_scale"
+              ],
+              "client": [
+                1460,
+                10,
+                64240,
+                64
+              ],
+              "frame_lengths": [
+                74,
+                74
+              ],
+              "peer": [
+                65495,
+                7,
+                65408,
+                63
+              ]
+            }
+          ]
+        }
+      },
+      "proxy_or_tcp_termination": "NOT_ESTABLISHED",
+      "status": "PASS"
+    },
+    "L4_PQ_MLKEM": {
+      "arms": {
+        "classic": {
+          "client_hellos": 5,
+          "ja4": "t13d3014h2_1d37bd780c83_3eb322dd144c",
+          "ja4_extension_count": 14,
+          "selected_server_group_decimal": "29",
+          "tshark_tls_handshake_length_field": 508
+        },
+        "pq": {
+          "client_hellos": 5,
+          "ja4": "t13d3012h2_1d37bd780c83_7f037f8d6676",
+          "ja4_extension_count": 12,
+          "selected_server_group_decimal": "4588",
+          "tshark_tls_handshake_length_field": 1511
+        }
+      },
+      "evidence_class": "imported Track 1 raw JSON audit",
+      "ja4_diverges": true,
+      "limits": [
+        "1511 and 508 are TShark tls.handshake.length field values, not a direct on-wire segment measurement.",
+        "The JA4 change is observed alongside extension count/content differences; it is not evidence JA4 directly encodes the selected group.",
+        "This audit does not verify TCP segmentation or reassembly, and is one imported client/environment."
+      ],
+      "reported_tool_versions": {
+        "chromium": "Chromium 156.0.8078.79 built on Debian GNU/Linux 13 (trixie)",
+        "curl": "curl 8.14.1 (aarch64-unknown-linux-gnu) libcurl/8.14.1 OpenSSL/3.5.7 zlib/1.3.1 brotli/1.1.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.2 libssh2/1.11.1 nghttp2/1.64.0 nghttp3/1.8.0 librtmp/2.3 OpenLDAP/2.6.10",
+        "date": "Tue Nov  3 13:37:02 UTC 2026",
+        "ja4 (FoxIO, built from tag v0.18.6)": "ja4 0.18.5",
+        "ja4-main (FoxIO, unreleased commit c6469a7)": "ja4 0.18.6",
+        "kernel": "Linux 7.0.12-linuxkit aarch64",
+        "openssl": "OpenSSL 3.5.7 9 Jun 2026 (Library: OpenSSL 3.5.7 9 Jun 2026)",
+        "python": "Python 3.13.5",
+        "tcpdump": "tcpdump version 4.99.5",
+        "tshark": "TShark (Wireshark) 4.4.19."
+      },
+      "status": "PASS"
+    },
+    "L5_GREASE_STABILITY": {
+      "client_hello_observations": 50,
+      "distinct_first_signature_grease_values": [
+        "0a0a",
+        "1a1a",
+        "2a2a",
+        "3a3a",
+        "4a4a",
+        "5a5a",
+        "6a6a",
+        "7a7a",
+        "8a8a",
+        "9a9a",
+        "baba",
+        "caca",
+        "dada",
+        "eaea",
+        "fafa"
+      ],
+      "distinct_ja3": 50,
+      "distinct_saved_ja4": 15,
+      "evidence_class": "imported Track 1 JSON audit",
+      "limits": [
+        "These are 50 ClientHello observations in one imported capture, not 50 newly generated controlled runs.",
+        "The raw fields strongly correlate GREASE variation with JA4 variation in this sample; no current-version binary or ja4-main output is rerun here.",
+        "The reported ja4-main distinct count of one has no retained per-capture raw output for verification."
+      ],
+      "non_signature_ja4_components_constant": true,
+      "observed_sni_counts": {
+        "accounts.google.com": 10,
+        "redirector.gvt1.com": 10,
+        "update.googleapis.com": 10,
+        "www.cloudflare.com": 20
+      },
+      "other_signature_algorithm_values_constant": true,
+      "reported_tool_versions": {
+        "chromium": "Chromium 156.0.8078.79 built on Debian GNU/Linux 13 (trixie)",
+        "curl": "curl 8.14.1 (aarch64-unknown-linux-gnu) libcurl/8.14.1 OpenSSL/3.5.7 zlib/1.3.1 brotli/1.1.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.2 libssh2/1.11.1 nghttp2/1.64.0 nghttp3/1.8.0 librtmp/2.3 OpenLDAP/2.6.10",
+        "date": "Tue Nov  3 13:37:02 UTC 2026",
+        "ja4 (FoxIO, built from tag v0.18.6)": "ja4 0.18.5",
+        "ja4-main (FoxIO, unreleased commit c6469a7)": "ja4 0.18.6",
+        "kernel": "Linux 7.0.12-linuxkit aarch64",
+        "openssl": "OpenSSL 3.5.7 9 Jun 2026 (Library: OpenSSL 3.5.7 9 Jun 2026)",
+        "python": "Python 3.13.5",
+        "tcpdump": "tcpdump version 4.99.5",
+        "tshark": "TShark (Wireshark) 4.4.19."
+      },
+      "status": "PASS"
+    },
+    "L6_IPV6": {
+      "committed_capture_bytes": 24,
+      "committed_packet_records": 0,
+      "evidence_class": "empty imported capture audit",
+      "loopback_is_not_substituted": true,
+      "next_evidence_needed": "A packet-bearing capture of a controlled connection over the host's actual public IPv6 egress, with interface, route, command, timestamps, and hashes.",
+      "public_ipv6_egress": "NOT_TESTED",
+      "status": "NOT_MEASURED"
+    },
+    "L7_ECH": {
+      "ech_off": {
+        "client_hello_rows": 5,
+        "sn_names": [
+          "accounts.google.com",
+          "crypto.cloudflare.com",
+          "redirector.gvt1.com",
+          "update.googleapis.com"
+        ],
+        "target_outer_sni_rows": 2
+      },
+      "ech_on": {
+        "client_hello_rows": 5,
+        "ech_extension_rows": 5,
+        "public_name_rows": 2,
+        "sn_names": [
+          "accounts.google.com",
+          "cloudflare-ech.com",
+          "redirector.gvt1.com",
+          "update.googleapis.com"
+        ],
+        "target_outer_sni_rows": 0
+      },
+      "evidence_class": "imported Track 1 packet JSON plus team-supplied page observations",
+      "limits": [
+        "The capture-wide outer SNI set is not only cloudflare-ech.com; unrelated Chromium background names remain visible.",
+        "The sample supports the target-name/public-name observation, but does not prove ECH+DoH success or broad name privacy."
+      ],
+      "other_visible_background_sni": [
+        "accounts.google.com",
+        "redirector.gvt1.com",
+        "update.googleapis.com"
+      ],
+      "reported_tool_versions": {
+        "chromium": "Chromium 156.0.8078.79 built on Debian GNU/Linux 13 (trixie)",
+        "curl": "curl 8.14.1 (aarch64-unknown-linux-gnu) libcurl/8.14.1 OpenSSL/3.5.7 zlib/1.3.1 brotli/1.1.0 zstd/1.5.7 libidn2/2.3.8 libpsl/0.21.2 libssh2/1.11.1 nghttp2/1.64.0 nghttp3/1.8.0 librtmp/2.3 OpenLDAP/2.6.10",
+        "date": "Tue Nov  3 13:37:02 UTC 2026",
+        "ja4 (FoxIO, built from tag v0.18.6)": "ja4 0.18.5",
+        "ja4-main (FoxIO, unreleased commit c6469a7)": "ja4 0.18.6",
+        "kernel": "Linux 7.0.12-linuxkit aarch64",
+        "openssl": "OpenSSL 3.5.7 9 Jun 2026 (Library: OpenSSL 3.5.7 9 Jun 2026)",
+        "python": "Python 3.13.5",
+        "tcpdump": "tcpdump version 4.99.5",
+        "tshark": "TShark (Wireshark) 4.4.19."
+      },
+      "status": "PASS",
+      "target_flow_correlation": "not present in the saved per-row export; page output is team-supplied"
+    }
+  },
+  "schema_version": 3,
+  "timestamp_utc": "2026-11-05T10:54:32.719066+00:00",
+  "verification_mode": "offline evidence audit plus optional fresh tool re-dissection and controlled local IPv6 loopback capture"
+}

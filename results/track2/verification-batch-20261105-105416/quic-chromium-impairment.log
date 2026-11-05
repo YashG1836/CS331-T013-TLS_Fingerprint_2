@@ -1,0 +1,10 @@
+source_sha256=090d9c9339132344fb39c4255b49611cb6516fb9f02570a5042239e075151615
+initial_crypto_frame_count=20
+stateful_initial_context=False
+case=baseline status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0 client_initial=n/a server_initial=n/a client_decrypted=n/a client_failures=n/a dcid_keyed_before_decrypted=n/a dcid_keyed_before_failures=n/a switched_alias_buckets=n/a switched_alias_packets=n/a
+case=reverse-record-order status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0 client_initial=n/a server_initial=n/a client_decrypted=n/a client_failures=n/a dcid_keyed_before_decrypted=n/a dcid_keyed_before_failures=n/a switched_alias_buckets=n/a switched_alias_packets=n/a
+case=shuffle-record-order status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0 client_initial=n/a server_initial=n/a client_decrypted=n/a client_failures=n/a dcid_keyed_before_decrypted=n/a dcid_keyed_before_failures=n/a switched_alias_buckets=n/a switched_alias_packets=n/a
+case=drop-one-initial-crypto-record status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0 client_initial=n/a server_initial=n/a client_decrypted=n/a client_failures=n/a dcid_keyed_before_decrypted=n/a dcid_keyed_before_failures=n/a switched_alias_buckets=n/a switched_alias_packets=n/a
+case=drop-every-third-initial-crypto-record status=ok reference=2 extracted=2 matched=2 recall=1.0 missed=0 extra=0 client_initial=n/a server_initial=n/a client_decrypted=n/a client_failures=n/a dcid_keyed_before_decrypted=n/a dcid_keyed_before_failures=n/a switched_alias_buckets=n/a switched_alias_packets=n/a
+case=truncate-middle-initial-crypto-record status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0 client_initial=n/a server_initial=n/a client_decrypted=n/a client_failures=n/a dcid_keyed_before_decrypted=n/a dcid_keyed_before_failures=n/a switched_alias_buckets=n/a switched_alias_packets=n/a
+results_json=/home/miloni/CS331-Phase2/results/track2/verification-batch-20261105-105416/quic-impairment/chromium/impairment-results.json

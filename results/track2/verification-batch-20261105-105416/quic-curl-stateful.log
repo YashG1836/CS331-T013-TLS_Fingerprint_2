@@ -1,0 +1,10 @@
+source_sha256=21297e764bb3ad2a28553387ff213c677e0f75b483cceb5a6fb11efc357a3c74
+initial_crypto_frame_count=20
+stateful_initial_context=True
+case=baseline status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0 client_initial=20 server_initial=5 client_decrypted=20 client_failures=0 dcid_keyed_before_decrypted=10 dcid_keyed_before_failures=10 switched_alias_buckets=5 switched_alias_packets=10
+case=reverse-record-order status=ok reference=5 extracted=0 matched=0 recall=0.0 missed=5 extra=0 client_initial=20 server_initial=5 client_decrypted=0 client_failures=10 dcid_keyed_before_decrypted=10 dcid_keyed_before_failures=10 switched_alias_buckets=0 switched_alias_packets=0
+case=shuffle-record-order status=ok reference=5 extracted=4 matched=4 recall=0.8 missed=1 extra=0 client_initial=20 server_initial=5 client_decrypted=11 client_failures=2 dcid_keyed_before_decrypted=10 dcid_keyed_before_failures=10 switched_alias_buckets=2 switched_alias_packets=3
+case=drop-one-initial-crypto-record status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0 client_initial=20 server_initial=4 client_decrypted=18 client_failures=0 dcid_keyed_before_decrypted=10 dcid_keyed_before_failures=10 switched_alias_buckets=4 switched_alias_packets=8
+case=drop-every-third-initial-crypto-record status=ok reference=2 extracted=2 matched=2 recall=1.0 missed=0 extra=0 client_initial=17 server_initial=3 client_decrypted=13 client_failures=0 dcid_keyed_before_decrypted=7 dcid_keyed_before_failures=10 switched_alias_buckets=3 switched_alias_packets=6
+case=truncate-middle-initial-crypto-record status=ok reference=5 extracted=5 matched=5 recall=1.0 missed=0 extra=0 client_initial=20 server_initial=4 client_decrypted=18 client_failures=0 dcid_keyed_before_decrypted=10 dcid_keyed_before_failures=10 switched_alias_buckets=4 switched_alias_packets=8
+results_json=/home/miloni/CS331-Phase2/results/track2/verification-batch-20261105-105416/quic-stateful/curl/impairment-results.json
