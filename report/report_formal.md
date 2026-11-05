@@ -252,7 +252,7 @@ All prompts, terminal outputs, and conversational interactions were recorded wit
 | # | AI Tool | Primary Purpose | Repository Evidence Link |
 |---|---|---|---|
 | 1 | **Google Antigravity (Advanced Coding Agent)** | Core C++20 architectural pair programming; debugging TShark JSON raw parser; implementing `InitialContextAssociator`; automating WSL verification batches; report formatting. | [`ai/miloni_(antigravity).md`](https://github.com/milonithakkar/CS331-Phase2/blob/arena/0d29f32c-cs331-phase2/ai/miloni_(antigravity).md) |
-| 2 | **Arena Agent (GitHub AI)** | Autonomous repository-level code auditing, GitHub PR reviews, continuous integration consistency checks, and verification validation on branch `arena/0d29f32c-cs331-phase2`. | [`ai/arena_agent.md`](https://github.com/milonithakkar/CS331-Phase2/blob/arena/0d29f32c-cs331-phase2/ai/arena_agent.md) |
+| 2 | **Arena Agent (GitHub AI)** | Autonomous repository-level code auditing, GitHub PR reviews, continuous integration consistency checks, and verification validation on branch `arena/0d29f32c-cs331-phase2`. | [`ai/miloni_(arena).md`](https://github.com/milonithakkar/CS331-Phase2/blob/arena/0d29f32c-cs331-phase2/ai/miloni_(arena).md) |
 | 3 | **Claude Code (Anthropic Claude 3.7 Sonnet / Opus)** | Initial Phase 2 scoping; formulating early test scripts; reviewing RFC citations and preliminary research proposals. | [`ai/yash_(claude).md`](https://github.com/milonithakkar/CS331-Phase2/blob/arena/0d29f32c-cs331-phase2/ai/yash_(claude).md) |
 
 Relevant prompt queries and unedited conversation logs are stored in the `ai/` folder of the official repository.

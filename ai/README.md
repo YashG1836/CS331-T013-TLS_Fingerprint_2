@@ -4,5 +4,5 @@ Store course-required raw, timestamped AI-use exports here, with the related imp
 
 The team confirms that the formatted per-agent Markdown records preserve the full prompt logs:
 - \i/miloni_(antigravity).md\: Google Antigravity pair-programming transcript.
-- \i/miloni_(arena).md\ (also available as \i/arena_agent.md\ and \i/miloni_(subagent).md\): Complete 164-turn transcript from the Arena web agent.
+- \i/miloni_(arena).md\: Complete 164-turn transcript from the Arena web agent.
 - \i/yash_(claude).md\: Claude Code prompt logs.
