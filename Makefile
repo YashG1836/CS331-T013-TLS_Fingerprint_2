@@ -1,5 +1,5 @@
 BUILD_DIR ?= build
-PYTHON ?= python3
+PYTHON ?= $(shell if [ -f .venv/bin/python ]; then echo .venv/bin/python; else echo python3; fi)
 
 .PHONY: build test preflight check eval baseline lab-image lab-eval lab-capture lab-versions clean
 build:
