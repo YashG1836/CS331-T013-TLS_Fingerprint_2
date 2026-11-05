@@ -173,17 +173,6 @@ The custom C++20 QUIC engine supports both raw hex datagram inspection and offli
 
 ---
 
-## 👥 Team Work Distribution (Appendix A Summary)
-
-| Member | Roll No. | Rating | Primary Technical Responsibilities |
-|:---|:---:|:---:|:---|
-| **Miloni Thakkar** | `24110204` | **10 / 10** | **Project Technical Lead:** Conceived and implemented Track 2 C++20 `InitialContextAssociator`; solved RFC 9001 post-switch DCID decryption blindspot (+16 packets); debugged Track 1 JSON parser; established 52-test automated suite; lead author of formal report and presentation deliverables. |
-| **Suhani** | `24110358` | **9 / 10** | **Architecture Co-Design & QA:** Co-designed initial modular architecture; managed multi-agent consistency audit; verified ground-truth test assertions; authored Deliverable A protocol landscape specifications and RFC mappings. |
-| **Yash Goyal** | `24110399` | **8 / 10** | **Empirical Lab Captures & Tooling:** Collected empirical PCAP traces across Linux containers (curl, Chromium, Python); built initial baseline extraction scripts; maintained containerized lab environment. |
-| **Laxmidhar Panda** | `24110185` | **7 / 10** | **Transport Diagnostics & Slides:** Formulated L3 cross-layer vantage point experiment; analyzed middlebox TCP option rewriting (MSS, TTL, Window Scale); structured presentation deck layout and visual assets. |
-
----
-
 ## 📜 Academic Integrity & AI Transparency
 
 In accordance with course guidelines, all AI interactions have been preserved in unedited form within the [`ai/`](ai/) directory:
