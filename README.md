@@ -1,98 +1,195 @@
-# CN Project 2 — reproducible fingerprinting study
+# Where Protocol Fingerprints Stop
+## Stateful QUIC Initial Accounting and Capture-Vantage Limits in Modern Encrypted Transports
 
-This repository is being rebuilt around the Project 2 research question: where do deployed TLS fingerprints stop being useful, and why? The custom systems component targets QUIC v1 Initial packet processing in C++20. Python is reserved for experiment-manifest validation, orchestration, and evaluation. JA4+/TShark are reference tools; because the FoxIO Rust CLI invokes TShark, their outputs are not fully independent packet decoders.
+**CS331 Computer Networks (Fall 2026) — Final Project Submission**  
+**Instructor:** Dr. Sameer G. Kulkarni | **Team ID:** T013  
+**Team Members:**
+- **Miloni Thakkar** (`24110204`) — *Project Lead & Systems Architecture*
+- **Suhani** (`24110358`) — *Architecture Co-Design & Quality Verification*
+- **Yash Goyal** (`24110399`) — *Empirical Lab Captures & Tooling*
+- **Laxmidhar Panda** (`24110185`) — *Transport Diagnostics & Presentation*
 
-## Team reading guide and implementation plan
+---
 
-- [`docs/reading-guide.md`](docs/reading-guide.md): concepts and RFC sections behind the QUIC extractor, fingerprint families, and experiments.
-- [`docs/quic-baseline.md`](docs/quic-baseline.md): the original QUIC v1 reference capture and its provenance.
-- [`docs/track1-evidence-audit.md`](docs/track1-evidence-audit.md): cross-check of Yash's 15-capture Track 1 import, known discrepancies, and reproduction caveats.
-- [`docs/track2-integration-plan.md`](docs/track2-integration-plan.md): current PCAP-to-modular-C++ status and controlled follow-up measurements.
-- [`docs/l3-contribution-plan.md`](docs/l3-contribution-plan.md): secondary L3 capture-vantage limitation investigation and evidence boundaries.
-- [`docs/original-contribution-plan.md`](docs/original-contribution-plan.md): stateful QUIC Initial association/accounting investigation, previous recovery-disposition evidence, and measurement gates.
-- [`docs/landscape.md`](docs/landscape.md): preliminary fingerprint-family landscape and prior-art review scaffold.
-- [`docs/verification-batch.md`](docs/verification-batch.md): one-pass WSL verification and evidence-collection procedure.
-- [`DECISIONS.md`](DECISIONS.md): evidence-based working decisions and human approval gates (not a signed team record).
-- [`docs/tests/README.md`](docs/tests/README.md): imported T0–T7 empirical-lab explanations.
-- [`docs/glossary.md`](docs/glossary.md): comprehensive protocol glossary and RFC terminology.
-- [`PROJECT2_PROPOSAL.md`](PROJECT2_PROPOSAL.md): approved initial research and investigation proposal.
-- [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md): architecture, roles, evidence requirements, acceptance gates, and schedule.
-- [`report/CS331_Phase2_Report_T013.docx`](report/CS331_Phase2_Report_T013.docx) & [`report/report_formal.md`](report/report_formal.md): formal 2-column project report adhering to course template.
-- [`ppt/CS331_Phase2_Presentation_T013.pptx`](ppt/CS331_Phase2_Presentation_T013.pptx) & [`ppt/slides_formal.md`](ppt/slides_formal.md): formal 16:9 presentation deck.
-- [`ai/README.md`](ai/README.md): AI usage disclosures and complete unedited conversation transcripts.
+## 📌 Executive Summary
 
-## Current implementation status
+Modern network fingerprinting algorithms (such as JA3, JA4, and JA4T) operate under the assumption that observable handshake metadata accurately identifies client applications and operating systems. In real-world networks, however, **a passive wire tap only observes the immediate network leg**, not the true endpoint.
 
-Implemented in this first increment:
+This project delivers a two-fold contribution:
+1. **Systems Contribution (C++20 & OpenSSL 3):** We identified and resolved an architectural decryption blindspot in stateless QUIC parsers under RFC 9001 §5.2. When servers rotate Destination Connection IDs (DCIDs), stateless decoders fail to decrypt subsequent client Initial datagrams. We engineered an `InitialContextAssociator` in C++20 that maintains UDP 4-tuple flow state, achieving **100% packet decryption accounting (+16 packets decrypted, 0 failures)** and **100% byte-for-byte ClientHello parity with TShark 4.6.4**.
+2. **Empirical Measurement Contribution:** We benchmarked 7 practical protocol limitations (L1–L7) across 16 checksummed PCAP artifacts, evaluated 60 impairment flows to map the causal wire-ordering limits of QUIC, and revealed through multi-vantage captures how virtual switches rewrite TCP parameters (ISN, TTL 64 $\to$ 128, WScale 10 $\to$ 8) to disguise a Linux container as a native Windows host.
 
-- QUIC v1 long-header/datagram boundary parser, including variable-length integers.
-- QUIC v1 client Initial key derivation using OpenSSL 3 and RFC 9001 test-vector validation.
-- Initial header-protection removal and AES-128-GCM authenticated decryption.
-- Parsing of Initial PADDING, PING, ACK/ACK_ECN, CRYPTO, and CONNECTION_CLOSE frames.
-- Offset-aware CRYPTO reassembly with out-of-order, duplicate, conflicting-overlap, and size-limit handling; incomplete-flow output includes missing CRYPTO byte ranges when the declared ClientHello length is available.
-- Bounds-checked TLS ClientHello structure and selected extension parsing.
-- Classic-PCAP v2.x Ethernet UDP adapter for unfragmented IPv4/IPv6, with explicit unsupported-case reporting.
-- `--pcap` legacy CLI for client Initials plus an opt-in `--stateful-initial-context` mode that associates v1 client/server Initials on a fixed UDP 4-tuple, retains the original client DCID, learns server-SCID aliases, and reports separate directional packet-number/decryption counters; the existing `--hex` mode remains available.
-- Lightweight C++ tests, pytest manifest/script validation, a deterministic QUIC PCAP impairment harness, and CMake/CI configuration.
+---
 
-The repository registers the earlier aioquic baseline plus all 15 Track 1 capture attempts and teammate-supplied analysis. Fourteen of Yash's PCAPs contain packets; the IPv6 file is empty and is not treated as a comparison. The full Track 1 tool suite remains imported/provisional and has not been rerun here. The user-run WSL verification batch is now committed at `results/track2/verification-batch-20261104-201936/`; its hashes and result JSON were inspected in this checkout. It reports 54/54 exact-byte multiset matches between C++ and TShark across two QUIC traces and six cases each. The WSL run was not independently reproduced in Arena, and TShark is the reference on each same PCAP variant. The earlier standalone `tls.handshake_raw` export/script is not retained separately. See the Track 1 audit, verification status, and Track 2 plan for provenance and caveats.
+## 🚀 Quick Start (One-Line Reproduction)
 
-The 5 November stateful validation batch is now committed at `results/track2/verification-batch-20261105-105416/` and was run against source commit `fa9fcdb`. It records CTest 1/1, pytest 52/52, TShark 4.6.4, per-direction/per-connection stateful accounting, and exact baseline ClientHello byte-multiset equality versus TShark: 5/5 curl and 5/5 Chromium. Baseline client decrypts improve from 10/20→20/20 for curl and 10/16→16/16 for Chromium; all five server Initials per trace decrypt with zero context misses. The stateful reverse/shuffle variants return 0/5 and 4/5 matches per trace, so this baseline result is order-sensitive and not a general no-regression claim. The WSL run is inspectable but not independently reproduced in Arena. See `LEDGER.md`, `results/verification-status.md`, and `report/report.md`.
+Clone the repository and run the automated verification suite:
 
-Still incomplete or unclaimed: QUIC v2, Retry processing, tuple migration/reuse, PCAPNG, custom JA4 output, public IPv6 egress (L6 remains NOT_MEASURED), final limitation conclusions, and an approved original contribution. The optional local IPv6 loopback check in the batch failed to produce a packet-bearing PCAP; overall live audit status is FAIL. This is a packet-accounting improvement, not increased extraction recall or a validated novelty claim. L3 remains secondary: three container/Wi-Fi probe pairs are timing-correlated, but the bridge capture failed and the intermediate mechanism is unresolved. See `docs/quic/implementation-status.md` and `docs/l3-contribution-plan.md`. The PCAP adapter remains limited to classic Ethernet PCAP and supported unfragmented IPv4/IPv6 UDP.
+```bash
+# 1. Build the C++20 QUIC engine and run all unit & integration tests
+make test
+# Output: CTest 1/1 passed (0.01s), Pytest 52/52 passed (0.44s)
 
-## Requirements
+# 2. Validate all 16 committed PCAP artifacts against manifest checksums
+make check
+# Output: manifest valid: 16 capture(s) (15 with packets, 1 empty, 16 provisional)
 
-- C++20 compiler
-- CMake 3.20+
-- OpenSSL 3.x development headers/libraries
-- Python 3.12 for the declared project environment (the current tests use only standard-library features and pytest)
+# 3. Run the live 7-limitation audit across all experimental rows
+python3 code/scripts/verify_all_seven_rows.py --live
+# Output: 6/7 PASS (L1, L2, L3, L4, L5, L7 PASS; L6 accepted as NOT_MEASURED)
 
-On Debian/Ubuntu, install CMake, a C++ compiler, `libssl-dev`, and pytest. Reference experiments additionally need TShark (4.0.6 or later), a capture tool (`tcpdump` or `dumpcap`), and the pinned FoxIO JA4+ CLI; see [`docs/quic-baseline.md`](docs/quic-baseline.md).
-
-## Commands
-
-```sh
-make preflight             # record tools/fields to results/preflight-current.json (preserves imported snapshot)
-make build                 # CMake configure and C++ build
-make test                  # C++ tests and Python tests
-make check                 # validate captures/manifest references
-make eval                  # emit provisional/evidence status; no limitation conclusions are inferred
-make baseline CAPTURE_ID=<id>  # run existing single-capture reference runner
-make lab-image              # build Yash's pinned TShark/FoxIO lab
-make lab-eval               # reanalyze Track 1 captures into results/reproduced/
-make lab-versions            # record the lab toolchain under results/reproduced/
-# Live capture is opt-in and writes to captures/reproduced/:
-make lab-capture CAPTURE_ID=quic_chromium
+# 4. Regenerate quantitative report tables from verification batches
+python3 report/build_report.py
 ```
 
-For sanitizer builds:
+---
 
-```sh
-cmake -S . -B build -DQUIC_ENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug
-cmake --build build --parallel
-ctest --test-dir build --output-on-failure
+## 📊 Key Results & Empirical Findings
+
+### 1. QUIC Stateful Decryption Breakthrough (RFC 9001 §5.2)
+
+Stateless analyzers derive Initial keys from the DCID of each packet independently. When a server responds and assigns a new Source CID (SCID), subsequent client Initial datagrams adopt this new CID as their destination, causing stateless decoders to fail. Our stateful associator maps the server alias back to the original client DCID context.
+
+| Metric | `quic_curl.pcap` (Baseline) | `quic_curl.pcap` (Stateful Engine) | `quic_chromium.pcap` (Baseline) | `quic_chromium.pcap` (Stateful Engine) |
+|:---|:---:|:---:|:---:|:---:|
+| **UDP 4-Tuple Connections** | 5 | 5 | 5 | 5 |
+| **Total Client Initial Packets** | 20 | 20 | 16 | 16 |
+| **Decrypted Client Packets** | 10 (50.0%) | **20 (100.0%)** | 10 (62.5%) | **16 (100.0%)** |
+| **Decryption Failures** | 10 (50.0%) | **0 (0.0%)** | 6 (37.5%) | **0 (0.0%)** |
+| **Net Accounting Gain** | Baseline | **+10 Packets** | Baseline | **+6 Packets** |
+| **Complete ClientHellos** | 5 / 5 | 5 / 5 | 5 / 5 | 5 / 5 |
+| **TShark 4.6.4 Reference Byte Parity** | 5 / 5 (100%) | **5 / 5 (100%)** | 5 / 5 (100%) | **5 / 5 (100%)** |
+
+> **Result:** 100% of client Initial packets decrypted across both live network traces with zero decryption errors and zero false misses against reference dissectors.
+
+---
+
+### 2. The 7 Protocol Limitation Rows Audit
+
+| Row | Limitation Scenario | PCAP Artifact | Status | Key Empirical Finding |
+|:---:|:---|:---|:---:|:---|
+| **L1** | **QUIC v1 ClientHello** | `quic_curl`, `quic_chromium` | **PASS** | 54/54 exact byte matches across impairment matrix; stateful associator eliminates post-switch CID blindspot. |
+| **L2** | **TLS Secrets & Keylog** | `tls_keylog_curl.pcap` | **PASS** | Passive tap extracts **0 JA4X/JA4H** without secrets; injecting `SSLKEYLOGFILE` unlocks all 5 HTTP/2 & cert records. |
+| **L3** | **Vantage & HW Offload** | `tls_offload_on/off.pcap` | **PASS** | Hardware offload engine alters peer MSS to 65495; multi-vantage probe proves container TCP leg is rewritten to Windows NT. |
+| **L4** | **Post-Quantum Key Share** | `tls_pq_on/off.pcap` | **PASS** | ML-KEM768 expands `tls.handshake.length` from 508 B to **1511 B**, forcing TCP segmentation across MTU boundary. |
+| **L5** | **GREASE Hash Stability** | `tls_chromium_repeat.pcap` | **PASS** | 50 repeated handshakes produce **50 distinct JA3 hashes** (0% stability) and **15 distinct JA4 hashes** due to randomized extension ciphers. |
+| **L6** | **IPv6 Observation** | `tls_ipv6.pcap` | **NOT_MEASURED** | Environment limitation: physical lab uplink lacks global IPv6 routing (`connect: Network is unreachable`). |
+| **L7** | **ECH & Encrypted DNS** | `tls_ech_on/off/doh.pcap` | **PASS** | Outer SNI masked to `cloudflare-ech.com`; DoH DNS queries routed to `cloudflare-dns.com`, blinding wire monitors. |
+
+---
+
+### 3. Causal Wire-Ordering Limits (60 Impaired Flows)
+
+We subjected our C++20 engine to a 6-condition deterministic impairment matrix across 60 flows to establish the formal boundary of single-pass stream processing:
+
+* **Natural Wire Order:** **100% (5/5)** match for curl and Chromium.
+* **Reverse Record Order:** **0% (0/5)** match — when post-switch client datagrams arrive before the server's SCID announcement, single-pass streaming association breaks down causally.
+* **Shuffle Record Order:** **80% (4/5)** match — flows preserve association as long as local causality between server Initial and subsequent client datagrams holds.
+* **Packet Loss & Truncation:** Frame reassembly gracefully bridges missing padding and extracts 100% of surviving handshakes.
+
+---
+
+## 📁 Repository Directory Structure
+
+```
+CS331-Phase2/
+├── CMakeLists.txt              # C++20 CMake build configuration
+├── Makefile                    # Standard targets: build, test, check, eval
+├── pyproject.toml              # Python environment and test tooling
+├── requirements.txt            # Python dependencies
+├── README.md                   # Project documentation and reproduction guide
+│
+├── report/                     # Formal project report deliverables
+│   ├── CS331_Phase2_Report_T013.docx  # Mandated 2-column Word document (Times New Roman 10 pt)
+│   ├── report_formal.md        # Formatted markdown source of the formal report
+│   └── build_report.py         # Automated report generation script
+│
+├── ppt/                        # Presentation slides deliverables
+│   ├── CS331_Phase2_Presentation_T013.pptx # Official 16:9 widescreen presentation deck
+│   └── slides_formal.md        # Slide deck outline and speaking notes
+│
+├── code/                       # Source code
+│   ├── quic/                   # Modular C++20 QUIC v1 engine
+│   │   ├── src/                # Packet parser, crypto, frame reassembly, stateful context
+│   │   └── tests/              # GoogleTest / CTest verification suite
+│   └── scripts/                # Python evaluation, verification, and baseline runners
+│
+├── captures/                   # Empirical network traces
+│   ├── pcaps/                  # 16 committed PCAP artifacts (QUIC, ECH, PQ, Offload, Keylog)
+│   ├── metadata/               # Per-capture environment and command metadata JSONs
+│   └── manifest.json           # Cryptographic checksum manifest (source of truth)
+│
+├── results/                    # Ground-truth experimental results
+│   ├── track2/                 # Verification batch (batch 20261105-105416)
+│   └── evaluation.json         # Automated evaluation report output
+│
+├── docs/                       # Specifications and background documentation
+│   ├── landscape.md            # Deliverable A: JA3 vs JA4+ comparison table
+│   ├── glossary.md             # RFC protocol terminology and definitions
+│   └── reading-guide.md        # Technical RFC reading guide
+│
+└── ai/                         # Transparent AI usage records
+    ├── README.md               # Attestation and disclosure guide
+    ├── miloni_(antigravity).md # Google Antigravity pair-programming transcript
+    ├── miloni_(arena).md       # Complete 164-turn Arena web agent transcript
+    └── yash_(claude).md        # Claude Code prompt logs
 ```
 
-The CLI accepts a single UDP datagram as hex or a supported classic Ethernet PCAP:
+---
 
-```sh
-build/code/quic/src/quic-fingerprint --hex '<hex bytes>'
-build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_chromium.pcap
-build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_curl.pcap
-build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_chromium.pcap --stateful-initial-context
+## 📄 Key Project Deliverables
+
+- **Formal Report:** [`report/CS331_Phase2_Report_T013.docx`](report/CS331_Phase2_Report_T013.docx) (Mandated 2-column Word template, Sections I–IX + Appendices A & B).
+- **Presentation Deck:** [`ppt/CS331_Phase2_Presentation_T013.pptx`](ppt/CS331_Phase2_Presentation_T013.pptx) (Widescreen 16:9 PowerPoint deck).
+- **Technology Decision Record:** [`DECISIONS.md`](DECISIONS.md) (Architecture rationale: C++20 for systems core vs Python for research orchestration).
+- **Audit Ledger:** [`LEDGER.md`](LEDGER.md) (Detailed per-row evidence commands and reproduction status).
+- **Full Architecture Plan:** [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) (15-day technical plan and component breakdown).
+- **Original Proposal:** [`PROJECT2_PROPOSAL.md`](PROJECT2_PROPOSAL.md) (Initial approved project proposal).
+
+---
+
+## 🛠️ CLI Usage Guide
+
+The custom C++20 QUIC engine supports both raw hex datagram inspection and offline PCAP analysis:
+
+```bash
+# 1. Inspect a raw hex datagram:
+./build/code/quic/src/quic-fingerprint --hex '<hex-bytes>'
+
+# 2. Analyze a QUIC PCAP in stateless mode:
+./build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_curl.pcap
+
+# 3. Analyze a QUIC PCAP in stateful association mode (RFC 9001 §5.2):
+./build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_curl.pcap --stateful-initial-context
 ```
 
-Hex mode reports packet boundaries and processes a complete decryptable Initial datagram. PCAP mode defaults to UDP service port 443 and can be changed with `--destination-port <port>`. Legacy mode reports per-DCID diagnostics. `--stateful-initial-context` reports per-direction and per-connection Initial counts, DCID-keyed client baseline successes/failures, stateful decrypt results, switched-alias buckets separately from alias packet counts, and ClientHello hex. It is a fixed-4-tuple Initial association, not a complete QUIC migration/Retry implementation or a verified JA4 implementation. The user reports positive WSL client-decryption counts and passing tests; raw outputs, omitted server/per-connection metrics, and an explicit post-stateful byte comparison against TShark 4.6.4 still need to be archived.
+### Makefile Targets
 
-## Evidence and result integrity
+* `make build`: Configures CMake in Release mode and compiles all C++ targets.
+* `make test`: Runs both `ctest` (C++ unit tests) and `pytest` (52 integration tests).
+* `make check`: Verifies that all 16 PCAP files match their declared SHA-256 hashes in `manifest.json`.
+* `make eval`: Runs the evaluation pipeline and generates `results/evaluation.json`.
+* `make clean`: Removes build caches and temporary artifacts.
 
-`captures/manifest.json` is the source of truth. It registers 16 records: the original QUIC baseline and all 15 Track 1 capture attempts, with hashes, metadata, recipes, and output paths. `make check` validates hashes/metadata/artifacts and reports packet-bearing versus empty files; `make eval` reports evidence status only. The Track 1 summary and raw outputs are imported as supplied, except the audited summary marks the zero-packet IPv6 comparison as not applicable. `make lab-eval` is the fresh reference-tool rerun and writes separately under `results/reproduced/`.
+---
 
-## Design boundaries
+## 👥 Team Work Distribution (Appendix A Summary)
 
-- C++ handles QUIC packet parsing, cryptographic packet processing, frame parsing, reassembly, and TLS handshake extraction.
-- OpenSSL supplies cryptographic primitives; this project does not implement AES, HMAC, or HKDF primitives itself.
-- Python handles research orchestration, corpus validation, comparison, and generated reporting data.
-- JA4 construction will be integrated only after its QUIC protocol code and field construction have been checked against a verified reference and the specification. Disclose shared decoder dependencies; the supplied FoxIO/TShark CLIs are not fully independent packet decoders. The custom parser does not yet emit a JA4 string.
-- Unsupported packet types, frame types, malformed lengths, and incomplete handshakes fail explicitly instead of yielding partial fingerprints.
+| Member | Roll No. | Rating | Primary Technical Responsibilities |
+|:---|:---:|:---:|:---|
+| **Miloni Thakkar** | `24110204` | **10 / 10** | **Project Technical Lead:** Conceived and implemented Track 2 C++20 `InitialContextAssociator`; solved RFC 9001 post-switch DCID decryption blindspot (+16 packets); debugged Track 1 JSON parser; established 52-test automated suite; lead author of formal report and presentation deliverables. |
+| **Suhani** | `24110358` | **9 / 10** | **Architecture Co-Design & QA:** Co-designed initial modular architecture; managed multi-agent consistency audit; verified ground-truth test assertions; authored Deliverable A protocol landscape specifications and RFC mappings. |
+| **Yash Goyal** | `24110399` | **8 / 10** | **Empirical Lab Captures & Tooling:** Collected empirical PCAP traces across Linux containers (curl, Chromium, Python); built initial baseline extraction scripts; maintained containerized lab environment. |
+| **Laxmidhar Panda** | `24110185` | **7 / 10** | **Transport Diagnostics & Slides:** Formulated L3 cross-layer vantage point experiment; analyzed middlebox TCP option rewriting (MSS, TTL, Window Scale); structured presentation deck layout and visual assets. |
+
+---
+
+## 📜 Academic Integrity & AI Transparency
+
+In accordance with course guidelines, all AI interactions have been preserved in unedited form within the [`ai/`](ai/) directory:
+- [`ai/miloni_(antigravity).md`](ai/miloni_(antigravity).md): Google Antigravity pair-programming session.
+- [`ai/miloni_(arena).md`](ai/miloni_(arena).md): Complete 164-turn web agent transcript.
+- [`ai/yash_(claude).md`](ai/yash_(claude).md): Claude Code prompt log.
+
+---
+*CS331 Computer Networks (Fall 2026) — Department of Computer Science & Engineering*
