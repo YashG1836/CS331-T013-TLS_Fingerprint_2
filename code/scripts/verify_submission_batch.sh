@@ -7,7 +7,7 @@ if [[ ${1:-} == "-h" || ${1:-} == "--help" ]]; then
 Usage: code/scripts/verify_submission_batch.sh [results/track2/RUN_DIRECTORY]
 
 Runs manifest checks, make test, preflight, QUIC DCID inventory, imported offload
-SYN analysis, and both deterministic QUIC impairment comparisons. All outputs are
+SYN analysis, and baseline plus stateful QUIC impairment comparisons. All outputs are
 written under a new tracked results/track2 directory. It does not perform a live
 capture or a Windows-side capture. Review privacy and output before committing.
 USAGE
@@ -53,6 +53,14 @@ sha256sum \
   code/scripts/quic_impairment.py \
   code/scripts/quic_initial_inventory.py \
   code/scripts/l3_proxy_sanity.py \
+  code/quic/src/main.cpp \
+  code/quic/src/initial_context.cpp \
+  code/quic/src/include/quic/initial_context.hpp \
+  code/quic/src/capture_reader.cpp \
+  code/quic/src/include/quic/capture_reader.hpp \
+  code/quic/src/CMakeLists.txt \
+  code/quic/tests/test_core.cpp \
+  code/scripts/tests/test_quic_stateful_accounting.py \
   > "$run_dir/script-sha256.txt"
 
 python3 code/scripts/preflight.py --output "$run_dir/preflight.json" \
@@ -83,6 +91,20 @@ python3 code/scripts/quic_impairment.py \
   --work-dir "$run_dir/quic-impairment/curl" \
   --extractor build/code/quic/src/quic-fingerprint --tshark tshark --seed 331 \
   2>&1 | tee "$run_dir/quic-curl-impairment.log"
+
+python3 code/scripts/quic_impairment.py \
+  --input captures/pcaps/quic_chromium.pcap \
+  --work-dir "$run_dir/quic-stateful/chromium" \
+  --extractor build/code/quic/src/quic-fingerprint --tshark tshark --seed 331 \
+  --stateful-initial-context \
+  2>&1 | tee "$run_dir/quic-chromium-stateful.log"
+
+python3 code/scripts/quic_impairment.py \
+  --input captures/pcaps/quic_curl.pcap \
+  --work-dir "$run_dir/quic-stateful/curl" \
+  --extractor build/code/quic/src/quic-fingerprint --tshark tshark --seed 331 \
+  --stateful-initial-context \
+  2>&1 | tee "$run_dir/quic-curl-stateful.log"
 
 find "$run_dir" -type f ! -name SHA256SUMS -print0 \
   | sort -z | xargs -0 sha256sum > "$run_dir/SHA256SUMS"

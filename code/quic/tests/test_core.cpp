@@ -1,6 +1,7 @@
 #include "quic/capture_reader.hpp"
 #include "quic/crypto_reassembly.hpp"
 #include "quic/frame_parser.hpp"
+#include "quic/initial_context.hpp"
 #include "quic/initial_crypto.hpp"
 #include "quic/packet_parser.hpp"
 #include "tls/client_hello.hpp"
@@ -121,6 +122,80 @@ void test_initial_keys_rfc9001() {
                    hex("c206b8d9b9f0f37644430b490eeaa314").begin()));
 
   CHECK(!quic::derive_initial_keys(hex("000102030405060708090a0b0c0d0e0f1011121314"), true));
+}
+
+void test_initial_dcid_association_across_server_scid() {
+  quic::UdpDatagram client_packet;
+  client_packet.ip_version = 4;
+  client_packet.source_address[12] = 192;
+  client_packet.source_address[13] = 0;
+  client_packet.source_address[14] = 2;
+  client_packet.source_address[15] = 10;
+  client_packet.destination_address[12] = 198;
+  client_packet.destination_address[13] = 51;
+  client_packet.destination_address[14] = 100;
+  client_packet.destination_address[15] = 20;
+  client_packet.source_port = 51515;
+  client_packet.destination_port = 443;
+
+  quic::LongHeaderPacket client_initial;
+  client_initial.type = quic::PacketType::Initial;
+  client_initial.version = 1;
+  client_initial.destination_connection_id = hex("8394c8f03e515708");
+  client_initial.source_connection_id = hex("c1d2c3d4");
+
+  quic::InitialContextAssociator associator;
+  const auto first = associator.observe(client_packet, client_initial, 443);
+  CHECK(first.associated);
+  CHECK(first.created_connection);
+  CHECK(first.direction == quic::InitialDirection::ClientToServer);
+  CHECK(first.original_destination_connection_id == client_initial.destination_connection_id);
+
+  quic::UdpDatagram server_packet = client_packet;
+  std::swap(server_packet.source_address, server_packet.destination_address);
+  std::swap(server_packet.source_port, server_packet.destination_port);
+  quic::LongHeaderPacket server_initial;
+  server_initial.type = quic::PacketType::Initial;
+  server_initial.version = 1;
+  server_initial.destination_connection_id = client_initial.source_connection_id;
+  server_initial.source_connection_id = hex("a1a2a3a4a5a6a7a8");
+  const auto server = associator.observe(server_packet, server_initial, 443);
+  CHECK(server.associated);
+  CHECK(server.direction == quic::InitialDirection::ServerToClient);
+  CHECK(server.original_destination_connection_id == client_initial.destination_connection_id);
+
+  quic::LongHeaderPacket switched_client = client_initial;
+  switched_client.destination_connection_id = server_initial.source_connection_id;
+  const auto switched = associator.observe(client_packet, switched_client, 443);
+  CHECK(switched.associated);
+  CHECK(switched.used_switched_dcid);
+  CHECK(switched.original_destination_connection_id == client_initial.destination_connection_id);
+
+  // Retransmissions through the same alias increase the packet count but do
+  // not create duplicate alias buckets or replace the original key context.
+  const auto retransmission = associator.observe(client_packet, switched_client, 443);
+  CHECK(retransmission.associated);
+  CHECK(retransmission.used_switched_dcid);
+  CHECK(associator.connections().size() == 1);
+  const auto& context = associator.connections().begin()->second;
+  CHECK(context.original_destination_connection_id == client_initial.destination_connection_id);
+  CHECK(context.switched_client_destination_connection_ids.size() == 1);
+  CHECK(context.switched_client_initial_packets == 2);
+
+  // An unknown CID on an established tuple must not silently replace the ODCID.
+  quic::LongHeaderPacket unknown_client = client_initial;
+  unknown_client.destination_connection_id = hex("deadbeef");
+  const auto unknown = associator.observe(client_packet, unknown_client, 443);
+  CHECK(!unknown.associated);
+  CHECK(unknown.original_destination_connection_id == client_initial.destination_connection_id);
+  CHECK(associator.connections().begin()->second.original_destination_connection_id ==
+        client_initial.destination_connection_id);
+
+  // The four-tuple and client SCID must both match before learning a server SCID.
+  quic::UdpDatagram unrelated_server = server_packet;
+  unrelated_server.source_address[15] = 21;
+  const auto unrelated = associator.observe(unrelated_server, server_initial, 443);
+  CHECK(!unrelated.associated);
 }
 
 void test_initial_decryption_rfc9001() {
@@ -331,6 +406,14 @@ void test_classic_pcap_udp_reader() {
   CHECK(parsed.value->udp_datagrams.size() == 1);
   CHECK(parsed.value->udp_datagrams[0].frame_number == 1);
   CHECK(parsed.value->udp_datagrams[0].ip_version == 4);
+  CHECK(parsed.value->udp_datagrams[0].source_address[12] == 192);
+  CHECK(parsed.value->udp_datagrams[0].source_address[13] == 0);
+  CHECK(parsed.value->udp_datagrams[0].source_address[14] == 2);
+  CHECK(parsed.value->udp_datagrams[0].source_address[15] == 1);
+  CHECK(parsed.value->udp_datagrams[0].destination_address[12] == 198);
+  CHECK(parsed.value->udp_datagrams[0].destination_address[13] == 51);
+  CHECK(parsed.value->udp_datagrams[0].destination_address[14] == 100);
+  CHECK(parsed.value->udp_datagrams[0].destination_address[15] == 2);
   CHECK(parsed.value->udp_datagrams[0].source_port == 12345);
   CHECK(parsed.value->udp_datagrams[0].destination_port == 443);
   CHECK(parsed.value->udp_datagrams[0].payload == udp_payload);
@@ -354,6 +437,7 @@ int main() {
   test_packet_parser();
   test_classic_pcap_udp_reader();
   test_initial_keys_rfc9001();
+  test_initial_dcid_association_across_server_scid();
   test_initial_decryption_rfc9001();
   test_reassembly();
   test_frame_parser();

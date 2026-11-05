@@ -309,6 +309,47 @@ def compare_hellos(reference: list[str], extracted: list[str]) -> dict[str, Any]
     }
 
 
+def parse_extractor_accounting(output: str) -> dict[str, Any]:
+    integer_metrics = (
+        "initial_packets_total",
+        "client_initial_packets",
+        "server_initial_packets",
+        "client_initial_decrypted",
+        "server_initial_decrypted",
+        "client_initial_decrypt_failures",
+        "server_initial_decrypt_failures",
+        "client_initial_context_misses",
+        "server_initial_context_misses",
+        "dcid_keyed_client_initial_packets",
+        "dcid_keyed_client_decrypted",
+        "dcid_keyed_client_decrypt_failures",
+        "dcid_keyed_client_dcid_buckets",
+        "switched_dcid_alias_buckets",
+        "switched_dcid_client_initial_packets",
+        "retry_packets_observed_unsupported",
+        "connections",
+    )
+    metrics: dict[str, Any] = {}
+    for name in integer_metrics:
+        match = re.search(rf"^{re.escape(name)}=(\d+)$", output, re.MULTILINE)
+        if match:
+            metrics[name] = int(match.group(1))
+    per_connection = []
+    for line in output.splitlines():
+        if not line.startswith("connection_flow="):
+            continue
+        row: dict[str, Any] = {}
+        for token in line.split():
+            key, separator, value = token.partition("=")
+            if not separator:
+                continue
+            row[key] = int(value) if value.isdecimal() else value
+        per_connection.append(row)
+    if per_connection:
+        metrics["per_connection"] = per_connection
+    return metrics
+
+
 def _resolve_executable(value: str) -> str:
     if "/" in value:
         path = Path(value).expanduser().resolve()
@@ -321,7 +362,10 @@ def _resolve_executable(value: str) -> str:
     return found
 
 
-def evaluate_variants(manifest: dict[str, Any], work_dir: Path, extractor: str, tshark: str) -> dict[str, Any]:
+def evaluate_variants(
+    manifest: dict[str, Any], work_dir: Path, extractor: str, tshark: str,
+    stateful_initial_context: bool = False,
+) -> dict[str, Any]:
     extractor_path = _resolve_executable(extractor)
     tshark_path = _resolve_executable(tshark)
     logs_dir = work_dir / "logs"
@@ -333,6 +377,8 @@ def evaluate_variants(manifest: dict[str, Any], work_dir: Path, extractor: str, 
         case_id = case["case_id"]
         capture = Path(case["path"]).resolve()
         extractor_argv = [extractor_path, "--pcap", str(capture)]
+        if stateful_initial_context:
+            extractor_argv.append("--stateful-initial-context")
         extractor_run = subprocess.run(
             extractor_argv, capture_output=True, text=True, check=False
         )
@@ -377,6 +423,7 @@ def evaluate_variants(manifest: dict[str, Any], work_dir: Path, extractor: str, 
             row["extractor_decrypt_failure_count"] = sum(
                 map(int, re.findall(r"decrypt_failures=(\d+)", extractor_run.stdout))
             )
+            row["extractor_packet_accounting"] = parse_extractor_accounting(extractor_run.stdout)
             row["extractor_unsupported_record_count"] = int(
                 (re.search(r"unsupported_records=(\d+)", extractor_run.stdout) or [None, "0"])[1]
             )
@@ -391,6 +438,7 @@ def evaluate_variants(manifest: dict[str, Any], work_dir: Path, extractor: str, 
         "source_pcap": manifest["source_pcap"],
         "source_sha256": manifest["source_sha256"],
         "extractor": extractor_path,
+        "stateful_initial_context": stateful_initial_context,
         "tshark": tshark_path,
         "tshark_version_line": tshark_version[0] if tshark_version else "unavailable",
         "python_version": sys.version,
@@ -410,17 +458,30 @@ def run_experiment(args: argparse.Namespace) -> int:
     if not source.is_file():
         raise FileNotFoundError(f"source PCAP not found: {source}")
     manifest = make_variants(source, work_dir, args.tshark, args.seed, args.truncate_bytes)
-    result = evaluate_variants(manifest, work_dir, args.extractor, args.tshark)
+    result = evaluate_variants(
+        manifest, work_dir, args.extractor, args.tshark,
+        stateful_initial_context=args.stateful_initial_context,
+    )
     print(f"source_sha256={manifest['source_sha256']}")
     print(f"initial_crypto_frame_count={len(manifest['tshark_crypto_frame_numbers'])}")
+    print(f"stateful_initial_context={args.stateful_initial_context}")
     for row in result["results"]:
+        accounting = row.get("extractor_packet_accounting", {})
         print(
             f"case={row['case_id']} status={row['comparison_status']} "
             f"reference={row.get('reference_count', 'n/a')} extracted={row.get('extracted_count', 'n/a')} "
             f"matched={row.get('exact_byte_match_count', 'n/a')} "
             f"recall={row.get('exact_byte_recall', 'n/a')} "
             f"missed={row.get('missed_reference_count', 'n/a')} "
-            f"extra={row.get('extra_or_nonreference_count', 'n/a')}"
+            f"extra={row.get('extra_or_nonreference_count', 'n/a')} "
+            f"client_initial={accounting.get('client_initial_packets', 'n/a')} "
+            f"server_initial={accounting.get('server_initial_packets', 'n/a')} "
+            f"client_decrypted={accounting.get('client_initial_decrypted', 'n/a')} "
+            f"client_failures={accounting.get('client_initial_decrypt_failures', 'n/a')} "
+            f"dcid_keyed_before_decrypted={accounting.get('dcid_keyed_client_decrypted', 'n/a')} "
+            f"dcid_keyed_before_failures={accounting.get('dcid_keyed_client_decrypt_failures', 'n/a')} "
+            f"switched_alias_buckets={accounting.get('switched_dcid_alias_buckets', 'n/a')} "
+            f"switched_alias_packets={accounting.get('switched_dcid_client_initial_packets', 'n/a')}"
         )
     print(f"results_json={result['results_path']}")
     return 0 if all(row["comparison_status"] == "ok" for row in result["results"]) else 1
@@ -431,6 +492,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--input", required=True, help="source classic-Ethernet PCAP (never modified)")
     parser.add_argument("--work-dir", required=True, help="output directory; use results/reproduced/<name>")
     parser.add_argument("--extractor", default="build/code/quic/src/quic-fingerprint")
+    parser.add_argument(
+        "--stateful-initial-context", action="store_true",
+        help="run the extractor's stateful original-DCID/server-SCID association mode",
+    )
     parser.add_argument("--tshark", default="tshark")
     parser.add_argument("--seed", type=int, default=331)
     parser.add_argument("--truncate-bytes", type=int, default=64)

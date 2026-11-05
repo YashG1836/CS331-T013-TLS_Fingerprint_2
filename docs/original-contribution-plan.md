@@ -2,11 +2,21 @@
 
 ## Decision status
 
-**QUIC extraction/recovery is rejected as the original contribution for the tested conditions.** The committed user-run WSL batch matches C++ and TShark on all emitted complete ClientHellos across the six tested cases for each trace: 27/27 per trace, 54/54 overall, with zero misses/extras. In every-third-drop cases, the reference itself contains only two ClientHellos; that is conditional agreement on the surviving handshakes, not recovery of all five originals. The user-reported damaged-flow audit shows three explicit incomplete statuses per trace. Baseline correlation confirms no suffix gap for the unknown-length curl flow and an unreported-by-design suffix `[1026,1891)` for the unknown-length Chromium flow; the damaged capture lacks the handshake length header, so the CLI correctly labels its ranges observed-extent-only. This bounded correctness check shows no material diagnostics contribution gap. L1's clean-capture visibility gap is not supported. The primary contribution candidate is now L3 capture-vantage/proxy-aware JA4T attribution; its hypothesis, evidence gates, and first WSL commands are in [`l3-contribution-plan.md`](l3-contribution-plan.md). L3 is still provisional and must not be presented as a finding until its raw packet evidence is reproduced.
+**Updated 5 November 2026 — the broad QUIC extraction/recovery and completeness-diagnostics hypothesis remains rejected, but a narrower QUIC Initial context/accounting defect is now the primary investigation.** The committed WSL baseline reports 16 client Initial records in Chromium (10 decrypted, 6 failed) and 20 in curl (10 decrypted, 10 failed). The failed records fall into five switched-DCID alias buckets per trace; those are packet records, not five lost ClientHellos. Existing extraction already returns all five complete ClientHellos per trace and byte-matches TShark 4.6.4, so the proposed improvement is packet-level accounting/decryption, not increased ClientHello recall. A stateful original-DCID/server-SCID association and a comparison mode have now been added to the prototype and harness. They have **not** yet been run with the full WSL toolchain in this checkout; the post-change decrypt counts and byte comparison are pending and no improvement is claimed. QUIC is primary; L3 capture-vantage is secondary and remains bounded by the three-pair evidence and unresolved intermediate path described in [`l3-contribution-plan.md`](l3-contribution-plan.md). No candidate is a final novelty/course-rubric claim until the new measurements and review are complete.
 
 Do not describe the standards-defined QUIC Initial key derivation, classic-PCAP reading, or the clean-trace match as the original contribution. First establish a reproducible gap under a measured capture condition and show an improvement over a declared baseline.
 
-## QUIC research question evaluated (not the active contribution candidate)
+## Active primary investigation: stateful Initial context and CID association
+
+The stateful path is a targeted response to the user-observed later-client-Initial decrypt failures, not a claim that an established QUIC implementation lacks CID handling. The association is intentionally scoped to a single direction-normalized UDP 4-tuple. It stores the first client Initial DCID as the original key context, learns client SCIDs and server Initial SCIDs, accepts switched client DCIDs only when they match a learned server SCID, and keeps client/server packet-number reconstruction state separate. Unknown CIDs do not overwrite context. Retry transitions and tuple migration are excluded and must be called out as limitations.
+
+The required before/after report is per trace and per connection: total Initial packet records in each direction; distinct switched-DCID alias buckets **separately** from client packet records using those aliases; DCID-keyed baseline client decrypt successes/failures; stateful client and server decrypt successes/failures; context misses; complete ClientHello count and byte-for-byte multiset comparison against TShark 4.6.4. The existing baseline is 10 successes/6 failures from 16 client Initial records for Chromium and 10/10 from 20 records for curl. Existing complete-ClientHello recall is 5/5 per trace. The expected result is fewer avoidable stateful client decrypt failures with unchanged complete ClientHello extraction; verify that rather than assume it.
+
+Implementation lives in `code/quic/src/initial_context.cpp` and `main.cpp`; the C++ tests cover first-DCID retention, a server-SCID alias, duplicate switched packets, unknown-CID rejection, and tuple separation. `code/scripts/quic_impairment.py --stateful-initial-context` runs the stateful extractor over the deterministic capture cases and compares exact ClientHello bytes with TShark. The updated `code/scripts/verify_submission_batch.sh` runs both legacy and stateful matrices. Full CMake/CTest, TShark comparison, and post-change performance/accounting remain pending in WSL because this Arena environment lacks CMake, TShark, and OpenSSL development headers.
+
+This establishes a reproducible bug/fix candidate, not novelty. Check the QUIC specifications and prior art, course rubric, and team decision before promoting it to an original contribution. Preserve the original ODCID derivation semantics in light of RFC 9001 §5.2 and CID changes under RFC 9000 §7.2; do not overclaim support for Retry or migration.
+
+## Previous broad QUIC research question (recovery/diagnostics hypothesis rejected)
 
 > Under controlled packet-capture degradation, how do QUIC v1 ClientHello recovery tools differ in exact-byte recall and in distinguishing incomplete evidence from unsupported or undecryptable traffic?
 
@@ -18,7 +28,7 @@ The evaluated direction was a **capture-quality-aware QUIC Initial recovery and 
 - `quic_curl.pcap`: five extracted ClientHellos, each 1509 bytes.
 - The user reports that all ten C++ handshake byte strings match TShark 4.6.4 `tls.handshake_raw` values by set equality. TShark packet-arrival order differs from the CLI's DCID iteration order, so the reported comparison is set-based rather than positional.
 - The committed batch records TShark 4.6.4, GCC 15.2.0, OpenSSL 3.5.5, exact per-case commands, TShark `jsonraw` exports, C++ logs, variants, and hashes. These artifacts were inspected in this checkout, but the WSL execution was not independently regenerated in Arena. The earlier standalone clean `tls.handshake_raw` export/script is not preserved separately.
-- The CLI reports ten per-DCID Initial buckets and five decrypt failures per capture while still recovering all five TShark ClientHellos. A new header-only inventory maps the five extra buckets to later client-to-server Initial packets whose DCID switched to the server Initial SCID; they are not server-direction decrypt attempts or missed ClientHellos. The current CLI derives from each packet's current DCID instead of retaining the connection's original DCID. See `docs/quic/implementation-status.md` and `results/track2/quic-initial-dcid-inventory.json`.
+- The legacy CLI reports ten per-DCID Initial buckets per trace. The retained logs show Chromium's five original-DCID buckets decrypting 10 records successfully and five switched-DCID buckets failing on 6 records; curl's five original buckets decrypt 10 successfully and five switched buckets fail on 10 records. Those switched records are all client-to-server and are not server-direction attempts. Complete extraction remains 5/5 per trace. See `docs/quic/implementation-status.md`, `results/track2/quic-initial-dcid-inventory.json`, and the baseline extractor logs under `results/track2/verification-batch-20261105-054047/`.
 
 ## User-reported impairment results (4 November 2026)
 
@@ -48,9 +58,9 @@ The same run exposed an evaluation-pipeline issue: in this TShark `-T jsonraw` o
 
 ### Decision and next gate
 
-Do **not** pursue QUIC recovery or completeness diagnostics as the contribution on these results. The user reports three incomplete statuses per trace with explicit ranges and no decrypt/frame/reassembly failures. Baseline correlation identifies the Chromium suffix `[1026,1891)` that cannot be inferred from the damaged capture because its handshake header is absent; the extractor labels that uncertainty instead of fabricating an expected length. No material diagnostic classification gap was demonstrated.
+Do **not** revive the broad recovery/completeness-diagnostics hypothesis: it showed no material gap under the measured impairment cases. Continue only with the narrower, falsifiable association/accounting test described above. First run the CMake/CTest suite and both stateful Chromium/curl evaluations in WSL. Confirm that switched alias packets decrypt with the preserved original DCID, that failures are tallied per connection and direction, that switched alias buckets remain distinct from packet counts, and that the complete ClientHello byte multisets remain exactly equal to TShark 4.6.4. If packet-level failures do not improve or extraction changes unexpectedly, investigate the cause and report it without claiming success.
 
-L3 is now the primary candidate to investigate, but it is **not yet a final contribution claim**. Reproduce the targeted SYN/segment/frame measurements at documented capture points and resolve the T3 narrative-versus-aggregate discrepancy using raw packet evidence. Separate TCP termination/vantage effects from TSO/GSO segmentation effects; see `docs/l3-contribution-plan.md`. Do not describe an MSS outlier alone as proof of a proxy or of JA4T corruption.
+L3 is a **secondary limitation investigation**, not the primary candidate. The new three-pair evidence is timing-correlated but does not identify an intermediate termination/rewrite mechanism or prove a JA4T attribution error. Continue only with that scoped limitation; see `docs/l3-contribution-plan.md`. Do not describe an MSS outlier alone as proof of a proxy or fingerprint corruption.
 
 ## Measurement plan before claiming a contribution
 
@@ -80,11 +90,11 @@ For each condition, compare tools on the same mutated bytes. Do not assume TShar
 
 ### Diagnostic-only continuation gate
 
-Reopen only the damaged-flow diagnostics question if the frame-to-flow audit demonstrates a reproducible, material misclassification or silent absence, and a scoped diagnostic change improves attribution without false-complete results. Otherwise keep QUIC recovery/diagnostics out of the original-contribution claim and continue with the L3 candidate in `docs/l3-contribution-plan.md`. Check prior art and the course rubric with the team before promoting any candidate to a final contribution.
+The damaged-flow diagnostic question remains closed unless a reproducible material misclassification appears. The separately reopened association/accounting hypothesis passes its next gate only if WSL results show lower client Initial decrypt failures on the same packets, no loss or change in complete ClientHello byte sets against TShark 4.6.4, and clearly scoped limitations for Retry/migration. This is an engineering result, not automatically a novelty claim; check prior art, the course rubric, and the team decision before promotion.
 
 ## Scaffolded implementation and commands
 
-`code/scripts/quic_impairment.py` now provides the first deterministic mutation/evaluation harness. It leaves source PCAPs untouched, uses TShark's `quic.crypto.length` and `quic.long.packet_type` fields to locate Initial CRYPTO-carrying records, records input/variant hashes and exact tool argv, then compares complete ClientHello byte-string multisets from the C++ CLI and TShark on each variant. It generates: clean baseline, reverse record order, fixed-seed shuffle, drop one median Initial-CRYPTO record, drop every third such record, and truncate the captured tail of the median record (64 bytes by default). Logs and raw TShark JSON are written under the ignored work directory.
+`code/scripts/quic_impairment.py` provides a deterministic mutation/evaluation harness. It leaves source PCAPs untouched, uses TShark fields to locate Initial CRYPTO-carrying records, records input/variant hashes and exact tool argv, and compares complete ClientHello byte-string multisets from the C++ CLI and TShark on each variant. The default is legacy DCID-keyed mode; `--stateful-initial-context` opts into the new association mode and captures directional/per-connection packet accounting alongside byte comparison. Each run generates clean, reversed, seeded-shuffle, drop-one, drop-every-third, and truncated variants. Logs and raw TShark JSON are written under the work directory.
 
 Run after `make build` and installing TShark:
 
@@ -100,16 +110,32 @@ python3 code/scripts/quic_impairment.py \
   --extractor build/code/quic/src/quic-fingerprint --tshark tshark --seed 331
 ```
 
-Each run writes `cases.json`, per-case extractor/TShark logs, and `impairment-results.json` with exact-byte recall, missed/extra outputs, incomplete flows, decryption failures, and tool return codes. It exits nonzero on a tool/comparison error. Inspect the selected frame numbers in `cases.json`; the automated cases target TShark-identified Initial CRYPTO records, but verify the chosen frames and mutation semantics before interpreting results. Keep these raw experiment artifacts under ignored `results/reproduced/` unless reviewed for privacy and deliberately curated.
+Each run writes `cases.json`, per-case extractor/TShark logs, and `impairment-results.json` with exact-byte recall, missed/extra outputs, incomplete flows, per-direction/per-connection accounting when stateful mode is enabled, and tool return codes. It exits nonzero on a tool/comparison error. Inspect selected frame numbers in `cases.json`; verify mutation semantics before interpreting results. Keep raw artifacts under `results/reproduced/` unless reviewed and deliberately curated.
 
-1. Retain the user's clean-capture raw reference export/command/script or a reviewed hashed summary.
-2. Run the deterministic impairment matrix and compare both tools on identical bytes; do not treat TShark as infallible under impaired captures.
-3. Extend C++ reporting only if measurements identify a missing disposition or recovery behavior; avoid speculative feature work.
-4. Evaluate controlled cases, publish failures as well as successes, then decide whether the contribution is novel and course-appropriate.
+Run the stateful matrix in separate work directories, adding `--stateful-initial-context` to each command:
+
+```sh
+python3 code/scripts/quic_impairment.py \
+  --input captures/pcaps/quic_chromium.pcap \
+  --work-dir results/reproduced/quic_stateful/chromium \
+  --extractor build/code/quic/src/quic-fingerprint --tshark tshark --seed 331 \
+  --stateful-initial-context
+
+python3 code/scripts/quic_impairment.py \
+  --input captures/pcaps/quic_curl.pcap \
+  --work-dir results/reproduced/quic_stateful/curl \
+  --extractor build/code/quic/src/quic-fingerprint --tshark tshark --seed 331 \
+  --stateful-initial-context
+```
+
+1. Run CMake/CTest and the existing Python tests, including the new association/accounting tests.
+2. Compare legacy and stateful clean-capture and impairment runs on identical bytes. Review per-connection before/after decrypt counters and keep alias-bucket and switched-packet totals separate.
+3. Require unchanged byte-identical complete ClientHello multisets against TShark 4.6.4 for the clean traces; investigate any recall or byte differences rather than assuming.
+4. Publish failures and unsupported cases as well as successes, then conduct prior-art/rubric review before making any contribution claim.
 
 ## Alternatives not selected at this stage
 
 - L1 reference-tool coverage is not supported by the current clean-trace results.
 - L5's reported released-versus-unreleased JA4 difference is not a clean contribution candidate until the missing `ja4-main` raw results and source/build provenance are reproducible; the reported issue is already fixed upstream.
-- L3 capture-vantage/JA4T proxy-aware attribution is the primary candidate to investigate; it remains unverified until raw SYN evidence and the narrative/aggregate mismatch are resolved. See `docs/l3-contribution-plan.md`.
+- L3 capture-vantage/JA4T attribution is a secondary limitation investigation. Three timing-correlated container/Wi-Fi pairs exist, but no proxy identity, JA4T impact, or intermediate mechanism is proven; see `docs/l3-contribution-plan.md`.
 - L2, L6, and the L7 DoH arm still have missing or incomplete evidence.

@@ -23,7 +23,7 @@ Track 2 classic-PCAP reader → UDP datagrams → modular QUIC v1 core
 | `IMPLEMENTATION_PLAN.md` | Milestones, roles, deadlines, and acceptance gates. |
 | `LEDGER.md` | Seven limitation rows, imported evidence status, and contribution candidates. |
 | `docs/original-contribution-plan.md` | QUIC recovery candidate disposition and bounded damaged-flow diagnostic audit. |
-| `docs/l3-contribution-plan.md` | Primary L3 capture-vantage/proxy-aware JA4T candidate and evidence gates. |
+| `docs/l3-contribution-plan.md` | Secondary L3 capture-vantage limitation investigation, paired evidence, and non-overclaiming gates. |
 | `docs/landscape.md` | Preliminary fingerprint-family landscape and open prior-art review matrix. |
 | `docs/verification-batch.md` | One-pass WSL verification and evidence collection, with the Windows capture as a coordinated manual step. |
 | `DECISIONS.md` | Evidence-based working decisions and human approval gates; not a fabricated team meeting record. |

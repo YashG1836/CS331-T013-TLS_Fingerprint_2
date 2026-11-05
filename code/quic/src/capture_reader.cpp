@@ -1,5 +1,6 @@
 #include "quic/capture_reader.hpp"
 
+#include <algorithm>
 #include <array>
 #include <fstream>
 #include <limits>
@@ -44,8 +45,10 @@ bool read_exact(std::ifstream& input, std::uint8_t* dest, std::size_t size) {
 }
 
 void append_udp(PcapReadResult& result, std::size_t frame_number,
-                std::uint8_t ip_version, const std::uint8_t* udp,
-                std::size_t available) {
+                std::uint8_t ip_version,
+                const std::array<std::uint8_t, 16>& source_address,
+                const std::array<std::uint8_t, 16>& destination_address,
+                const std::uint8_t* udp, std::size_t available) {
   if (available < 8U) {
     ++result.unsupported_records;
     return;
@@ -58,6 +61,8 @@ void append_udp(PcapReadResult& result, std::size_t frame_number,
   UdpDatagram datagram;
   datagram.frame_number = frame_number;
   datagram.ip_version = ip_version;
+  datagram.source_address = source_address;
+  datagram.destination_address = destination_address;
   datagram.source_port = network_u16(udp);
   datagram.destination_port = network_u16(udp + 2U);
   datagram.payload.assign(udp + 8U, udp + udp_length);
@@ -104,7 +109,12 @@ void parse_frame(PcapReadResult& result, std::size_t frame_number,
     }
     const std::size_t udp_offset = offset + header_length;
     const std::size_t ip_payload_length = static_cast<std::size_t>(total_length) - header_length;
-    append_udp(result, frame_number, 4U, frame.data() + udp_offset, ip_payload_length);
+    std::array<std::uint8_t, 16> source_address{};
+    std::array<std::uint8_t, 16> destination_address{};
+    std::copy_n(frame.data() + offset + 12U, 4U, source_address.begin() + 12);
+    std::copy_n(frame.data() + offset + 16U, 4U, destination_address.begin() + 12);
+    append_udp(result, frame_number, 4U, source_address, destination_address,
+               frame.data() + udp_offset, ip_payload_length);
     return;
   }
 
@@ -122,7 +132,12 @@ void parse_frame(PcapReadResult& result, std::size_t frame_number,
       ++result.unsupported_records; // Includes IPv6 extension headers; do not skip heuristically.
       return;
     }
-    append_udp(result, frame_number, 6U, frame.data() + offset + 40U, payload_length);
+    std::array<std::uint8_t, 16> source_address{};
+    std::array<std::uint8_t, 16> destination_address{};
+    std::copy_n(frame.data() + offset + 8U, 16U, source_address.begin());
+    std::copy_n(frame.data() + offset + 24U, 16U, destination_address.begin());
+    append_udp(result, frame_number, 6U, source_address, destination_address,
+               frame.data() + offset + 40U, payload_length);
     return;
   }
 

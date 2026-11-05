@@ -2,7 +2,7 @@
 
 ## Status and research question
 
-**Primary candidate to investigate; not yet a contribution claim.** QUIC Initial recovery is not the candidate for the tested impairment matrix: the user reports identical C++/TShark outputs. The user-reported QUIC damaged-flow audit shows three incomplete statuses per trace and no material diagnostic gap. Baseline correlation finds no missing suffix for the unknown-length curl flow and shows that Chromium's unknown-length flow is missing `[1026,1891)` beyond its observed extent; the C++ tool correctly marks that length as unknown. L3 is now the primary candidate because the imported T3 evidence suggests TCP fields observed inside Docker may describe a nearby TCP stack rather than the remote endpoint. The user has run a simultaneous container/WSL-`eth0` probe, but the flow was absent from WSL `eth0`; this does not provide an outer leg. The Windows-host/physical-side capture is still missing, so no proxy or termination finding is established.
+**Secondary limitation investigation; not a contribution claim.** QUIC Initial connection/CID association is the primary engineering investigation. The committed 5 November batch includes three manually timing-correlated container-to-Wi-Fi probe pairs, and the reviewed manifest/checker classify all three as `separate_tcp_legs_or_sequence_rewrite`. This supports an observed handshake difference across those two capture points, but the bridge capture failed, the probe tuple is absent from WSL `eth0` and vEthernet SYN rows, and Wi-Fi is an adapter capture rather than a physical-wire tap. The intermediate path and mechanism are unresolved; no proxy identity, JA4T/JA4TS impact, or OS misclassification is established.
 
 > Can paired captures at documented points around a local proxy or virtual-network boundary identify when a passive TCP fingerprint describes the adjacent TCP endpoint rather than the intended remote peer?
 
@@ -31,6 +31,28 @@ The same WSL inventory reports default bridge configuration `docker0` for `172.1
 The user reports a probe with 27 packets in `container-eth0.pcap` and 80 packets in `wsl-eth0.pcap`. The reported container handshake was `172.17.0.3:42910 -> 104.16.123.96:443`: client SYN MSS 1460, window scale 10, window 64240, TTL 64; peer SYN-ACK MSS 1460, window scale 7, window 29184, TTL 63. Same-capture option differences were window scale and window, not MSS. The user reports the corresponding container flow did not appear on WSL `eth0`.
 
 This rules out WSL `eth0` as the outer observation point for this particular probe, assuming the reported capture filter and timing were correct. The explanation that Docker Desktop's sibling utility VM routes through a Windows Hyper-V path is the user's topology hypothesis; no Windows-side PCAP, interface capture, bridge-PCAP count, hash, or original JSON was supplied to verify it. The summary is retained (explicitly as a transcription, not raw evidence) in `results/track2/l3-paired-probe-c28a486.md`. Next, capture simultaneously on the container/active Linux bridge and a Windows host vEthernet/physical interface, then correlate both TCP legs. A native-Linux host is an alternative control.
+
+## Committed paired-vantage run (5 November 2026)
+
+The source captures, their `SHA256SUMS`, and user-run `syn-analysis.json` are committed under `results/l3_paired_batch/` at `a1bd864`. From that directory, `sha256sum -c SHA256SUMS` passes for the four source captures. The analysis reports TShark 4.6.4 and contains the per-stream records. The reviewed `pair_manifest.json` and derived `paired-comparison.json` are additions in this worktree: they pair the three sequential container probes to the Wi-Fi observations by trial order, destination `104.16.124.96:443`, and close timestamps. The reviewed files currently hash to `pair_manifest.json` `d94e1a4b0d74fb24f26b48a48cb9999a13110977fad70d5a4590eea799e84589` and `paired-comparison.json` `99b9a0a9f84e874003b648ff50ea368d773d40216b93eb6eac2287f1369d5b92`. This checkout did not rerun TShark because it is unavailable here.
+
+| Probe | Container stream | Wi-Fi stream | Client SYN Δ (Wi-Fi − container) | SYN-ACK Δ (Wi-Fi − container) | Container ISN → Wi-Fi ISN | Result |
+|---|---:|---:|---:|---:|---:|---|
+| 1 | 0 | 17 | +9.0258 ms | +38.5 μs | `3419821880` → `168828592` | `separate_tcp_legs_or_sequence_rewrite` |
+| 2 | 1 | 18 | +2.4835 ms | −297.0 μs | `873293130` → `2452441281` | `separate_tcp_legs_or_sequence_rewrite` |
+| 3 | 2 | 19 | +2.8898 ms | −455.0 μs | `3297501543` → `3298253372` | `separate_tcp_legs_or_sequence_rewrite` |
+
+The container and Wi-Fi SYNs in these pairs have the same destination IP/port and closely aligned SYN/SYN-ACK times, supporting the manual trial correlation. The container profile is client MSS/window-scale/TTL `1460/10/64`; its peer SYN-ACK is `1460/7/63`. At the Windows Wi-Fi adapter, the client profile is `1460/8/128`; the peer SYN-ACK is `1400/13/52`. Source ports and both initial sequence numbers differ across each pair. These are observations of distinct handshake tuples/sequence spaces; they are not proof that one packet's fields were rewritten. MSS 65495 does **not** occur in this paired run; it remains only in the earlier unpaired offload captures.
+
+Important capture limitations from the committed logs and JSON:
+
+- `container-eth0.pcap` has three complete SYN/SYN-ACK streams to `104.16.124.96:443`; `windows-wifi.pcapng` contains the three closely timed observations above, plus unrelated traffic.
+- `wsl-eth0.pcap` is 188 bytes; tcpdump reports two packets captured and the saved SYN analysis finds zero SYN rows. Do not summarize this as a zero-packet PCAP.
+- The vEthernet capture contains 175 packets and eight SYN observations across four streams, but none is the paired probe to `104.16.124.96`; it includes other traffic. Do not say the interface captured zero packets overall.
+- The bridge attempt failed with `tcpdump: br-l3p135735: No such device exists`; `bridge-interface.txt` is empty. There is no bridge-vantage PCAP from this run.
+- The host Wi-Fi capture is an adapter capture, not a physical-wire tap. The reported capture logs show no packet drops on the two Windows interfaces.
+
+The evidence supports a **repeatable difference across the observed container and Wi-Fi TCP handshakes for these three controlled requests**, consistent with separate TCP legs or sequence rewriting. The unavailable bridge capture and absence of the probe on WSL `eth0`/the captured vEthernet mean the intermediate point and mechanism remain unresolved. The checker does not calculate JA4T/JA4TS; there is no measured fingerprint output or demonstrated OS misclassification. Keep L3 as a secondary limitation investigation, not a confirmed proxy detector or final contribution claim.
 
 ## Separate the hypotheses
 

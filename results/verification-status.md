@@ -27,15 +27,15 @@ The batch preserves `cases.json`, per-case variant PCAPs, TShark raw `jsonraw` e
 
 ### QUIC DCID context
 
-The committed header inventory identifies five UDP flows in each capture. Each flow has an initial client DCID and later client Initial packet(s) whose DCID matches a server Initial SCID. The five extra per-DCID decryption-failure buckets are therefore later **client-to-server** Initials after a CID switch, not server-direction decrypt attempts. RFC 9001 §5.2 derives Initial secrets from the original client Initial DCID (with Retry-specific handling), while the current CLI derives from each packet's current DCID. This explains the extra buckets without demonstrating a missed ClientHello in these traces. See `docs/quic/implementation-status.md` and `results/track2/quic-initial-dcid-inventory.json`.
+The committed header inventory identifies five UDP flows in each capture. Each flow has an initial client DCID and later client Initial packet(s) whose DCID matches a server Initial SCID. The legacy logs show five extra switched-DCID alias buckets per trace; Chromium has 16 client Initial records with 10 successes/6 failures, and curl has 20 with 10 successes/10 failures. These are later **client-to-server** packets, not server-direction attempts or missed ClientHellos. RFC 9001 §5.2 derives Initial secrets from the original client Initial DCID (with Retry-specific handling), while the legacy CLI derives from each packet's current DCID. See `docs/quic/implementation-status.md` and `results/track2/quic-initial-dcid-inventory.json`.
 
-The bounded comparison shows no extraction/reordering/loss/truncation gap relative to TShark in tested conditions. QUIC recovery/reassembly is not supported as the original-contribution claim for these conditions.
+The broad extraction/reordering/loss/truncation comparison shows no gap relative to TShark in tested conditions, so no recall gain is claimed. A stateful 4-tuple/SCID association and harness mode have now been added to measure packet-level accounting with separate client/server packet-number contexts. Arena syntax checks passed for modified C++ files, but the stateful executable and TShark 4.6.4 before/after comparison are not yet run here; post-change results remain pending WSL.
 
 ## L3 SYN analysis and capture-vantage boundary
 
 The WSL batch's TShark 4.6.4 analysis extracts six SYN observations across three complete streams in each of two separate offload PCAPs. Every client SYN has MSS/window-scale/window/TTL `1460/10/64240/64`; every peer SYN-ACK has `65495/7/65408/63`. IP length is 60 bytes, frame length 74 bytes, and the same-capture checker flags MSS, window-scale, and window asymmetry. The batch expressly says not to infer a proxy from one capture. These are two separate single-vantage traces, not paired observation points.
 
-A separate user-reported container probe had peer MSS 1460 and was not visible on WSL `eth0`; that excludes this interface as the outer point for that reported probe if its filter/timing were correct. The Windows-side capture and the proposed Docker Desktop utility-VM path remain unavailable/unverified. MSS 65495 is not impossible, is not the path MTU, and does not prove a proxy or TCP termination. The imported T3 narrative/aggregate discrepancy and segmentation-offload effects still need separate treatment. See `docs/l3-contribution-plan.md` and `results/track2/l3-paired-probe-c28a486.md`.
+The newer committed L3 batch has three manually correlated container/Wi-Fi pairs to `104.16.124.96:443`. Their distinct tuples and ISNs classify as `separate_tcp_legs_or_sequence_rewrite`; the vEthernet capture has no matching probe tuple, WSL `eth0` has two captured packets but no parsed SYN rows, and the bridge capture failed. The Wi-Fi capture is a host-adapter capture, not a physical-wire tap. These observations do not establish proxy identity or a particular termination/rewrite mechanism. MSS 65495 is absent from this paired run and belongs only to the older separate offload captures. The L3 review/manifest is documented in `docs/l3-contribution-plan.md`; the user-run captures are under `results/l3_paired_batch/`.
 
 ## Imported Track 1 results: limits to retain
 
@@ -48,6 +48,6 @@ A separate user-reported container probe had peer MSS 1460 and was not visible o
 
 ## Original-contribution status
 
-- QUIC Initial recovery/reassembly: **not a contribution claim** for measured conditions; no extraction gap was shown relative to TShark in the bounded batch.
-- L3 capture-vantage/JA4T attribution: **primary candidate to investigate, not a result**. Obtain synchronized evidence at a known boundary, correlate both legs, distinguish NAT from TCP termination, and keep TSO/GSO separate. Do not infer proxying from MSS/TTL or a single capture.
+- Broad QUIC Initial recovery/reassembly: **not a contribution claim** for the measured conditions; no ClientHello recall gap was shown. Stateful Initial context/accounting is the **primary investigation**, implementation added but WSL before/after and TShark comparison still pending.
+- L3 capture-vantage/JA4T attribution: **secondary limitation investigation, not a result**. Three timing-correlated pairs show distinct handshakes, but no termination mechanism or fingerprint misattribution is proven.
 - Final contribution choice, course-rubric interpretation, and team approval remain open. See `DECISIONS.md`, `LEDGER.md`, `docs/landscape.md`, and `docs/l3-contribution-plan.md`.

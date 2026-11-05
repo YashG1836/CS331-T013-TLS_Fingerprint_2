@@ -2,6 +2,7 @@
 
 #include "quic/packet_parser.hpp"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
@@ -11,6 +12,8 @@ namespace quic {
 struct UdpDatagram {
   std::size_t frame_number{};
   std::uint8_t ip_version{};
+  std::array<std::uint8_t, 16> source_address{};
+  std::array<std::uint8_t, 16> destination_address{};
   std::uint16_t source_port{};
   std::uint16_t destination_port{};
   Bytes payload;

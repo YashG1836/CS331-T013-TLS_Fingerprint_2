@@ -8,8 +8,8 @@ This repository is being rebuilt around the Project 2 research question: where d
 - [`docs/quic-baseline.md`](docs/quic-baseline.md): the original QUIC v1 reference capture and its provenance.
 - [`docs/track1-evidence-audit.md`](docs/track1-evidence-audit.md): cross-check of Yash's 15-capture Track 1 import, known discrepancies, and reproduction caveats.
 - [`docs/track2-integration-plan.md`](docs/track2-integration-plan.md): current PCAP-to-modular-C++ status and controlled follow-up measurements.
-- [`docs/l3-contribution-plan.md`](docs/l3-contribution-plan.md): primary L3 capture-vantage/proxy-aware JA4T candidate and evidence gates.
-- [`docs/original-contribution-plan.md`](docs/original-contribution-plan.md): QUIC recovery candidate disposition and bounded damaged-flow diagnostic audit.
+- [`docs/l3-contribution-plan.md`](docs/l3-contribution-plan.md): secondary L3 capture-vantage limitation investigation and evidence boundaries.
+- [`docs/original-contribution-plan.md`](docs/original-contribution-plan.md): stateful QUIC Initial association/accounting investigation, previous recovery-disposition evidence, and measurement gates.
 - [`docs/landscape.md`](docs/landscape.md): preliminary fingerprint-family landscape and prior-art review scaffold.
 - [`docs/verification-batch.md`](docs/verification-batch.md): one-pass WSL verification and evidence-collection procedure.
 - [`DECISIONS.md`](DECISIONS.md): evidence-based working decisions and human approval gates (not a signed team record).
@@ -28,12 +28,12 @@ Implemented in this first increment:
 - Offset-aware CRYPTO reassembly with out-of-order, duplicate, conflicting-overlap, and size-limit handling; incomplete-flow output includes missing CRYPTO byte ranges when the declared ClientHello length is available.
 - Bounds-checked TLS ClientHello structure and selected extension parsing.
 - Classic-PCAP v2.x Ethernet UDP adapter for unfragmented IPv4/IPv6, with explicit unsupported-case reporting.
-- `--pcap` CLI integration for QUIC v1 client Initial decryption, per-DCID CRYPTO reassembly, and full ClientHello hex output; the existing `--hex` mode remains available.
+- `--pcap` legacy CLI for client Initials plus an opt-in `--stateful-initial-context` mode that associates v1 client/server Initials on a fixed UDP 4-tuple, retains the original client DCID, learns server-SCID aliases, and reports separate directional packet-number/decryption counters; the existing `--hex` mode remains available.
 - Lightweight C++ tests, pytest manifest/script validation, a deterministic QUIC PCAP impairment harness, and CMake/CI configuration.
 
 The repository registers the earlier aioquic baseline plus all 15 Track 1 capture attempts and teammate-supplied analysis. Fourteen of Yash's PCAPs contain packets; the IPv6 file is empty and is not treated as a comparison. The full Track 1 tool suite remains imported/provisional and has not been rerun here. The user-run WSL verification batch is now committed at `results/track2/verification-batch-20261104-201936/`; its hashes and result JSON were inspected in this checkout. It reports 54/54 exact-byte multiset matches between C++ and TShark across two QUIC traces and six cases each. The WSL run was not independently reproduced in Arena, and TShark is the reference on each same PCAP variant. The earlier standalone `tls.handshake_raw` export/script is not retained separately. See the Track 1 audit, verification status, and Track 2 plan for provenance and caveats.
 
-Still incomplete or unclaimed: a complete bidirectional connection/migration model and original-DCID context across CID switches; retention of the raw byte-comparison exports and impairment case JSON; QUIC v2; Retry processing; custom JA4 output; final limitation conclusions; and an approved original contribution. The user reports WSL tests for the incomplete-flow range diagnostics and an exact-byte impairment comparison, but their raw logs remain absent. The committed header-only DCID inventory explains five extra per-DCID failure buckets as later client Initials after a CID switch; it does not show a missed ClientHello in the tested samples. L3 proxy-aware capture-vantage attribution remains provisional: the latest user-reported probe did not see the container flow on WSL `eth0`, so a Windows-host capture point is needed before claiming a boundary effect. See `docs/l3-contribution-plan.md`. The PCAP adapter remains limited to classic Ethernet PCAP and supported unfragmented IPv4/IPv6 UDP.
+Still incomplete or unclaimed: QUIC v2, Retry processing, tuple migration/reuse, PCAPNG, custom JA4 output, final limitation conclusions, and an approved original contribution. The new fixed-tuple stateful association and comparison harness are implemented but the post-change CMake/CTest and TShark 4.6.4 evaluation are pending a WSL run; no post-change improvement is claimed yet. Existing baseline logs show 16 Chromium client Initial records (10 decrypted, 6 failed) and 20 curl records (10 decrypted, 10 failed), with switched DCID aliases in five buckets per trace. Complete ClientHello output was already 5/5 per trace, so the proposed improvement is packet accounting/decryption, not increased extraction recall. L3 remains secondary: three container/Wi-Fi probe pairs are timing-correlated, but the bridge capture failed and the intermediate mechanism is unresolved. See `docs/quic/implementation-status.md` and `docs/l3-contribution-plan.md`. The PCAP adapter remains limited to classic Ethernet PCAP and supported unfragmented IPv4/IPv6 UDP.
 
 ## Requirements
 
@@ -74,9 +74,10 @@ The CLI accepts a single UDP datagram as hex or a supported classic Ethernet PCA
 build/code/quic/src/quic-fingerprint --hex '<hex bytes>'
 build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_chromium.pcap
 build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_curl.pcap
+build/code/quic/src/quic-fingerprint --pcap captures/pcaps/quic_chromium.pcap --stateful-initial-context
 ```
 
-Hex mode reports packet boundaries and processes a complete decryptable Initial datagram. PCAP mode defaults to destination UDP port 443 and can be changed with `--destination-port <port>`. It reports per-DCID extraction diagnostics and ClientHello hex. This is an early v1 extraction path, not a complete QUIC flow tracker or a verified JA4 implementation.
+Hex mode reports packet boundaries and processes a complete decryptable Initial datagram. PCAP mode defaults to UDP service port 443 and can be changed with `--destination-port <port>`. Legacy mode reports per-DCID diagnostics. `--stateful-initial-context` reports per-direction and per-connection Initial counts, DCID-keyed client baseline successes/failures, stateful decrypt results, switched-alias buckets separately from alias packet counts, and ClientHello hex. It is a fixed-4-tuple Initial association, not a complete QUIC migration/Retry implementation or a verified JA4 implementation; the stateful data-capture evaluation is pending in WSL.
 
 ## Evidence and result integrity
 
