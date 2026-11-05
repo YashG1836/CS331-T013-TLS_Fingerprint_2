@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "description": "Correlated pair manifest between container inner leg and Windows host physical leg",
+  "pairs": [
+    {
+      "pair_id": "probe_1793865684_container_vs_wifi",
+      "same_transaction_confirmed": true,
+      "capture_points_bracket_boundary": true,
+      "left": {
+        "capture": "inner",
+        "stream": "0"
+      },
+      "right": {
+        "capture": "outer",
+        "stream": "23"
+      }
+    }
+  ]
+}
